@@ -77,7 +77,7 @@ class Routine:
                     input("  Appuyez sur Entrée lorsque terminé.")
                 
                 # Repos après la répétition 
-                if index < len(self.fonctions) and repetition == fonction.repetitions or repetition < fonction.repetitions:
+                if (index < len(self.fonctions) and repetition == fonction.repetitions or repetition < fonction.repetitions) and fonction.repos != 0:
                     print(f"  Temps de repos : {fonction.repos} secondes")
                     self._lancer_timer(fonction.repos)
 
