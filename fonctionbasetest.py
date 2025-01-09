@@ -1,3 +1,5 @@
+import time
+
 class Fonction:
     def __init__(self, nom, duree=None, repetitions=1, repos=0, unites=None):
         """
@@ -54,11 +56,43 @@ class Routine:
             f.duree * f.repetitions + f.repos * (f.repetitions - 1)
             for f in self.fonctions if f.est_base_sur_timer()
         )
+    
+    def executer(self):
+        """
+        Exécute chaque exercice de la routine.
+        - Si l'exercice est basé sur un timer, lance un décompte.
+        - Si basé sur des unités, attend une confirmation manuelle.
+        """
+        print(f"Début de la routine : {self.nom}")
+        for index, fonction in enumerate(self.fonctions, start=1):
+            print(f"\nExercice {index}/{len(self.fonctions)} : {fonction.nom}")
+            
+            for repetition in range(1, fonction.repetitions + 1):
+                if fonction.est_base_sur_timer():
+                    print(f"  Répétition {repetition}/{fonction.repetitions} : {fonction.duree} secondes")
+                    self._lancer_timer(fonction.duree)
+                else:
+                    print(f"  Répétition {repetition}/{fonction.repetitions} : {fonction.unites} unités")
+                    input("  Appuyez sur Entrée lorsque terminé.")
+                
+                # Repos entre les répétitions (sauf après la dernière)
+                if repetition < fonction.repetitions:
+                    print(f"  Temps de repos : {fonction.repos} secondes")
+                    self._lancer_timer(fonction.repos)
+        
+        print("\nRoutine terminée !")
+
+    def _lancer_timer(self, duree):
+        """Affiche un décompte pour le timer."""
+        for i in range(duree, 0, -1):
+            print(f"  {i}...", end="\r")
+            time.sleep(1)
+        print("  Temps écoulé !")
 
 # Création des exercices
-f1 = Fonction("pompes", unites=10, repetitions=3, repos=60)
-f2 = Fonction("abdos", duree=20, repetitions=4, repos=30)
-f3 = Fonction("squats", unites=15, repetitions=2, repos=45)
+f1 = Fonction("pompes", unites=10, repetitions=3, repos=10)
+f2 = Fonction("abdos", duree=20, repetitions=4, repos=10)
+f3 = Fonction("squats", unites=15, repetitions=2, repos=5)
 
 # Création de la routine
 r = Routine("Routine Matinale", [f1, f2])
@@ -71,3 +105,6 @@ print(r)
 
 # Calcul de la durée totale
 print("\nDurée totale de la routine (excluant les unités) :", r.duree_totale(), "secondes")
+
+#Exécution de la routine
+r.executer()
