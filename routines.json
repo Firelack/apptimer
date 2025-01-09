@@ -1,0 +1,23 @@
+{
+    "test": {
+        "nom": "test",
+        "fonctions": [
+            {
+                "nom": "a",
+                "duree": 30,
+                "repetitions": 2,
+                "repos": 10,
+                "unites": 0,
+                "dureetot": 70
+            },
+            {
+                "nom": "e",
+                "duree": 0,
+                "repetitions": 2,
+                "repos": 10,
+                "unites": 15,
+                "dureetot": 10
+            }
+        ]
+    }
+}

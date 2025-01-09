@@ -200,7 +200,3 @@ def menu_gestion(routine, routines):
 
 # Appel du menu principal pour lancer le programme
 menu_principal()
-
-
-#Le temps de repos n'est pas sur la derniere repetition, mais si ce n'est pas le dernier exercice, il y a un temps de repos dans l'execution et dans la duréetot
-#Il faudrait rename le fichier
