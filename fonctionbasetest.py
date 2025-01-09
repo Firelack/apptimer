@@ -89,22 +89,90 @@ class Routine:
             time.sleep(1)
         print("  Temps écoulé !")
 
-# Création des exercices
-f1 = Fonction("pompes", unites=10, repetitions=3, repos=10)
-f2 = Fonction("abdos", duree=20, repetitions=4, repos=10)
-f3 = Fonction("squats", unites=15, repetitions=2, repos=5)
+def menu_principal():
+    routines = {}  # Dictionnaire pour stocker les routines créées
+    routine_active = None  # Routine actuellement sélectionnée
 
-# Création de la routine
-r = Routine("Routine Matinale", [f1, f2])
-print(r)
+    while True:
+        print("\nMenu principal :")
+        print("1. Créer une routine")
+        print("2. Sélectionner une routine")
+        print("3. Quitter")
+        choix = input("Choix : ")
 
-# Ajout d'un exercice
-r.ajouter_fonction(f3)
-print("\nAprès ajout d'un exercice :")
-print(r)
+        if choix == "1":
+            # Créer une nouvelle routine
+            nom = input("Nom de la nouvelle routine : ")
+            if nom in routines:
+                print("Une routine avec ce nom existe déjà.")
+            else:
+                routines[nom] = Routine(nom)
+                print(f"Routine '{nom}' créée !")
 
-# Calcul de la durée totale
-print("\nDurée totale de la routine (excluant les unités) :", r.duree_totale(), "secondes")
+        elif choix == "2":
+            # Sélectionner une routine existante
+            if not routines:
+                print("Aucune routine disponible. Créez-en une d'abord.")
+            else:
+                print("Routines disponibles :")
+                for nom in routines:
+                    print(f"- {nom}")
+                nom = input("Nom de la routine à sélectionner : ")
+                if nom in routines:
+                    routine_active = routines[nom]
+                    print(f"Routine '{nom}' sélectionnée.")
+                    menu_gestion(routine_active)  # Passer au menu de gestion
+                else:
+                    print("Routine non trouvée.")
 
-#Exécution de la routine
-r.executer()
+        else:
+            print("Au revoir !")
+            break
+
+
+def menu_gestion(routine):
+    while True:
+        print(f"\nGestion de la routine : {routine.nom}")
+        print("1. Ajouter un exercice")
+        print("2. Retirer un exercice")
+        print("3. Afficher la durée totale de la routine")
+        print("4. Exécuter la routine")
+        print("5. Revenir au menu principal")
+        choix = input("Choix : ")
+
+        if choix == "1":
+            # Ajouter un exercice
+            nom = input("Nom de l'exercice : ")
+            duree = int(input("Durée en secondes (0 si basé sur un nombre d'unités) : "))
+            unites = int(input("Nombre d'unités (0 si basé sur un timer) : "))
+            repetitions = int(input("Nombre de répétitions : "))
+            repos = int(input("Temps de repos (en secondes) : "))
+            fonction = Fonction(nom, duree, repetitions, repos, unites)
+            routine.ajouter_fonction(fonction)
+            print("Exercice ajouté !")
+
+        elif choix == "2":
+            # Retirer un exercice
+            nom = input("Nom de l'exercice à retirer : ")
+            exercice = next((f for f in routine.fonction if f.nom == nom), None)
+            if exercice:
+                routine.retirer_fonction(exercice)
+                print("Exercice retiré !")
+            else:
+                print("Exercice non trouvé.")
+
+        elif choix == "3":
+            # Afficher la durée totale
+            print("Durée totale de la routine :", routine.duree_totale(), "secondes")
+
+        elif choix == "4":
+            # Exécuter la routine
+            routine.executer()
+
+        else:
+            # Revenir au menu principal
+            print("Retour au menu principal.")
+            break
+
+# Appel du menu principal pour lancer le programme
+menu_principal()
