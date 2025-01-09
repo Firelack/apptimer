@@ -18,7 +18,7 @@ class Fonction:
         self.unites = unites
         
         # Calculer dureetot à l'initialisation
-        self.dureetot = self.duree * self.repetitions + self.repos * (self.repetitions - 1)
+        self.dureetot = self.duree * self.repetitions + self.repos * self.repetitions
     
     def __str__(self):
         if self.unites is not None:
@@ -53,9 +53,11 @@ class Routine:
         total = 0
         for f in self.fonctions:
             total += f.dureetot
+        f = self.fonctions[-1]
+        total -= f.repos  # Retirer le temps de repos après le dernier exercice
         return total
 
-    
+
     def executer(self):
         """
         Exécute chaque exercice de la routine.
@@ -74,12 +76,14 @@ class Routine:
                     print(f"  Répétition {repetition}/{fonction.repetitions} : {fonction.unites} unités")
                     input("  Appuyez sur Entrée lorsque terminé.")
                 
-                # Repos entre les répétitions (sauf après la dernière)
-                if repetition < fonction.repetitions:
+                # Repos après la répétition 
+                if index < len(self.fonctions) and repetition == fonction.repetitions or repetition < fonction.repetitions:
                     print(f"  Temps de repos : {fonction.repos} secondes")
                     self._lancer_timer(fonction.repos)
+
         
         print("\nRoutine terminée !")
+
 
     def _lancer_timer(self, duree):
         """Affiche un décompte pour le timer."""

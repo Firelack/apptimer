@@ -1,4 +1,1 @@
-
-1 Le temps de repos n'est pas sur la derniere repetition, mais si ce n'est pas le dernier exercice, 
-    il y a un temps de repos dans l'execution et dans la duréetot
-2 interface utilisateur, apllication
+interface utilisateur, application
