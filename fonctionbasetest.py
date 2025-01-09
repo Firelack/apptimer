@@ -1,4 +1,5 @@
 import time
+import json
 
 class Fonction:
     def __init__(self, nom, duree=None, repetitions=1, repos=0, unites=None):
@@ -22,6 +23,7 @@ class Fonction:
         self.repetitions = repetitions
         self.repos = repos
         self.unites = unites
+        self.dureetot = duree * repetitions + repos * (repetitions - 1)
     
     def __str__(self):
         if self.unites is not None:
@@ -50,12 +52,13 @@ class Routine:
     def duree_totale(self):
         """
         Calcule la durée totale de la routine.
-        - Ignore les exercices basés sur des unités (car pas de timer).
+        - Ignore la durée des exercices basés sur des unités, mais prend en compte le temps de repos.
         """
-        return sum(
-            f.duree * f.repetitions + f.repos * (f.repetitions - 1)
-            for f in self.fonctions if f.est_base_sur_timer()
-        )
+        total = 0
+        for f in self.fonctions:
+            total += f.dureetot
+        return total
+
     
     def executer(self):
         """
@@ -89,8 +92,25 @@ class Routine:
             time.sleep(1)
         print("  Temps écoulé !")
 
+# Sauvegarde les routines dans un fichier JSON
+def sauvegarder_routines(routines, fichier="routines.json"):
+    with open(fichier, "w") as f:
+        json.dump(routines, f, default=lambda o: o.__dict__, indent=4)
+
+# Charge les routines depuis un fichier JSON
+def charger_routines():
+    with open('routines.json', 'r') as file:
+        data = json.load(file)
+    
+    routines = {}
+    for nom, details in data.items():
+        fonctions = [Fonction(**f) for f in details["fonctions"]]  # Assure-toi que "fonctions" est une liste de dictionnaires
+        routines[nom] = Routine(nom, fonctions)
+    
+    return routines
+
 def menu_principal():
-    routines = {}  # Dictionnaire pour stocker les routines créées
+    routines = charger_routines()  # Charger les routines existantes au démarrage
     routine_active = None  # Routine actuellement sélectionnée
 
     while True:
@@ -108,6 +128,7 @@ def menu_principal():
             else:
                 routines[nom] = Routine(nom)
                 print(f"Routine '{nom}' créée !")
+                sauvegarder_routines(routines)  # Sauvegarder après création
 
         elif choix == "2":
             # Sélectionner une routine existante
@@ -121,16 +142,16 @@ def menu_principal():
                 if nom in routines:
                     routine_active = routines[nom]
                     print(f"Routine '{nom}' sélectionnée.")
-                    menu_gestion(routine_active)  # Passer au menu de gestion
+                    menu_gestion(routine_active, routines)  # Passer au menu de gestion
                 else:
                     print("Routine non trouvée.")
 
         else:
             print("Au revoir !")
+            sauvegarder_routines(routines)  # Sauvegarder avant de quitter
             break
 
-
-def menu_gestion(routine):
+def menu_gestion(routine, routines):
     while True:
         print(f"\nGestion de la routine : {routine.nom}")
         print("1. Ajouter un exercice")
@@ -150,14 +171,16 @@ def menu_gestion(routine):
             fonction = Fonction(nom, duree, repetitions, repos, unites)
             routine.ajouter_fonction(fonction)
             print("Exercice ajouté !")
+            sauvegarder_routines(routines)  # Sauvegarder après ajout
 
         elif choix == "2":
             # Retirer un exercice
             nom = input("Nom de l'exercice à retirer : ")
-            exercice = next((f for f in routine.fonction if f.nom == nom), None)
+            exercice = next((f for f in routine.fonctions if f.nom == nom), None)
             if exercice:
                 routine.retirer_fonction(exercice)
                 print("Exercice retiré !")
+                sauvegarder_routines(routines)  # Sauvegarder après retrait
             else:
                 print("Exercice non trouvé.")
 
@@ -176,3 +199,7 @@ def menu_gestion(routine):
 
 # Appel du menu principal pour lancer le programme
 menu_principal()
+
+
+#Le temps de la routine est mal calculé, il ne prend pas en compte le temps de repos entre les exercices ni le nombre de répétitions
+#Le temps de repos n'est pas sur la derniere repetition, mais si ce n'est pas le dernier exercice, il y a un temps de repos
