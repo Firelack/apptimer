@@ -1,16 +1,9 @@
 import time
 import json
+import os
 
 class Fonction:
-    def __init__(self, nom, duree=None, repetitions=1, repos=0, unites=None):
-        """
-        Initialise une fonction.
-        - `nom`: Nom de l'exercice.
-        - `duree`: Durée en secondes (None si basé sur unites).
-        - `repetitions`: Nombre de fois que l'exercice est répété.
-        - `repos`: Temps de repos entre les répétitions (en secondes).
-        - `unites`: Nombre d'unités (par exemple, "10 pompes").
-        """
+    def __init__(self, nom, duree=None, repetitions=1, repos=0, unites=None, dureetot=None):
         self.nom = nom
         if duree is not None and duree < 0:
             raise ValueError("La durée doit être positive.")
@@ -23,7 +16,9 @@ class Fonction:
         self.repetitions = repetitions
         self.repos = repos
         self.unites = unites
-        self.dureetot = duree * repetitions + repos * (repetitions - 1)
+        
+        # Calculer dureetot à l'initialisation
+        self.dureetot = self.duree * self.repetitions + self.repos * (self.repetitions - 1)
     
     def __str__(self):
         if self.unites is not None:
@@ -34,6 +29,7 @@ class Fonction:
     def est_base_sur_timer(self):
         """Retourne True si l'exercice est basé sur un timer, False si basé sur des unités."""
         return self.unites is None
+
 
 class Routine:
     def __init__(self, nom, liste_fonctions=[]):
@@ -99,15 +95,20 @@ def sauvegarder_routines(routines, fichier="routines.json"):
 
 # Charge les routines depuis un fichier JSON
 def charger_routines():
+    # Vérifier si le fichier existe
+    if not os.path.exists('routines.json'):
+        return {}  # Si le fichier n'existe pas, retourner un dictionnaire vide
+    
     with open('routines.json', 'r') as file:
         data = json.load(file)
     
     routines = {}
     for nom, details in data.items():
-        fonctions = [Fonction(**f) for f in details["fonctions"]]  # Assure-toi que "fonctions" est une liste de dictionnaires
+        fonctions = [Fonction(**f) for f in details["fonctions"]]  # Crée des objets Fonction sans 'dureetot'
         routines[nom] = Routine(nom, fonctions)
     
     return routines
+
 
 def menu_principal():
     routines = charger_routines()  # Charger les routines existantes au démarrage
@@ -201,5 +202,5 @@ def menu_gestion(routine, routines):
 menu_principal()
 
 
-#Le temps de la routine est mal calculé, il ne prend pas en compte le temps de repos entre les exercices ni le nombre de répétitions
-#Le temps de repos n'est pas sur la derniere repetition, mais si ce n'est pas le dernier exercice, il y a un temps de repos
+#Le temps de repos n'est pas sur la derniere repetition, mais si ce n'est pas le dernier exercice, il y a un temps de repos dans l'execution et dans la duréetot
+#Il faudrait rename le fichier
