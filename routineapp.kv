@@ -1,0 +1,27 @@
+BoxLayout:
+    orientation: "vertical"
+    padding: 10
+    spacing: 10
+
+    Label:
+        text: "Bienvenue dans cette application de routine personnalisée"
+        font_size: 24
+        halign: "center"
+        valign: "middle"
+        size_hint_y: None
+        height: self.texture_size[1] + 20
+
+    Button:
+        text: "Ajouter une routine"
+        size_hint: 1, 0.1
+        on_press: app.set_root_content(app.page_ajouter_routine())
+
+    ScrollView:
+        size_hint: 1, 0.8
+
+        BoxLayout:
+            id: routine_list
+            orientation: "vertical"
+            size_hint_y: None
+            height: self.minimum_height
+            spacing: 10
