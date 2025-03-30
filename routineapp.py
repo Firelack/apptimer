@@ -62,22 +62,26 @@ class RoutineApp(App):
         popup_layout.add_widget(Label(text=f"Voulez-vous vraiment supprimer la routine '{nom}' ?"))
         btn_layout = BoxLayout(size_hint=(1, None), height=50, spacing=10)
 
+        popup = Popup(title="Confirmation", content=popup_layout, size_hint=(0.8, 0.4))
+
         oui_btn = Button(text="Oui")
-        oui_btn.bind(on_press=lambda *args: self.supprimer_routine(nom))
+        oui_btn.bind(on_press=lambda *args: self.supprimer_routine(nom, popup))
         non_btn = Button(text="Non")
-        non_btn.bind(on_press=lambda *args: popup.dismiss())
+        non_btn.bind(on_press=popup.dismiss)
 
         btn_layout.add_widget(oui_btn)
         btn_layout.add_widget(non_btn)
         popup_layout.add_widget(btn_layout)
 
-        popup = Popup(title="Confirmation", content=popup_layout, size_hint=(0.8, 0.4))
         popup.open()
 
-    def supprimer_routine(self, nom):
-        del self.routines[nom]
-        self.sauvegarder_routines()  # Sauvegarder les modifications après suppression
-        self.set_root_content(self.page_accueil())
+    def supprimer_routine(self, nom, popup):
+        if nom in self.routines:
+            del self.routines[nom]
+            self.sauvegarder_routines()  # Sauvegarde après suppression
+        popup.dismiss()  # Ferme la fenêtre de confirmation
+        self.set_root_content(self.page_accueil())  # Rafraîchit l'affichage
+
 
     def page_ajouter_routine(self):
         layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
@@ -98,7 +102,7 @@ class RoutineApp(App):
 
     def ajouter_routine(self, nom):
         if nom.strip():
-            self.routines[nom] = {"nom": nom, "exercices": []}
+            self.routines[nom] = {"nom": nom, "fonctions": []}
             self.sauvegarder_routines()  # Sauvegarder les modifications après ajout
         self.set_root_content(self.page_accueil())
 
