@@ -144,30 +144,35 @@ class RoutineApp(App):
         self.set_root_content(self.page_routine(routine_nom))
 
     def lancer_routine(self, nom):
-        routine = self.routines[nom]
+        self.routine = self.routines[nom]
         self.current_exercise_index = 0
         self.current_repetition = 1
-        self.remaining_time = 0
         self.is_resting = False
+        self.remaining_time = 0
 
         self.routine_layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
         self.timer_label = Label(text="Préparation...", font_size=24)
         self.routine_layout.add_widget(self.timer_label)
-
+        
+        self.fait_btn = Button(text="Fait", size_hint=(1, 0.2))
+        self.fait_btn.bind(on_press=self.marquer_fait)
+        self.fait_btn.disabled = True
+        self.routine_layout.add_widget(self.fait_btn)
+        
         stop_btn = Button(text="Arrêter", size_hint=(1, 0.2))
         stop_btn.bind(on_press=lambda *args: self.set_root_content(self.page_routine(nom)))
         self.routine_layout.add_widget(stop_btn)
 
         self.set_root_content(self.routine_layout)
-        Clock.schedule_interval(lambda dt: self.update_routine(routine), 1)
+        Clock.schedule_interval(self.update_routine, 1.0)
 
-    def update_routine(self, routine):
-        if self.current_exercise_index >= len(routine["fonctions"]):
+    def update_routine(self, dt):
+        if self.current_exercise_index >= len(self.routine["fonctions"]):
             self.timer_label.text = "Routine terminée !"
             Clock.unschedule(self.update_routine)
             return
 
-        exercise = routine["fonctions"][self.current_exercise_index]
+        exercise = self.routine["fonctions"][self.current_exercise_index]
 
         if self.is_resting:
             if self.remaining_time > 0:
@@ -179,21 +184,28 @@ class RoutineApp(App):
                 if self.current_repetition > exercise["repetitions"]:
                     self.current_exercise_index += 1
                     self.current_repetition = 1
-                self.remaining_time = exercise["duree"]
+                self.afficher_exercice()
         else:
-            if self.remaining_time > 0:
-                self.timer_label.text = f"{exercise['nom']} - Répétition {self.current_repetition}/{exercise['repetitions']} - Temps restant : {self.remaining_time}s"
-                self.remaining_time -= 1
+            if exercise["duree"]:
+                if self.remaining_time > 0:
+                    self.timer_label.text = f"{exercise['nom']} - Répétition {self.current_repetition}/{exercise['repetitions']} - {self.remaining_time}s"
+                    self.remaining_time -= 1
+                else:
+                    # Vérifier si c'est la dernière répétition du dernier exercice
+                    dernier_exercice = self.current_exercise_index == len(self.routine["fonctions"]) - 1
+                    derniere_repetition = self.current_repetition == exercise["repetitions"]
+
+                    if not dernier_exercice or not derniere_repetition:
+                        self.is_resting = True
+                        self.remaining_time = exercise["repos"]
+                    else:
+                        # Fin de la routine
+                        self.timer_label.text = "Routine terminée !"
+                        Clock.unschedule(self.update_routine)
             else:
-                self.is_resting = True
-                self.remaining_time = exercise["repos"]
-                if self.remaining_time == 0:
-                    self.is_resting = False
-                    self.current_repetition += 1
-                    if self.current_repetition > exercise["repetitions"]:
-                        self.current_exercise_index += 1
-                        self.current_repetition = 1
-                    self.remaining_time = exercise["duree"]
+                self.timer_label.text = f"{exercise['nom']} - Répétition {self.current_repetition}/{exercise['repetitions']} - {exercise['unites']} unités"
+                self.fait_btn.disabled = False
+
 
     def page_modifier_routine(self, nom):
         routine = self.routines[nom]
@@ -217,7 +229,7 @@ class RoutineApp(App):
         exercice_repos_input = TextInput(size_hint=(1, 0.5))
         layout.add_widget(exercice_repos_input)
 
-        layout.add_widget(Label(text="Unités :"))
+        layout.add_widget(Label(text="Unités : (si pas de durée)"))
         exercice_unites_input = TextInput(size_hint=(1, 0.5))
         layout.add_widget(exercice_unites_input)
 
@@ -261,6 +273,28 @@ class RoutineApp(App):
     def sauvegarder_routines(self):
         with open(self.FILE_PATH, 'w') as f:
             json.dump(self.routines, f, indent=4)
+
+    def afficher_exercice(self):
+        if self.current_exercise_index >= len(self.routine["fonctions"]):
+            self.timer_label.text = "Routine terminée !"
+            Clock.unschedule(self.update_routine)
+            return
+
+        exercise = self.routine["fonctions"][self.current_exercise_index]
+        self.fait_btn.disabled = True
+
+        if exercise["duree"]:
+            self.remaining_time = exercise["duree"]
+        else:
+            self.timer_label.text = f"{exercise['nom']} - Répétition {self.current_repetition}/{exercise['repetitions']} - {exercise['unites']} unités"
+            self.fait_btn.disabled = False
+    
+    def marquer_fait(self, instance):
+        self.fait_btn.disabled = True
+        if self.current_exercise_index < len(self.routine["fonctions"]) - 1:  # Évite le dernier repos
+            self.is_resting = True
+            self.remaining_time = self.routine["fonctions"][self.current_exercise_index]["repos"]
+
 
 # Lancement de l'application
 if __name__ == "__main__":
