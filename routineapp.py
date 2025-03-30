@@ -1,3 +1,5 @@
+import os
+import json
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
@@ -7,10 +9,11 @@ from kivy.uix.scrollview import ScrollView
 from kivy.uix.popup import Popup
 from kivy.clock import Clock
 
-
 class RoutineApp(App):
+    FILE_PATH = "routines.json"  # Définition du chemin du fichier JSON
+
     def build(self):
-        self.routines = {}
+        self.routines = self.charger_routines()  # Charger les routines depuis le fichier
         self.root = BoxLayout()
         self.set_root_content(self.page_bienvenue())
         return self.root
@@ -73,6 +76,7 @@ class RoutineApp(App):
 
     def supprimer_routine(self, nom):
         del self.routines[nom]
+        self.sauvegarder_routines()  # Sauvegarder les modifications après suppression
         self.set_root_content(self.page_accueil())
 
     def page_ajouter_routine(self):
@@ -95,6 +99,7 @@ class RoutineApp(App):
     def ajouter_routine(self, nom):
         if nom.strip():
             self.routines[nom] = {"nom": nom, "exercices": []}
+            self.sauvegarder_routines()  # Sauvegarder les modifications après ajout
         self.set_root_content(self.page_accueil())
 
     def page_routine(self, nom):
@@ -105,7 +110,7 @@ class RoutineApp(App):
         scroll = ScrollView(size_hint=(1, 0.6))
         exercice_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=10)
         exercice_layout.bind(minimum_height=exercice_layout.setter("height"))
-        for index, ex in enumerate(routine["exercices"]):
+        for index, ex in enumerate(routine["fonctions"]):
             ex_layout = BoxLayout(size_hint_y=None, height=50, spacing=10)
             ex_layout.add_widget(Label(text=str(ex), size_hint=(0.8, 1)))
             remove_btn = Button(text="Supprimer", size_hint=(0.2, 1))
@@ -130,9 +135,9 @@ class RoutineApp(App):
         return layout
 
     def supprimer_exercice(self, routine_nom, index):
-        del self.routines[routine_nom]["exercices"][index]
+        del self.routines[routine_nom]["fonctions"][index]
+        self.sauvegarder_routines()  # Sauvegarder les modifications après suppression
         self.set_root_content(self.page_routine(routine_nom))
-
 
     def lancer_routine(self, nom):
         routine = self.routines[nom]
@@ -151,49 +156,40 @@ class RoutineApp(App):
 
         self.set_root_content(self.routine_layout)
         Clock.schedule_interval(lambda dt: self.update_routine(routine), 1)
-    
+
     def update_routine(self, routine):
-        # Si tous les exercices sont terminés
-        if self.current_exercise_index >= len(routine["exercices"]):
+        if self.current_exercise_index >= len(routine["fonctions"]):
             self.timer_label.text = "Routine terminée !"
             Clock.unschedule(self.update_routine)
             return
 
-        # Récupération de l'exercice en cours
-        exercise = routine["exercices"][self.current_exercise_index]
+        exercise = routine["fonctions"][self.current_exercise_index]
 
-        # Gestion de l'état de repos
         if self.is_resting:
             if self.remaining_time > 0:
                 self.timer_label.text = f"Repos : {self.remaining_time}s"
                 self.remaining_time -= 1
             else:
-                # Fin du repos, passage à la répétition suivante
                 self.is_resting = False
                 self.current_repetition += 1
                 if self.current_repetition > exercise["repetitions"]:
-                    # Si toutes les répétitions sont terminées, passer à l'exercice suivant
                     self.current_exercise_index += 1
                     self.current_repetition = 1
-                self.remaining_time = exercise["duree"]  # Initialiser le temps de l'exercice
+                self.remaining_time = exercise["duree"]
         else:
-            # Gestion de l'exercice
             if self.remaining_time > 0:
                 self.timer_label.text = f"{exercise['nom']} - Répétition {self.current_repetition}/{exercise['repetitions']} - Temps restant : {self.remaining_time}s"
                 self.remaining_time -= 1
             else:
-                # Fin de l'exercice, passage au repos
                 self.is_resting = True
-                self.remaining_time = exercise["repos"]  # Initialiser le temps de repos
+                self.remaining_time = exercise["repos"]
                 if self.remaining_time == 0:
-                    # Si aucun temps de repos, passer immédiatement à la répétition suivante
                     self.is_resting = False
                     self.current_repetition += 1
                     if self.current_repetition > exercise["repetitions"]:
                         self.current_exercise_index += 1
                         self.current_repetition = 1
                     self.remaining_time = exercise["duree"]
-
 
     def page_modifier_routine(self, nom):
         routine = self.routines[nom]
@@ -248,9 +244,19 @@ class RoutineApp(App):
                 "repos": int(repos) if repos else 0,
                 "unites": int(unites) if unites else None
             }
-            self.routines[routine_nom]["exercices"].append(exercice)
+            self.routines[routine_nom]["fonctions"].append(exercice)
+            self.sauvegarder_routines()  # Sauvegarder après ajout d'un exercice
         self.set_root_content(self.page_routine(routine_nom))
 
+    def charger_routines(self):
+        if os.path.exists(self.FILE_PATH):
+            with open(self.FILE_PATH, 'r') as f:
+                return json.load(f)
+        return {}
+
+    def sauvegarder_routines(self):
+        with open(self.FILE_PATH, 'w') as f:
+            json.dump(self.routines, f, indent=4)
 
 # Lancement de l'application
 if __name__ == "__main__":
