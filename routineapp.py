@@ -41,21 +41,47 @@ class RoutineApp(App):
         scroll = ScrollView(size_hint=(1, 0.8))
         routine_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=10)
         routine_layout.bind(minimum_height=routine_layout.setter("height"))
-        for nom in self.routines:
+
+        routines_list = list(self.routines.items())  # Convertir en liste ordonnée
+        for index, (nom, _) in enumerate(routines_list):
             routine_box = BoxLayout(size_hint_y=None, height=50, spacing=10)
-            btn = Button(text=nom, size_hint=(0.7, 1))
+
+            btn = Button(text=nom, size_hint=(0.5, 1))
             btn.bind(on_press=lambda instance, r=nom: self.set_root_content(self.page_routine(r)))
             routine_box.add_widget(btn)
 
-            delete_btn = Button(text="Supprimer", size_hint=(0.3, 1))
+            up_btn = Button(text="monter", size_hint=(0.15, 1))
+            up_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, -1))
+            routine_box.add_widget(up_btn)
+
+            down_btn = Button(text="descendre", size_hint=(0.15, 1))
+            down_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, 1))
+            routine_box.add_widget(down_btn)
+
+            delete_btn = Button(text="X", size_hint=(0.2, 1))
             delete_btn.bind(on_press=lambda instance, r=nom: self.confirmer_suppression_routine(r))
             routine_box.add_widget(delete_btn)
 
             routine_layout.add_widget(routine_box)
+
         scroll.add_widget(routine_layout)
         layout.add_widget(scroll)
 
         return layout
+
+    def deplacer_routine(self, index, direction):
+        routines_list = list(self.routines.items())  # Convertir en liste ordonnée
+        new_index = index + direction
+
+        if 0 <= new_index < len(routines_list):
+            routines_list[index], routines_list[new_index] = routines_list[new_index], routines_list[index]
+
+            # Reconvertir en dictionnaire (tout en gardant l'ordre)
+            self.routines = {nom: data for nom, data in routines_list}
+
+            self.sauvegarder_routines()
+            self.set_root_content(self.page_accueil())  # Rafraîchir l'affichage
+
 
     def confirmer_suppression_routine(self, nom):
         popup_layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
