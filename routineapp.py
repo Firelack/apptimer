@@ -82,7 +82,6 @@ class RoutineApp(App):
             self.sauvegarder_routines()
             self.set_root_content(self.page_accueil())  # Rafraîchir l'affichage
 
-
     def confirmer_suppression_routine(self, nom):
         popup_layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
         popup_layout.add_widget(Label(text=f"Voulez-vous vraiment supprimer la routine '{nom}' ?"))
@@ -107,7 +106,6 @@ class RoutineApp(App):
             self.sauvegarder_routines()  # Sauvegarde après suppression
         popup.dismiss()  # Ferme la fenêtre de confirmation
         self.set_root_content(self.page_accueil())  # Rafraîchit l'affichage
-
 
     def page_ajouter_routine(self):
         layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
@@ -194,7 +192,7 @@ class RoutineApp(App):
         self.current_exercise_index = 0
         self.current_repetition = 1
         self.is_resting = False
-        self.remaining_time = 0
+        self.remaining_time = self.routines[nom]["fonctions"][0]["duree"] if self.routines[nom]["fonctions"][0]["duree"] else 0
 
         self.routine_layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
         self.timer_label = Label(text="Préparation...", font_size=24)
@@ -251,7 +249,6 @@ class RoutineApp(App):
             else:
                 self.timer_label.text = f"{exercise['nom']} - Répétition {self.current_repetition}/{exercise['repetitions']} - {exercise['unites']} unités"
                 self.fait_btn.disabled = False
-
 
     def page_modifier_routine(self, nom):
         routine = self.routines[nom]
