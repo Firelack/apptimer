@@ -190,6 +190,7 @@ class RoutineApp(App):
         self.set_root_content(self.page_routine(routine_nom))
 
     def lancer_routine(self, nom):
+        self.paused = False
         self.routine = self.routines[nom]
         self.current_exercise_index = 0
         self.current_repetition = 1
@@ -204,6 +205,10 @@ class RoutineApp(App):
         self.fait_btn.bind(on_press=self.marquer_fait)
         self.fait_btn.disabled = True
         self.routine_layout.add_widget(self.fait_btn)
+
+        self.pause_btn = Button(text="Pause", size_hint=(1, 0.2))
+        self.pause_btn.bind(on_press=self.toggle_pause)
+        self.routine_layout.add_widget(self.pause_btn)
         
         stop_btn = Button(text="Arrêter", size_hint=(1, 0.2))
         stop_btn.bind(on_press=lambda *args: self.set_root_content(self.page_routine(nom)))
@@ -212,7 +217,13 @@ class RoutineApp(App):
         self.set_root_content(self.routine_layout)
         Clock.schedule_interval(self.update_routine, 1.0)
 
+    def toggle_pause(self, instance):
+        self.paused = not self.paused
+        instance.text = "Relancer" if self.paused else "Pause"
+
     def update_routine(self, dt):
+        if self.paused:
+            return
         if self.current_exercise_index >= len(self.routine["fonctions"]):
             self.timer_label.text = "Routine terminée !"
             Clock.unschedule(self.update_routine)
