@@ -8,6 +8,8 @@ from kivy.uix.textinput import TextInput
 from kivy.uix.scrollview import ScrollView
 from kivy.uix.popup import Popup
 from kivy.clock import Clock
+from kivy.config import Config
+Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
 class RoutineApp(App):
     FILE_PATH = "routines.json"  # Définition du chemin du fichier JSON
