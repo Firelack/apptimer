@@ -269,6 +269,7 @@ class RoutineApp(App):
                 self.timer_label.text = f"{exercise['nom']} - Répétition {self.current_repetition}/{exercise['repetitions']} - {exercise['unites']} unités"
                 self.fait_btn.disabled = False
 
+
     def page_modifier_routine(self, nom):
         routine = self.routines[nom]
         layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
@@ -356,7 +357,13 @@ class RoutineApp(App):
         if self.current_exercise_index < len(self.routine["fonctions"]) - 1:  # Évite le dernier repos
             self.is_resting = True
             self.remaining_time = self.routine["fonctions"][self.current_exercise_index]["repos"]
-
+        else :
+            if self.current_repetition < self.routine["fonctions"][self.current_exercise_index]["repetitions"]:
+                self.is_resting = True
+                self.remaining_time = self.routine["fonctions"][self.current_exercise_index]["repos"]
+            else:
+                self.timer_label.text = "Routine terminée !"
+                Clock.unschedule(self.update_routine)
 
 # Lancement de l'application
 if __name__ == "__main__":
