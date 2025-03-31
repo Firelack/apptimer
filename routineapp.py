@@ -48,19 +48,19 @@ class RoutineApp(App):
         for index, (nom, _) in enumerate(routines_list):
             routine_box = BoxLayout(size_hint_y=None, height=50, spacing=10)
 
-            btn = Button(text=nom, size_hint=(0.5, 1))
+            btn = Button(text=nom, size_hint=(0.7, 1))
             btn.bind(on_press=lambda instance, r=nom: self.set_root_content(self.page_routine(r)))
             routine_box.add_widget(btn)
 
-            up_btn = Button(text="monter", size_hint=(0.15, 1))
+            up_btn = Button(text="up", size_hint=(0.1, 1))
             up_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, -1))
             routine_box.add_widget(up_btn)
 
-            down_btn = Button(text="descendre", size_hint=(0.15, 1))
+            down_btn = Button(text="dn", size_hint=(0.1, 1))
             down_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, 1))
             routine_box.add_widget(down_btn)
 
-            delete_btn = Button(text="X", size_hint=(0.2, 1))
+            delete_btn = Button(text="X", size_hint=(0.1, 1))
             delete_btn.bind(on_press=lambda instance, r=nom: self.confirmer_suppression_routine(r))
             routine_box.add_widget(delete_btn)
 
@@ -147,15 +147,15 @@ class RoutineApp(App):
             else:
                 ex_layout.add_widget(Label(text=f"{ex['nom']} - {ex['repetitions']}x {ex['unites']}unit", size_hint=(0.5, 1)))
 
-            up_btn = Button(text="monter", size_hint=(0.15, 1))
+            up_btn = Button(text="up", size_hint=(0.1, 1))
             up_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(nom, i, -1))
             ex_layout.add_widget(up_btn)
 
-            down_btn = Button(text="descendre", size_hint=(0.15, 1))
+            down_btn = Button(text="dn", size_hint=(0.1, 1))
             down_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(nom, i, 1))
             ex_layout.add_widget(down_btn)
 
-            remove_btn = Button(text="X", size_hint=(0.15, 1))
+            remove_btn = Button(text="X", size_hint=(0.1, 1))
             remove_btn.bind(on_press=lambda instance, i=index: self.supprimer_exercice(nom, i))
             ex_layout.add_widget(remove_btn)
 
@@ -210,7 +210,7 @@ class RoutineApp(App):
         self.pause_btn.bind(on_press=self.toggle_pause)
         self.routine_layout.add_widget(self.pause_btn)
         
-        stop_btn = Button(text="Arrêter", size_hint=(1, 0.2))
+        stop_btn = Button(text="Retour", size_hint=(1, 0.2))
         stop_btn.bind(on_press=lambda *args: self.set_root_content(self.page_routine(nom)))
         self.routine_layout.add_widget(stop_btn)
 
