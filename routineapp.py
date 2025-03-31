@@ -116,10 +116,23 @@ class RoutineApp(App):
         exercice_layout.bind(minimum_height=exercice_layout.setter("height"))
         for index, ex in enumerate(routine["fonctions"]):
             ex_layout = BoxLayout(size_hint_y=None, height=50, spacing=10)
-            ex_layout.add_widget(Label(text=str(ex), size_hint=(0.8, 1)))
-            remove_btn = Button(text="Supprimer", size_hint=(0.2, 1))
+            if ex["duree"]:
+                ex_layout.add_widget(Label(text=f"{ex['nom']} - {ex['repetitions']}x {ex['duree']}s", size_hint=(0.5, 1)))
+            else:
+                ex_layout.add_widget(Label(text=f"{ex['nom']} - {ex['repetitions']}x {ex['unites']}unit", size_hint=(0.5, 1)))
+
+            up_btn = Button(text="monter", size_hint=(0.15, 1))
+            up_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(nom, i, -1))
+            ex_layout.add_widget(up_btn)
+
+            down_btn = Button(text="descendre", size_hint=(0.15, 1))
+            down_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(nom, i, 1))
+            ex_layout.add_widget(down_btn)
+
+            remove_btn = Button(text="X", size_hint=(0.15, 1))
             remove_btn.bind(on_press=lambda instance, i=index: self.supprimer_exercice(nom, i))
             ex_layout.add_widget(remove_btn)
+
             exercice_layout.add_widget(ex_layout)
         scroll.add_widget(exercice_layout)
         layout.add_widget(scroll)
@@ -137,10 +150,17 @@ class RoutineApp(App):
         layout.add_widget(btn_layout)
 
         return layout
+    
+    def deplacer_exercice(self, routine_nom, index, direction):
+        if 0 <= index + direction < len(self.routines[routine_nom]["fonctions"]):
+            self.routines[routine_nom]["fonctions"].insert(index + direction, 
+                self.routines[routine_nom]["fonctions"].pop(index))
+            self.sauvegarder_routines()
+            self.set_root_content(self.page_routine(routine_nom))
 
     def supprimer_exercice(self, routine_nom, index):
         del self.routines[routine_nom]["fonctions"][index]
-        self.sauvegarder_routines()  # Sauvegarder les modifications après suppression
+        self.sauvegarder_routines()
         self.set_root_content(self.page_routine(routine_nom))
 
     def lancer_routine(self, nom):
