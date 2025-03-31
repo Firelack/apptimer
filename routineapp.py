@@ -111,10 +111,16 @@ class RoutineApp(App):
 
     def page_ajouter_routine(self):
         layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
-        layout.add_widget(Label(text="Nom de la routine :"))
-        routine_name_input = TextInput(size_hint=(1, 0.2))
+        
+        # Label avec texte agrandi
+        label = Label(text="Nom de la routine :", font_size=30)
+        layout.add_widget(label)
+        
+        # Champ de saisie avec hauteur réduite
+        routine_name_input = TextInput(size_hint=(1, 0.1))  # Hauteur réduite à 0.1
         layout.add_widget(routine_name_input)
 
+        # Layout pour les boutons
         btn_layout = BoxLayout(size_hint=(1, 0.2), spacing=10)
         terminer_btn = Button(text="Terminer")
         terminer_btn.bind(on_press=lambda *args: self.ajouter_routine(routine_name_input.text))
@@ -143,9 +149,9 @@ class RoutineApp(App):
         for index, ex in enumerate(routine["fonctions"]):
             ex_layout = BoxLayout(size_hint_y=None, height=50, spacing=10)
             if ex["duree"]:
-                ex_layout.add_widget(Label(text=f"{ex['nom']} - {ex['repetitions']}x {ex['duree']}s", size_hint=(0.5, 1)))
+                ex_layout.add_widget(Label(text=f"{ex['nom']} - {ex['repetitions']} rep, {ex['duree']}s", size_hint=(0.5, 1)))
             else:
-                ex_layout.add_widget(Label(text=f"{ex['nom']} - {ex['repetitions']}x {ex['unites']}unit", size_hint=(0.5, 1)))
+                ex_layout.add_widget(Label(text=f"{ex['nom']} - {ex['repetitions']} rep, {ex['unites']} unités", size_hint=(0.5, 1)))
 
             up_btn = Button(text="up", size_hint=(0.1, 1))
             up_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(nom, i, -1))
@@ -289,7 +295,7 @@ class RoutineApp(App):
         exercice_unites_input = TextInput(size_hint=(1, 0.5))
         layout.add_widget(exercice_unites_input)
 
-        btn_layout = BoxLayout(size_hint=(1, 0.2), spacing=10)
+        btn_layout = BoxLayout(size_hint=(1, 0.5), spacing=10)
         ajouter_btn = Button(text="Ajouter exercice")
         ajouter_btn.bind(on_press=lambda *args: self.ajouter_exercice(
             nom,

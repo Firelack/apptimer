@@ -1,7 +1,7 @@
 Application to create a personalized routine. <br>
 
 What remains to be done:
-- Beautify the interface
+- Beautify the interface ?
 - Sometimes, the timer is too fast
 <br>
 
