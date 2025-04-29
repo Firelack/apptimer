@@ -20,23 +20,21 @@ Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 class MyTextInput(TextInput):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.size_hint = (0.7, None)
+        self.size_hint_x = 0.7
+        self.size_hint_y = None
         self.height = 40
-        self.pos_hint = {'center_x': 0.5, 'center_y': 0.5}
-        self.background_normal = ''  # Supprime le fond par défaut
-        self.background_active = ''  # Supprime le fond actif
-        self.background_color = (1, 1, 1, 0)  # Supprime toute couleur de fond par défaut
+        self.pos_hint = {'center_x': 0.5}
+        self.background_color = (0.7, 0.7, 0.7, 0.6)
+        self.foreground_color = (1, 1, 1, 1)
 
-        with self.canvas.before:
-            self.bg_color = Color(1, 1, 1, 0.5)  # Blanc avec opacité 0.5
-            self.bg_rect = Rectangle(pos=self.pos, size=self.size)
+        self.halign = 'center'  # Centrage horizontal
+        self.valign = 'middle'  # Centrage vertical
 
-        # Lier les mises à jour de position/taille
-        self.bind(pos=self.update_bg, size=self.update_bg)
+        self.bind(size=self.update_padding, text=self.update_padding)
+        self.update_padding()
 
-    def update_bg(self, *args):
-        self.bg_rect.pos = self.pos
-        self.bg_rect.size = self.size
+    def update_padding(self, *args):
+        self.padding = [10, (self.height - self.line_height) / 2]  # [horizontal, vertical]
 
 class StyledButton(Button):
     def __init__(self, **kwargs):
