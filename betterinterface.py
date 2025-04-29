@@ -86,7 +86,7 @@ class RoutineApp(App):
         if Window.height > Window.width:
             self.background_image.source = 'images/fondportraitbienvenue.jpg'
         else:
-            self.background_image.source = 'images/fondpaysagebienvenue.jpg'
+            self.background_image.source = 'images/fondpaysagebienvenue.png'
 
     def page_accueil(self):
         layout = FloatLayout()
