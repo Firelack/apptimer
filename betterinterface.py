@@ -12,11 +12,31 @@ from kivy.config import Config
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
 from kivy.core.window import Window
-from kivy.graphics import Color, RoundedRectangle, Line
+from kivy.graphics import Color, RoundedRectangle, Line, Rectangle
 
 # Désactiver le mode multitouch par défaut (clic droit qui font des points rouges)
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
+class MyTextInput(TextInput):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.size_hint = (0.7, None)
+        self.height = 40
+        self.pos_hint = {'center_x': 0.5, 'center_y': 0.5}
+        self.background_normal = ''  # Supprime le fond par défaut
+        self.background_active = ''  # Supprime le fond actif
+        self.background_color = (1, 1, 1, 0)  # Supprime toute couleur de fond par défaut
+
+        with self.canvas.before:
+            self.bg_color = Color(1, 1, 1, 0.5)  # Blanc avec opacité 0.5
+            self.bg_rect = Rectangle(pos=self.pos, size=self.size)
+
+        # Lier les mises à jour de position/taille
+        self.bind(pos=self.update_bg, size=self.update_bg)
+
+    def update_bg(self, *args):
+        self.bg_rect.pos = self.pos
+        self.bg_rect.size = self.size
 
 class StyledButton(Button):
     def __init__(self, **kwargs):
@@ -88,7 +108,7 @@ class RoutineApp(App):
 
         return layout
 
-    def update_background_image(self):
+    def update_background_image(self, *args):
         # Portrait si hauteur > largeur
         if Window.height > Window.width:
             self.background_image.source = 'images/fondportraitbienvenue.jpg'
@@ -184,7 +204,7 @@ class RoutineApp(App):
         layout.add_widget(label)
         
         # Champ de saisie avec hauteur réduite
-        routine_name_input = TextInput(size_hint=(1, 0.1))  # Hauteur réduite à 0.1
+        routine_name_input = MyTextInput(size_hint=(1, 0.1))  # Hauteur réduite à 0.1
         layout.add_widget(routine_name_input)
 
         # Layout pour les boutons
@@ -365,23 +385,23 @@ class RoutineApp(App):
         layout.add_widget(Label(text=f"Modifier la routine : {routine['nom']}", font_size=20))
 
         layout.add_widget(Label(text="Nom de l'exercice :"))
-        exercice_name_input = TextInput(size_hint=(1, 0.5))
+        exercice_name_input = MyTextInput(size_hint=(1, 0.5))
         layout.add_widget(exercice_name_input)
 
         layout.add_widget(Label(text="Durée (secondes) :"))
-        exercice_duree_input = TextInput(size_hint=(1, 0.5))
+        exercice_duree_input = MyTextInput(size_hint=(1, 0.5))
         layout.add_widget(exercice_duree_input)
 
         layout.add_widget(Label(text="Répétitions :"))
-        exercice_reps_input = TextInput(size_hint=(1, 0.5))
+        exercice_reps_input = MyTextInput(size_hint=(1, 0.5))
         layout.add_widget(exercice_reps_input)
 
         layout.add_widget(Label(text="Repos (secondes) :"))
-        exercice_repos_input = TextInput(size_hint=(1, 0.5))
+        exercice_repos_input = MyTextInput(size_hint=(1, 0.5))
         layout.add_widget(exercice_repos_input)
 
         layout.add_widget(Label(text="Unités : (si pas de durée)"))
-        exercice_unites_input = TextInput(size_hint=(1, 0.5))
+        exercice_unites_input = MyTextInput(size_hint=(1, 0.5))
         layout.add_widget(exercice_unites_input)
 
         btn_layout = BoxLayout(size_hint=(1, 0.5), spacing=10)

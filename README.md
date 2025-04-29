@@ -5,7 +5,6 @@
 #### What remains to be done:
 - Beautify the interface :
     - New routine page
-    - Routine page
     - Routine modification page
 - Sometimes, the timer is too fast, I don't know why...
 - Create an apk with ? For now, just use an IDE on phone.
