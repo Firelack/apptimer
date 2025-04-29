@@ -13,6 +13,8 @@ from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
 from kivy.core.window import Window
 from kivy.graphics import Color, RoundedRectangle, Line, Rectangle
+from kivy.uix.widget import Widget
+
 
 # Désactiver le mode multitouch par défaut (clic droit qui font des points rouges)
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
@@ -196,16 +198,30 @@ class RoutineApp(App):
 
     def page_ajouter_routine(self):
         layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
-        
-        # Label avec texte agrandi
-        label = Label(text="Nom de la routine :", font_size=30)
+
+        # Espace vide en haut (10% de l'écran)
+        layout.add_widget(Widget(size_hint=(1, 0.1)))
+
+        # Label centré horizontalement
+        label = Label(
+            text="Nom de la routine :",
+            font_size=30,
+            size_hint=(1, None),
+            height=40,
+            halign="center",
+            valign="middle"
+        )
+        label.bind(size=label.setter('text_size'))  # Nécessaire pour centrer le texte
         layout.add_widget(label)
-        
-        # Champ de saisie avec hauteur réduite
-        routine_name_input = MyTextInput(size_hint=(1, 0.1))  # Hauteur réduite à 0.1
+
+        # Champ de saisie juste en dessous du label
+        routine_name_input = MyTextInput(size_hint=(1, None), height=40)
         layout.add_widget(routine_name_input)
 
-        # Layout pour les boutons
+        # Espace vide pour pousser les boutons vers le bas
+        layout.add_widget(Widget())  # prend tout l'espace restant au milieu
+
+        # Boutons en bas (20% de hauteur)
         btn_layout = BoxLayout(size_hint=(1, 0.2), spacing=10)
         terminer_btn = StyledButton(text="Terminer")
         terminer_btn.bind(on_press=lambda *args: self.ajouter_routine(routine_name_input.text))
@@ -216,6 +232,7 @@ class RoutineApp(App):
 
         layout.add_widget(btn_layout)
         return layout
+
 
     def ajouter_routine(self, nom):
         if nom.strip():
