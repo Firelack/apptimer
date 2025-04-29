@@ -14,6 +14,7 @@ from kivy.uix.image import Image
 from kivy.core.window import Window
 from kivy.graphics import Color, RoundedRectangle, Line, Rectangle
 from kivy.uix.widget import Widget
+from kivy.properties import NumericProperty
 
 
 # Désactiver le mode multitouch par défaut (clic droit qui font des points rouges)
@@ -26,7 +27,7 @@ class MyTextInput(TextInput):
         self.size_hint_y = None
         self.height = 40
         self.pos_hint = {'center_x': 0.5}
-        self.background_color = (0.7, 0.7, 0.7, 0.6)
+        self.background_color = (0.7, 0.7, 0.7, 0.6)  # Couleur de fond initiale
         self.foreground_color = (1, 1, 1, 1)
 
         self.halign = 'center'  # Centrage horizontal
@@ -35,8 +36,18 @@ class MyTextInput(TextInput):
         self.bind(size=self.update_padding, text=self.update_padding)
         self.update_padding()
 
+        # Ajout de l'écouteur pour l'événement 'on_focus'
+        self.bind(on_focus=self.on_focus)
+
     def update_padding(self, *args):
         self.padding = [10, (self.height - self.line_height) / 2]  # [horizontal, vertical]
+
+    def on_focus(self, instance, value):
+        """Change la couleur de fond lorsque le TextInput reçoit ou perd le focus."""
+        if value:  # Quand le TextInput est sélectionné (focus)
+            self.background_color = (0.7, 0.7, 0.7, 1)  # Moins opaque (opacité 1)
+        else:  # Quand le TextInput perd le focus
+            self.background_color = (0.7, 0.7, 0.7, 0.6)  # Opacité 0.6
 
 class StyledButton(Button):
     def __init__(self, **kwargs):
