@@ -12,7 +12,35 @@ from kivy.config import Config
 from kivy.uix.floatlayout import FloatLayout
 from kivy.uix.image import Image
 from kivy.core.window import Window
+from kivy.graphics import Color, RoundedRectangle, Line
+
+# Désactiver le mode multitouch par défaut (clic droit qui font des points rouges)
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
+
+
+class StyledButton(Button):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.background_normal = ''
+        self.background_color = (0, 0, 0, 0)  # transparent
+
+        with self.canvas.before:
+            # Fond gris semi-transparent
+            self.bg_color = Color(0.7, 0.7, 0.7, 0.6)
+            self.bg_rect = RoundedRectangle(pos=self.pos, size=self.size, radius=[30])
+
+            # Bordure noire
+            self.border_color = Color(0, 0, 0, 1)
+            self.border_line = Line(width=1.5)  # Pas de `rounded_rectangle` ici
+
+        self.bind(pos=self.update_graphics, size=self.update_graphics)
+
+    def update_graphics(self, *args):
+        self.bg_rect.pos = self.pos
+        self.bg_rect.size = self.size
+        self.border_line.rounded_rectangle = (
+            self.x, self.y, self.width, self.height, 30
+        )
 
 class RoutineApp(App):
     FILE_PATH = "routines.json"  # Définition du chemin du fichier JSON
@@ -76,7 +104,7 @@ class RoutineApp(App):
         # Contenu principal (routines et boutons)
         content = BoxLayout(orientation="vertical", spacing=10, padding=10, size_hint=(1, 1))
 
-        add_btn = Button(text="Ajouter une routine", size_hint=(1, 0.1))
+        add_btn = StyledButton(text="Ajouter une routine", size_hint=(1, 0.1))
         add_btn.bind(on_press=lambda *args: self.set_root_content(self.page_ajouter_routine()))
         content.add_widget(add_btn)
 
@@ -88,19 +116,19 @@ class RoutineApp(App):
         for index, (nom, _) in enumerate(routines_list):
             routine_box = BoxLayout(size_hint_y=None, height=50, spacing=10)
 
-            btn = Button(text=nom, size_hint=(0.7, 1))
+            btn = StyledButton(text=nom, size_hint=(0.7, 1))
             btn.bind(on_press=lambda instance, r=nom: self.set_root_content(self.page_routine(r)))
             routine_box.add_widget(btn)
 
-            up_btn = Button(text="up", size_hint=(0.1, 1))
+            up_btn = StyledButton(text="up", size_hint=(0.1, 1))
             up_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, -1))
             routine_box.add_widget(up_btn)
 
-            down_btn = Button(text="dn", size_hint=(0.1, 1))
+            down_btn = StyledButton(text="dn", size_hint=(0.1, 1))
             down_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, 1))
             routine_box.add_widget(down_btn)
 
-            delete_btn = Button(text="X", size_hint=(0.1, 1))
+            delete_btn = StyledButton(text="X", size_hint=(0.1, 1))
             delete_btn.bind(on_press=lambda instance, r=nom: self.confirmer_suppression_routine(r))
             routine_box.add_widget(delete_btn)
 
@@ -133,9 +161,9 @@ class RoutineApp(App):
 
         popup = Popup(title="Confirmation", content=popup_layout, size_hint=(0.8, 0.4))
 
-        oui_btn = Button(text="Oui")
+        oui_btn = StyledButton(text="Oui")
         oui_btn.bind(on_press=lambda *args: self.supprimer_routine(nom, popup))
-        non_btn = Button(text="Non")
+        non_btn = StyledButton(text="Non")
         non_btn.bind(on_press=popup.dismiss)
 
         btn_layout.add_widget(oui_btn)
@@ -164,9 +192,9 @@ class RoutineApp(App):
 
         # Layout pour les boutons
         btn_layout = BoxLayout(size_hint=(1, 0.2), spacing=10)
-        terminer_btn = Button(text="Terminer")
+        terminer_btn = StyledButton(text="Terminer")
         terminer_btn.bind(on_press=lambda *args: self.ajouter_routine(routine_name_input.text))
-        annuler_btn = Button(text="Annuler")
+        annuler_btn = StyledButton(text="Annuler")
         annuler_btn.bind(on_press=lambda *args: self.set_root_content(self.page_accueil()))
         btn_layout.add_widget(terminer_btn)
         btn_layout.add_widget(annuler_btn)
@@ -195,15 +223,15 @@ class RoutineApp(App):
             else:
                 ex_layout.add_widget(Label(text=f"{ex['nom']} - {ex['repetitions']} rep, {ex['unites']} unités", size_hint=(0.5, 1)))
 
-            up_btn = Button(text="up", size_hint=(0.1, 1))
+            up_btn = StyledButton(text="up", size_hint=(0.1, 1))
             up_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(nom, i, -1))
             ex_layout.add_widget(up_btn)
 
-            down_btn = Button(text="dn", size_hint=(0.1, 1))
+            down_btn = StyledButton(text="dn", size_hint=(0.1, 1))
             down_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(nom, i, 1))
             ex_layout.add_widget(down_btn)
 
-            remove_btn = Button(text="X", size_hint=(0.1, 1))
+            remove_btn = StyledButton(text="X", size_hint=(0.1, 1))
             remove_btn.bind(on_press=lambda instance, i=index: self.supprimer_exercice(nom, i))
             ex_layout.add_widget(remove_btn)
 
@@ -212,11 +240,11 @@ class RoutineApp(App):
         layout.add_widget(scroll)
 
         btn_layout = BoxLayout(size_hint=(1, 0.2), spacing=10)
-        lancer_btn = Button(text="Lancer", size_hint=(0.4, None), height=50)
+        lancer_btn = StyledButton(text="Lancer", size_hint=(0.4, None), height=50)
         lancer_btn.bind(on_press=lambda *args: self.lancer_routine(nom))
-        modifier_btn = Button(text="Modifier", size_hint=(0.4, None), height=50)
+        modifier_btn = StyledButton(text="Modifier", size_hint=(0.4, None), height=50)
         modifier_btn.bind(on_press=lambda *args: self.set_root_content(self.page_modifier_routine(nom)))
-        retour_btn = Button(text="Retour", size_hint=(0.4, None), height=50)
+        retour_btn = StyledButton(text="Retour", size_hint=(0.4, None), height=50)
         retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_accueil()))
         btn_layout.add_widget(lancer_btn)
         btn_layout.add_widget(modifier_btn)
@@ -249,22 +277,22 @@ class RoutineApp(App):
         self.timer_label = Label(text="Préparation...", font_size=24)
         self.routine_layout.add_widget(self.timer_label)
         
-        self.fait_btn = Button(text="Fait", size_hint=(1, 0.2))
+        self.fait_btn = StyledButton(text="Fait", size_hint=(1, 0.2))
         self.fait_btn.bind(on_press=self.marquer_fait)
         self.fait_btn.disabled = True
         self.routine_layout.add_widget(self.fait_btn)
 
-        self.pause_btn = Button(text="Pause", size_hint=(1, 0.2))
+        self.pause_btn = StyledButton(text="Pause", size_hint=(1, 0.2))
         self.pause_btn.bind(on_press=self.toggle_pause)
         self.routine_layout.add_widget(self.pause_btn)
 
         # Nouveau bouton pour passer le temps de repos
-        self.skip_rest_btn = Button(text="Passer le repos", size_hint=(1, 0.2))
+        self.skip_rest_btn = StyledButton(text="Passer le repos", size_hint=(1, 0.2))
         self.skip_rest_btn.bind(on_press=self.pass_rest_time)
         self.skip_rest_btn.disabled = True  # Ce bouton est désactivé tant qu'on n'est pas en période de repos
         self.routine_layout.add_widget(self.skip_rest_btn)
         
-        stop_btn = Button(text="Retour", size_hint=(1, 0.2))
+        stop_btn = StyledButton(text="Retour", size_hint=(1, 0.2))
         stop_btn.bind(on_press=lambda *args: self.set_root_content(self.page_routine(nom)))
         self.routine_layout.add_widget(stop_btn)
 
@@ -360,7 +388,7 @@ class RoutineApp(App):
         layout.add_widget(exercice_unites_input)
 
         btn_layout = BoxLayout(size_hint=(1, 0.5), spacing=10)
-        ajouter_btn = Button(text="Ajouter exercice")
+        ajouter_btn = StyledButton(text="Ajouter exercice")
         ajouter_btn.bind(on_press=lambda *args: self.ajouter_exercice(
             nom,
             exercice_name_input.text,
@@ -369,7 +397,7 @@ class RoutineApp(App):
             exercice_repos_input.text,
             exercice_unites_input.text
         ))
-        retour_btn = Button(text="Retour")
+        retour_btn = StyledButton(text="Retour")
         retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_routine(nom)))
         btn_layout.add_widget(ajouter_btn)
         btn_layout.add_widget(retour_btn)
