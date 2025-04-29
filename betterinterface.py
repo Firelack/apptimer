@@ -61,11 +61,24 @@ class RoutineApp(App):
             self.background_image.source = 'images/fondpaysagebienvenue.jpg'
 
     def page_accueil(self):
-        layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
+        layout = FloatLayout()
+
+        # 🔁 Image de fond dynamique réutilisant self.background_image
+        self.background_image = Image(allow_stretch=True, keep_ratio=False)
+        layout.add_widget(self.background_image)
+
+        # Définir la bonne image immédiatement
+        self.update_background_image()
+
+        # Lier la mise à jour au redimensionnement de la fenêtre
+        Window.bind(size=lambda *args: self.update_background_image())
+
+        # Contenu principal (routines et boutons)
+        content = BoxLayout(orientation="vertical", spacing=10, padding=10, size_hint=(1, 1))
 
         add_btn = Button(text="Ajouter une routine", size_hint=(1, 0.1))
         add_btn.bind(on_press=lambda *args: self.set_root_content(self.page_ajouter_routine()))
-        layout.add_widget(add_btn)
+        content.add_widget(add_btn)
 
         scroll = ScrollView(size_hint=(1, 0.8))
         routine_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=10)
@@ -94,9 +107,11 @@ class RoutineApp(App):
             routine_layout.add_widget(routine_box)
 
         scroll.add_widget(routine_layout)
-        layout.add_widget(scroll)
+        content.add_widget(scroll)
 
+        layout.add_widget(content)
         return layout
+
 
     def deplacer_routine(self, index, direction):
         routines_list = list(self.routines.items())  # Convertir en liste ordonnée
