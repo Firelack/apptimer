@@ -215,6 +215,12 @@ class RoutineApp(App):
         self.pause_btn = Button(text="Pause", size_hint=(1, 0.2))
         self.pause_btn.bind(on_press=self.toggle_pause)
         self.routine_layout.add_widget(self.pause_btn)
+
+        # Nouveau bouton pour passer le temps de repos
+        self.skip_rest_btn = Button(text="Passer le repos", size_hint=(1, 0.2))
+        self.skip_rest_btn.bind(on_press=self.pass_rest_time)
+        self.skip_rest_btn.disabled = True  # Ce bouton est désactivé tant qu'on n'est pas en période de repos
+        self.routine_layout.add_widget(self.skip_rest_btn)
         
         stop_btn = Button(text="Retour", size_hint=(1, 0.2))
         stop_btn.bind(on_press=lambda *args: self.set_root_content(self.page_routine(nom)))
@@ -222,6 +228,19 @@ class RoutineApp(App):
 
         self.set_root_content(self.routine_layout)
         Clock.schedule_interval(self.update_routine, 1.0)
+
+    def pass_rest_time(self, instance):
+        # Passer directement le temps de repos
+        self.is_resting = False
+        self.remaining_time = 0
+        self.skip_rest_btn.disabled = True  # Désactiver le bouton après l'avoir utilisé
+
+        # Passer à l'exercice suivant
+        self.current_repetition += 1
+        if self.current_repetition > self.routine["fonctions"][self.current_exercise_index]["repetitions"]:
+            self.current_exercise_index += 1
+            self.current_repetition = 1
+        self.afficher_exercice()
 
     def toggle_pause(self, instance):
         self.paused = not self.paused
@@ -238,6 +257,8 @@ class RoutineApp(App):
         exercise = self.routine["fonctions"][self.current_exercise_index]
 
         if self.is_resting:
+            self.skip_rest_btn.disabled = False  # Activer le bouton pour passer le temps de repos
+            self.fait_btn.disabled = True  # Désactiver le bouton "Fait" pendant le repos
             if self.remaining_time > 0:
                 self.timer_label.text = f"Repos : {self.remaining_time}s"
                 self.remaining_time -= 1
