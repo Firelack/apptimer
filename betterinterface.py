@@ -46,21 +46,34 @@ class RoutineApp(App):
     FILE_PATH = "routines.json"  # Définition du chemin du fichier JSON
 
     def build(self):
-        self.routines = self.charger_routines()  # Charger les routines depuis le fichier
-        self.root = BoxLayout()
+        self.routines = self.charger_routines()
+
+        # Layout principal avec image de fond + contenu par-dessus
+        self.root = FloatLayout()
+
+        # Image de fond
+        self.background_image = Image(allow_stretch=True, keep_ratio=False)
+        self.root.add_widget(self.background_image)
+
+        # Conteneur pour le contenu dynamique (les différentes pages)
+        self.content_container = BoxLayout()
+        self.root.add_widget(self.content_container)
+
+        # Mettre le premier contenu (page bienvenue)
         self.set_root_content(self.page_bienvenue())
+
+        # Lier le redimensionnement pour mettre à jour le fond
+        Window.bind(size=self.update_background_image)
+        self.update_background_image()
+
         return self.root
 
     def set_root_content(self, new_content):
-        self.root.clear_widgets()
-        self.root.add_widget(new_content)
+        self.content_container.clear_widgets()
+        self.content_container.add_widget(new_content)
 
     def page_bienvenue(self):
         layout = FloatLayout()
-        
-        # Crée l'image de fond sans définir le source pour l'instant
-        self.background_image = Image(allow_stretch=True, keep_ratio=False)
-        layout.add_widget(self.background_image)
 
         # Texte de bienvenue
         box = BoxLayout(orientation="vertical", padding=10)
@@ -73,12 +86,6 @@ class RoutineApp(App):
         # Gestion du changement de page au clic
         layout.bind(on_touch_down=lambda *args: self.set_root_content(self.page_accueil()))
 
-        # Définir la bonne image au départ
-        self.update_background_image()
-
-        # Lier l'événement de redimensionnement de fenêtre
-        Window.bind(size=lambda *args: self.update_background_image())
-
         return layout
 
     def update_background_image(self):
@@ -90,16 +97,6 @@ class RoutineApp(App):
 
     def page_accueil(self):
         layout = FloatLayout()
-
-        # 🔁 Image de fond dynamique réutilisant self.background_image
-        self.background_image = Image(allow_stretch=True, keep_ratio=False)
-        layout.add_widget(self.background_image)
-
-        # Définir la bonne image immédiatement
-        self.update_background_image()
-
-        # Lier la mise à jour au redimensionnement de la fenêtre
-        Window.bind(size=lambda *args: self.update_background_image())
 
         # Contenu principal (routines et boutons)
         content = BoxLayout(orientation="vertical", spacing=10, padding=10, size_hint=(1, 1))
