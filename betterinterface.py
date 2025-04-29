@@ -14,8 +14,6 @@ from kivy.uix.image import Image
 from kivy.core.window import Window
 from kivy.graphics import Color, RoundedRectangle, Line, Rectangle
 from kivy.uix.widget import Widget
-from kivy.properties import NumericProperty
-
 
 # Désactiver le mode multitouch par défaut (clic droit qui font des points rouges)
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
@@ -74,30 +72,32 @@ class StyledButton(Button):
         )
 
 class RoutineApp(App):
-    FILE_PATH = "routines.json"  # Définition du chemin du fichier JSON
+    FILE_PATH = "routinesV2.json"  # Définition du chemin du fichier JSON
 
     def build(self):
-        self.routines = self.charger_routines()
+        self.routines_data = self.charger_routines()
+        self.routines = self.routines_data.get("routines", {})
 
-        # Layout principal avec image de fond + contenu par-dessus
         self.root = FloatLayout()
-
-        # Image de fond
         self.background_image = Image(allow_stretch=True, keep_ratio=False)
         self.root.add_widget(self.background_image)
 
-        # Conteneur pour le contenu dynamique (les différentes pages)
         self.content_container = BoxLayout()
         self.root.add_widget(self.content_container)
 
-        # Mettre le premier contenu (page bienvenue)
-        self.set_root_content(self.page_bienvenue())
+        # Affichage selon "premiere_fois"
+        if self.routines_data.get("premiere_fois", True):
+            self.set_root_content(self.page_bienvenue())
+            self.routines_data["premiere_fois"] = False
+            self.sauvegarder_routines()
+        else:
+            self.set_root_content(self.page_accueil())
 
-        # Lier le redimensionnement pour mettre à jour le fond
         Window.bind(size=self.update_background_image)
         self.update_background_image()
 
         return self.root
+
 
     def set_root_content(self, new_content):
         self.content_container.clear_widgets()
@@ -168,19 +168,14 @@ class RoutineApp(App):
         layout.add_widget(content)
         return layout
 
-
     def deplacer_routine(self, index, direction):
-        routines_list = list(self.routines.items())  # Convertir en liste ordonnée
+        routines_list = list(self.routines.items())
         new_index = index + direction
-
         if 0 <= new_index < len(routines_list):
             routines_list[index], routines_list[new_index] = routines_list[new_index], routines_list[index]
-
-            # Reconvertir en dictionnaire (tout en gardant l'ordre)
             self.routines = {nom: data for nom, data in routines_list}
-
             self.sauvegarder_routines()
-            self.set_root_content(self.page_accueil())  # Rafraîchir l'affichage
+            self.set_root_content(self.page_accueil())
 
     def confirmer_suppression_routine(self, nom):
         popup_layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
@@ -203,9 +198,9 @@ class RoutineApp(App):
     def supprimer_routine(self, nom, popup):
         if nom in self.routines:
             del self.routines[nom]
-            self.sauvegarder_routines()  # Sauvegarde après suppression
-        popup.dismiss()  # Ferme la fenêtre de confirmation
-        self.set_root_content(self.page_accueil())  # Rafraîchit l'affichage
+            self.sauvegarder_routines()
+        popup.dismiss()
+        self.set_root_content(self.page_accueil())
 
     def page_ajouter_routine(self):
         layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
@@ -248,7 +243,7 @@ class RoutineApp(App):
     def ajouter_routine(self, nom):
         if nom.strip():
             self.routines[nom] = {"nom": nom, "fonctions": []}
-            self.sauvegarder_routines()  # Sauvegarder les modifications après ajout
+            self.sauvegarder_routines()
         self.set_root_content(self.page_accueil())
 
     def page_routine(self, nom):
@@ -297,9 +292,9 @@ class RoutineApp(App):
         return layout
     
     def deplacer_exercice(self, routine_nom, index, direction):
-        if 0 <= index + direction < len(self.routines[routine_nom]["fonctions"]):
-            self.routines[routine_nom]["fonctions"].insert(index + direction, 
-                self.routines[routine_nom]["fonctions"].pop(index))
+        exercices = self.routines[routine_nom]["fonctions"]
+        if 0 <= index + direction < len(exercices):
+            exercices.insert(index + direction, exercices.pop(index))
             self.sauvegarder_routines()
             self.set_root_content(self.page_routine(routine_nom))
 
@@ -458,18 +453,20 @@ class RoutineApp(App):
                 "unites": int(unites) if unites else None
             }
             self.routines[routine_nom]["fonctions"].append(exercice)
-            self.sauvegarder_routines()  # Sauvegarder après ajout d'un exercice
+            self.sauvegarder_routines()
         self.set_root_content(self.page_routine(routine_nom))
 
     def charger_routines(self):
         if os.path.exists(self.FILE_PATH):
             with open(self.FILE_PATH, 'r') as f:
                 return json.load(f)
-        return {}
+        return {"premiere_fois": True, "routines": {}}
 
     def sauvegarder_routines(self):
+        self.routines_data["routines"] = self.routines
         with open(self.FILE_PATH, 'w') as f:
-            json.dump(self.routines, f, indent=4)
+            json.dump(self.routines_data, f, indent=4)
+
 
     def afficher_exercice(self):
         if self.current_exercise_index >= len(self.routine["fonctions"]):
