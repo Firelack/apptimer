@@ -1,15 +1,30 @@
-# **Application to create a personalized routine.** <br>
+# 💪 Personalized Routine App
 
-### Backup of built-in routines, possible modifications of routines (exercises), and order (exercises and routines),and obvioulsy, you can launch the routines
+This application allows you to create, modify, and launch personalized workout or activity routines with ease.
 
-Differents versions :
-- languageversion.py : Routines gestion with a good interface, and in this version you can select a language (french and english)
-- fonctionbase.py : Just routines in python without interface
-- routineapp.py : Routines gestion with interface (but ugly)
-- betterinterface.py : Routines gestion with a good interface (french)
+## ✨ Features
 
-**Warning** : If timer go too fast, restart the app. I have absolutely no ideas why it's happend some time...
+- Built-in routines with customizable exercises.
+- Modify the order of exercises and routines.
+- Launch routines with a built-in timer.
+- Optional language selection: **English** or **French** (available in specific versions).
 
+## 📁 Available Versions
 
-For now comments and some fonctions names are in french. \
-If I have the time, I will try to pass all the app code in english.
+- `languageversion.py`: Full-featured version with interface and language selection (English/French).
+- `fonctionbase.py`: Minimal version — routines managed in pure Python, no graphical interface.
+- `routineapp.py`: Functional interface, but basic visual design.
+- `betterinterface.py`: Improved interface (**French only**).
+
+## ⚠️ Known Issues
+
+- **Timer speed bug**: If the timer runs too fast, restarting the app usually fixes it. Cause unknown.
+
+## 🔧 Notes
+
+- Some comments and function names in the codebase are still in French.
+- A full English translation of the codebase is planned (time permitting).
+
+## 📝 To Do
+
+- Improve exercise display.
