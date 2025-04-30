@@ -39,4 +39,4 @@ Note:
 
 ## 🚨 Warning
 
-- Different versions of the app use separate files to save progress. If you switch between versions, your progress may not be saved.
+- Different versions of the app code use separate files to save progress. If you switch between versions, your progress may not be saved.
