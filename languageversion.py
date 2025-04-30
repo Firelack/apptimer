@@ -332,18 +332,38 @@ class RoutineApp(App):
 
     def page_routine(self, nom):
         routine = self.routines[nom]
-        layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
+        layout = BoxLayout(orientation="vertical", spacing=5, padding=[10, 10, 10, 10])
 
-        layout.add_widget(Label(text=f"{self.dictlanguage[self.current_language]['routine_page'][0]} {routine['name']}", font_size=20))
-        scroll = ScrollView(size_hint=(1, 0.6))
-        exercice_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=10)
+        # Titre en haut
+        title_label = Label(
+            text=f"{self.dictlanguage[self.current_language]['routine_page'][0]} {routine['name']}",
+            font_size=22,
+            size_hint=(1, None),
+            height=40
+        )
+        layout.add_widget(title_label)
+
+        # Petit espace sous le titre
+        layout.add_widget(Widget(size_hint=(1, None), height=10))
+
+        # ScrollView contenant les exercices
+        scroll = ScrollView(size_hint=(1, 0.70))
+        exercice_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=8)
         exercice_layout.bind(minimum_height=exercice_layout.setter("height"))
+
         for index, ex in enumerate(routine["fonctions"]):
             ex_layout = BoxLayout(size_hint_y=None, height=50, spacing=10)
+
             if ex["duration"]:
-                ex_layout.add_widget(Label(text=f"{ex['name']} - {ex['repetitions']} {self.dictlanguage[self.current_language]['routine_page'][1]}, {ex['duration']}{self.dictlanguage[self.current_language]['routine_page'][2]}", size_hint=(0.5, 1)))
+                ex_layout.add_widget(Label(
+                    text=f"{ex['name']} - {ex['repetitions']} {self.dictlanguage[self.current_language]['routine_page'][1]}, {ex['duration']}{self.dictlanguage[self.current_language]['routine_page'][2]}",
+                    size_hint=(0.5, 1)
+                ))
             else:
-                ex_layout.add_widget(Label(text=f"{ex['name']} - {ex['repetitions']} {self.dictlanguage[self.current_language]['routine_page'][1]}, {ex['units']} {self.dictlanguage[self.current_language]['routine_page'][3]}", size_hint=(0.5, 1)))
+                ex_layout.add_widget(Label(
+                    text=f"{ex['name']} - {ex['repetitions']} {self.dictlanguage[self.current_language]['routine_page'][1]}, {ex['units']} {self.dictlanguage[self.current_language]['routine_page'][3]}",
+                    size_hint=(0.5, 1)
+                ))
 
             up_btn = StyledButton(text="up", size_hint=(0.1, 1))
             up_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(nom, i, -1))
@@ -358,22 +378,28 @@ class RoutineApp(App):
             ex_layout.add_widget(remove_btn)
 
             exercice_layout.add_widget(ex_layout)
+
         scroll.add_widget(exercice_layout)
         layout.add_widget(scroll)
 
-        btn_layout = BoxLayout(size_hint=(1, 0.2), spacing=10)
+        # Boutons bas de page
+        btn_layout = BoxLayout(size_hint=(1, 0.15), spacing=10)
         lancer_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][4], size_hint=(0.4, None), height=50)
         lancer_btn.bind(on_press=lambda *args: self.lancer_routine(nom))
         modifier_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][5], size_hint=(0.4, None), height=50)
         modifier_btn.bind(on_press=lambda *args: self.set_root_content(self.page_modifier_routine(nom)))
         retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][6], size_hint=(0.4, None), height=50)
         retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_accueil()))
+
         btn_layout.add_widget(lancer_btn)
         btn_layout.add_widget(modifier_btn)
         btn_layout.add_widget(retour_btn)
+
         layout.add_widget(btn_layout)
 
         return layout
+
+
     
     def deplacer_exercice(self, routine_nom, index, direction):
         exercices = self.routines[routine_nom]["fonctions"]

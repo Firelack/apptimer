@@ -27,4 +27,4 @@ This application allows you to create, modify, and launch personalized workout o
 
 ## 📝 To Do
 
-- Improve exercise display.
+- Improve add exercice.
