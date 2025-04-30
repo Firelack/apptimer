@@ -1,5 +1,6 @@
 import os
 import json
+import sys
 from kivy.app import App
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.label import Label
@@ -19,6 +20,14 @@ from kivy.uix.dropdown import DropDown
 # Désactiver le mode multitouch par défaut (clic droit qui font des points rouges)
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
+def resource_path(relative_path):
+    try:
+        # PyInstaller extrait dans un dossier temporaire
+        base_path = sys._MEIPASS
+    except AttributeError:
+        # En exécution normale
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 class MyTextInput(TextInput):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -49,14 +58,14 @@ class MyTextInput(TextInput):
             self.background_color = (0.7, 0.7, 0.7, 0.6)  # Opacité 0.6
 
 class StyledButton(Button):
-    def __init__(self, **kwargs):
+    def __init__(self,opacity = 0.6 , **kwargs):
         super().__init__(**kwargs)
         self.background_normal = ''
         self.background_color = (0, 0, 0, 0)  # transparent
 
         with self.canvas.before:
             # Fond gris semi-transparent
-            self.bg_color = Color(0.7, 0.7, 0.7, 0.6)
+            self.bg_color = Color(0.7, 0.7, 0.7, opacity)
             self.bg_rect = RoundedRectangle(pos=self.pos, size=self.size, radius=[30])
 
             # Bordure noire
@@ -84,7 +93,7 @@ class RoutineApp(App):
         "add_routine" : ["Routine name :",
                          "Finish",
                         "Cancel"],
-        "routine_page" : ["Routine :","rep","s","units","Start","Edit","Back"],
+        "routine_page" : ["Routine :","rep","s","units","Start","Add","Back"],
         "start_routine" : ["Preparing...","Done","Pause","Skip rest","Back"],
         "toggle_pause" : ["Resume","Pause"],
         "update_routine" : ["Routine completed !","Rest :","s","Repetition "," units"],
@@ -99,7 +108,7 @@ class RoutineApp(App):
         "add_routine" : ["Nom de la routine :",
                          "Terminer",
                          "Annuler"],
-        "routine_page" : ["Routine :","rep","s","unités","Lancer","Modifier","Retour"],
+        "routine_page" : ["Routine :","rep","s","unités","Lancer","Ajouter","Retour"],
         "start_routine" : ["Préparation...","Fait","Pause","Passer le repos","Retour"],
         "toggle_pause" : ["Relancer","Pause"],
         "update_routine" : ["Routine terminée !","Repos :","s","Répétition "," unités"],
@@ -154,11 +163,10 @@ class RoutineApp(App):
         return layout
 
     def update_background_image(self, *args):
-        # Portrait si hauteur > largeur
         if Window.height > Window.width:
-            self.background_image.source = 'images/fondportraitbienvenue.jpg'
+            self.background_image.source = resource_path('images/fondportraitbienvenue.jpg')
         else:
-            self.background_image.source = 'images/fondpaysagebienvenue.png'
+            self.background_image.source = resource_path('images/fondpaysagebienvenue.png')
     
     def changer_langue(self, langue):
         # Charger les données JSON
@@ -189,7 +197,7 @@ class RoutineApp(App):
         dropdown = DropDown()
 
         for lang in ["English", "French"]:
-            btn = StyledButton(text=lang, size_hint_y=None, height=44)
+            btn = StyledButton(text=lang, size_hint_y=None, height=44, opacity=1)
             def on_lang_select(btn_instance, dropdown=dropdown):
                 selected_lang = btn_instance.text
                 self.routines_data["language"] = selected_lang
