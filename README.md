@@ -24,7 +24,3 @@ This application allows you to create, modify, and launch personalized workout o
 
 - Some comments and function names in the codebase are still in French.
 - A full English translation of the codebase is planned (time permitting).
-
-## 📝 To Do
-
-- Improve add exercice.

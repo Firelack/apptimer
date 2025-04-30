@@ -508,35 +508,42 @@ class RoutineApp(App):
                 self.timer_label.text = f"{exercise['name']} - {self.dictlanguage[self.current_language]['update_routine'][3]} {self.current_repetition}/{exercise['repetitions']} - {exercise['units']} {self.dictlanguage[self.current_language]['update_routine'][4]}"
                 self.fait_btn.disabled = False
 
-
     def page_modifier_routine(self, nom):
         routine = self.routines[nom]
-        layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
+        layout = BoxLayout(orientation="vertical", spacing=5, padding=[10, 10, 10, 10])
 
-        layout.add_widget(Label(text=f"{self.dictlanguage[self.current_language]['change_routine'][0]} {routine['name']}", font_size=20))
+        # ScrollView pour tout le contenu sauf les boutons
+        scroll = ScrollView(size_hint=(1, 0.85))
+        content = BoxLayout(orientation="vertical", spacing=10, size_hint_y=None)
+        content.bind(minimum_height=content.setter("height"))
 
-        layout.add_widget(Label(text=self.dictlanguage[self.current_language]["change_routine"][1]))
-        exercice_name_input = MyTextInput(size_hint=(1, 0.5))
-        layout.add_widget(exercice_name_input)
+        # Titre
+        content.add_widget(Label(
+            text=f"{self.dictlanguage[self.current_language]['change_routine'][0]} {routine['name']}",
+            font_size=22,
+            size_hint=(1, None),
+            height=40
+        ))
 
-        layout.add_widget(Label(text=self.dictlanguage[self.current_language]["change_routine"][2]))
-        exercice_duree_input = MyTextInput(size_hint=(1, 0.5))
-        layout.add_widget(exercice_duree_input)
+        # Champs avec label + input
+        def add_field(label_text):
+            content.add_widget(Label(text=label_text, size_hint=(1, None), height=25))
+            return_input = MyTextInput(size_hint=(1, None), height=40)
+            content.add_widget(return_input)
+            return return_input
 
-        layout.add_widget(Label(text=self.dictlanguage[self.current_language]["change_routine"][3]))
-        exercice_reps_input = MyTextInput(size_hint=(1, 0.5))
-        layout.add_widget(exercice_reps_input)
+        exercice_name_input = add_field(self.dictlanguage[self.current_language]["change_routine"][1])
+        exercice_duree_input = add_field(self.dictlanguage[self.current_language]["change_routine"][2])
+        exercice_reps_input = add_field(self.dictlanguage[self.current_language]["change_routine"][3])
+        exercice_repos_input = add_field(self.dictlanguage[self.current_language]["change_routine"][4])
+        exercice_unites_input = add_field(self.dictlanguage[self.current_language]["change_routine"][5])
 
-        layout.add_widget(Label(text=self.dictlanguage[self.current_language]["change_routine"][4]))
-        exercice_repos_input = MyTextInput(size_hint=(1, 0.5))
-        layout.add_widget(exercice_repos_input)
+        scroll.add_widget(content)
+        layout.add_widget(scroll)
 
-        layout.add_widget(Label(text=self.dictlanguage[self.current_language]["change_routine"][5]))
-        exercice_unites_input = MyTextInput(size_hint=(1, 0.5))
-        layout.add_widget(exercice_unites_input)
-
-        btn_layout = BoxLayout(size_hint=(1, 0.5), spacing=10)
-        ajouter_btn = StyledButton(text=self.dictlanguage[self.current_language]["change_routine"][6])
+        # Boutons en bas
+        btn_layout = BoxLayout(size_hint=(1, 0.15), spacing=10)
+        ajouter_btn = StyledButton(text=self.dictlanguage[self.current_language]["change_routine"][6], size_hint=(0.5, None), height=50)
         ajouter_btn.bind(on_press=lambda *args: self.ajouter_exercice(
             nom,
             exercice_name_input.text,
@@ -545,13 +552,17 @@ class RoutineApp(App):
             exercice_repos_input.text,
             exercice_unites_input.text
         ))
-        retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["change_routine"][7])
+
+        retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["change_routine"][7], size_hint=(0.5, None), height=50)
         retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_routine(nom)))
+
         btn_layout.add_widget(ajouter_btn)
         btn_layout.add_widget(retour_btn)
 
         layout.add_widget(btn_layout)
+
         return layout
+
 
     def ajouter_exercice(self, routine_nom, ex_nom, duree, repetitions, repos, unites):
         if ex_nom.strip():
