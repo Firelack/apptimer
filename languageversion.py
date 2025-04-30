@@ -173,7 +173,7 @@ class RoutineApp(App):
             json.dump(data, f, indent=4)
 
         self.current_language = langue  # Met à jour la langue active
-        self.set_root_content(self.page_accueil())  # Recharge l’interface
+        self.set_root_content(self.page_accueil())  # Recharge linterface
 
     def page_accueil(self):
         layout = FloatLayout()
