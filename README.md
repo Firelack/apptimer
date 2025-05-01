@@ -40,3 +40,12 @@ Note:
 ## 🚨 Warning
 
 - Different versions of the app code use separate files to save progress. If you switch between versions, your progress may not be saved.
+
+## ☑️ To do
+
+- Modification of exercices
+- Tab to switch
+- Limit characters
+- Return (\n) for display
+- Pop up when bad completion of forms
+- Group time and unity boxes and place a checkbox to choose (or unchoose) time
