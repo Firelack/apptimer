@@ -16,6 +16,9 @@ from kivy.core.window import Window
 from kivy.graphics import Color, RoundedRectangle, Line, Rectangle
 from kivy.uix.widget import Widget
 from kivy.uix.dropdown import DropDown
+from kivy.uix.behaviors import FocusBehavior
+from kivy.properties import BooleanProperty
+
 
 # Désactiver le mode multitouch par défaut (clic droit qui font des points rouges)
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
@@ -57,22 +60,74 @@ class MyTextInput(TextInput):
         else:  # Quand le TextInput perd le focus
             self.background_color = (0.7, 0.7, 0.7, 0.6)  # Opacité 0.6
 
-class StyledButton(Button):
-    def __init__(self,opacity = 0.6 , **kwargs):
+
+class FocusableForm(BoxLayout):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
+        self.widgets_list = []
+        Window.bind(on_key_down=self._on_key_down)
+
+    def register_focusable(self, widget):
+        self.widgets_list.append(widget)
+
+    def _on_key_down(self, window, key, scancode, codepoint, modifiers):
+        if key == 9:  # TAB
+            focused = next((i for i, w in enumerate(self.widgets_list) if hasattr(w, "focus") and w.focus), None)
+            if focused is not None:
+                self.widgets_list[focused].focus = False
+                if 'shift' in modifiers:
+                    next_index = (focused - 1) % len(self.widgets_list)
+                else:
+                    next_index = (focused + 1) % len(self.widgets_list)
+                self.widgets_list[next_index].focus = True
+                return True
+
+        elif key == 13:  # ENTER
+            focused_btn = next((w for w in self.widgets_list if isinstance(w, Button) and w.focus), None)
+            if focused_btn:
+                focused_btn.trigger_action(duration=0)
+                return True
+
+        return False
+
+class HoverBehavior:
+    hovered = BooleanProperty(False)
+    border_point= None
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        Window.bind(mouse_pos=self.on_mouse_pos)
+
+    def on_mouse_pos(self, *args):
+        if not self.get_root_window():
+            return  # Widget pas affiché
+        pos = args[1]
+        inside = self.collide_point(*self.to_widget(*pos))
+        self.hovered = inside
+        self.on_hover(inside)
+
+    def on_hover(self, hovered):
+        pass  # À surcharger si besoin
+
+
+class StyledButton(FocusBehavior, HoverBehavior, Button):
+    def __init__(self, opacity=0.6, **kwargs):
+        super().__init__(**kwargs)
+        self.opacity_normal = opacity
+        self.opacity_focus = 1.0
+        self.opacity_hover = 0.85
+
         self.background_normal = ''
-        self.background_color = (0, 0, 0, 0)  # transparent
+        self.background_color = (0, 0, 0, 0)
 
         with self.canvas.before:
-            # Fond gris semi-transparent
-            self.bg_color = Color(0.7, 0.7, 0.7, opacity)
+            self.bg_color = Color(0.7, 0.7, 0.7, self.opacity_normal)
             self.bg_rect = RoundedRectangle(pos=self.pos, size=self.size, radius=[30])
-
-            # Bordure noire
             self.border_color = Color(0, 0, 0, 1)
-            self.border_line = Line(width=1.5)  # Pas de `rounded_rectangle` ici
+            self.border_line = Line(width=1.5)
 
-        self.bind(pos=self.update_graphics, size=self.update_graphics)
+        self.bind(pos=self.update_graphics, size=self.update_graphics,
+                  focus=self.on_focus, hovered=self.on_hover)
 
     def update_graphics(self, *args):
         self.bg_rect.pos = self.pos
@@ -80,6 +135,20 @@ class StyledButton(Button):
         self.border_line.rounded_rectangle = (
             self.x, self.y, self.width, self.height, 30
         )
+
+    def on_focus(self, instance, value):
+        self.update_opacity()
+
+    def on_hover(self, *args):
+        self.update_opacity()
+
+    def update_opacity(self):
+        if self.focus:
+            self.bg_color.a = self.opacity_focus
+        elif self.hovered:
+            self.bg_color.a = self.opacity_hover
+        else:
+            self.bg_color.a = self.opacity_normal
 
 class RoutineApp(App):
     FILE_PATH = "routinesV3.json"  # Définition du chemin du fichier JSON
@@ -287,7 +356,8 @@ class RoutineApp(App):
         self.set_root_content(self.page_accueil())
 
     def page_ajouter_routine(self):
-        layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
+        # Utiliser FocusableForm comme conteneur principal
+        layout = FocusableForm(orientation="vertical", spacing=10, padding=10)
 
         # Espace vide en haut (10% de l'écran)
         layout.add_widget(Widget(size_hint=(1, 0.1)))
@@ -306,22 +376,30 @@ class RoutineApp(App):
 
         # Champ de saisie juste en dessous du label
         routine_name_input = MyTextInput(size_hint=(1, None), height=40)
+        layout.register_focusable(routine_name_input)  # Enregistrer le champ de texte pour qu'il soit focusable
         layout.add_widget(routine_name_input)
 
         # Espace vide pour pousser les boutons vers le bas
-        layout.add_widget(Widget())  # prend tout l'espace restant au milieu
+        layout.add_widget(Widget())  # Prend tout l'espace restant au milieu
 
         # Boutons en bas (20% de hauteur)
         btn_layout = BoxLayout(size_hint=(1, 0.2), spacing=10)
+        
         terminer_btn = StyledButton(text=self.dictlanguage[self.current_language]["add_routine"][1])
+        layout.register_focusable(terminer_btn)  # Enregistrer le bouton pour qu'il soit focusable
         terminer_btn.bind(on_press=lambda *args: self.ajouter_routine(routine_name_input.text))
+        
         annuler_btn = StyledButton(text=self.dictlanguage[self.current_language]["add_routine"][2])
+        layout.register_focusable(annuler_btn)  # Enregistrer l'autre bouton pour qu'il soit focusable
         annuler_btn.bind(on_press=lambda *args: self.set_root_content(self.page_accueil()))
+
         btn_layout.add_widget(terminer_btn)
         btn_layout.add_widget(annuler_btn)
 
         layout.add_widget(btn_layout)
+
         return layout
+
 
 
     def ajouter_routine(self, nom):
@@ -510,9 +588,8 @@ class RoutineApp(App):
 
     def page_modifier_routine(self, nom):
         routine = self.routines[nom]
-        layout = BoxLayout(orientation="vertical", spacing=5, padding=[10, 10, 10, 10])
+        layout = FocusableForm(orientation="vertical", spacing=5, padding=[10, 10, 10, 10])
 
-        # ScrollView pour tout le contenu sauf les boutons
         scroll = ScrollView(size_hint=(1, 0.85))
         content = BoxLayout(orientation="vertical", spacing=10, size_hint_y=None)
         content.bind(minimum_height=content.setter("height"))
@@ -528,9 +605,10 @@ class RoutineApp(App):
         # Champs avec label + input
         def add_field(label_text):
             content.add_widget(Label(text=label_text, size_hint=(1, None), height=25))
-            return_input = MyTextInput(size_hint=(1, None), height=40)
-            content.add_widget(return_input)
-            return return_input
+            input_widget = MyTextInput(size_hint=(1, None), height=40)
+            content.add_widget(input_widget)
+            layout.register_focusable(input_widget)
+            return input_widget
 
         exercice_name_input = add_field(self.dictlanguage[self.current_language]["change_routine"][1])
         exercice_duree_input = add_field(self.dictlanguage[self.current_language]["change_routine"][2])
@@ -552,9 +630,11 @@ class RoutineApp(App):
             exercice_repos_input.text,
             exercice_unites_input.text
         ))
+        layout.register_focusable(ajouter_btn)
 
         retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["change_routine"][7], size_hint=(0.5, None), height=50)
         retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_routine(nom)))
+        layout.register_focusable(retour_btn)
 
         btn_layout.add_widget(ajouter_btn)
         btn_layout.add_widget(retour_btn)
@@ -562,6 +642,7 @@ class RoutineApp(App):
         layout.add_widget(btn_layout)
 
         return layout
+
 
 
     def ajouter_exercice(self, routine_nom, ex_nom, duree, repetitions, repos, unites):
