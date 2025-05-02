@@ -116,6 +116,7 @@ class StyledButton(FocusBehavior, HoverBehavior, Button):
         self.opacity_normal = opacity
         self.opacity_focus = 1.0
         self.opacity_hover = 0.85
+        self.selected = False  # <-- NOUVEAU
 
         self.background_normal = ''
         self.background_color = (0, 0, 0, 0)
@@ -143,12 +144,15 @@ class StyledButton(FocusBehavior, HoverBehavior, Button):
         self.update_opacity()
 
     def update_opacity(self):
-        if self.focus:
+        if self.selected:  # <-- Priorité au bouton sélectionné
+            self.bg_color.a = self.opacity_focus
+        elif self.focus:
             self.bg_color.a = self.opacity_focus
         elif self.hovered:
             self.bg_color.a = self.opacity_hover
         else:
             self.bg_color.a = self.opacity_normal
+
 
 class RoutineApp(App):
     FILE_PATH = "routinesV3.json"  # Définition du chemin du fichier JSON
@@ -166,7 +170,8 @@ class RoutineApp(App):
         "start_routine" : ["Preparing...","Done","Pause","Skip rest","Back"],
         "toggle_pause" : ["Resume","Pause"],
         "update_routine" : ["Routine completed !","Rest :","s","Repetition "," units"],
-        "change_routine" : ["Add an exercise :","Exercise name :","Duration (seconds) :","Repetitions :","Rest (seconds) :","Units : (if no duration)", "Add the exercise","Back"]
+        "change_routine" : ["Add an exercise :","Exercise name :","Duration (seconds) :","Repetitions :",
+                            "Rest (seconds) :","Units : (if no duration)", "Add the exercise","Back","Duration/units :"]
                            }, 
         "French": 
         {"welcome_page" : "Bienvenue dans cette application de routine personnalisée",
@@ -181,7 +186,8 @@ class RoutineApp(App):
         "start_routine" : ["Préparation...","Fait","Pause","Passer le repos","Retour"],
         "toggle_pause" : ["Relancer","Pause"],
         "update_routine" : ["Routine terminée !","Repos :","s","Répétition "," unités"],
-        "change_routine" : ["Ajouter un exercice :","Nom de l'exercice :","Durée (secondes) :","Répétitions :","Repos (secondes) :","Unités : (si pas de durée)", "Ajouter l'exercice","Retour"]
+        "change_routine" : ["Ajouter un exercice :","Nom de l'exercice :","Durée (secondes) :","Répétitions :",
+                            "Repos (secondes) :","Unités : (si pas de durée)", "Ajouter l'exercice","Retour","Durée/unités :"]
                                                               }
          }#self.dictlanguage[self.current_language]["update_routine"]
 
@@ -602,7 +608,6 @@ class RoutineApp(App):
             height=40
         ))
 
-        # Champs avec label + input
         def add_field(label_text):
             content.add_widget(Label(text=label_text, size_hint=(1, None), height=25))
             input_widget = MyTextInput(size_hint=(1, None), height=40)
@@ -611,25 +616,66 @@ class RoutineApp(App):
             return input_widget
 
         exercice_name_input = add_field(self.dictlanguage[self.current_language]["change_routine"][1])
-        exercice_duree_input = add_field(self.dictlanguage[self.current_language]["change_routine"][2])
+
+        # === Champ "Valeur" (Durée ou Unités) en 2e position ===
+        content.add_widget(Label(text=self.dictlanguage[self.current_language]["change_routine"][8], size_hint=(1, None), height=25))
+        exercice_valeur_input = MyTextInput(size_hint=(1, None), height=40)
+        content.add_widget(exercice_valeur_input)
+        layout.register_focusable(exercice_valeur_input)
+
+        selected_type = {"value": "duration"}
+
+        def update_type(new_type):
+            selected_type["value"] = new_type
+            duree_btn.selected = (new_type == "duration")
+            unite_btn.selected = (new_type == "unit")
+            duree_btn.update_opacity()
+            unite_btn.update_opacity()
+
+
+        type_btn_layout = BoxLayout(size_hint=(1, None), height=50, spacing=10)
+
+        duree_btn = StyledButton(
+            text=self.dictlanguage[self.current_language]["change_routine"][2],
+            size_hint=(0.5, None),
+            height=40
+        )
+        unite_btn = StyledButton(
+            text=self.dictlanguage[self.current_language]["change_routine"][5],
+            size_hint=(0.5, None),
+            height=40
+        )
+
+        update_type("duration")
+
+        duree_btn.bind(on_press=lambda btn: update_type("duration"))
+        unite_btn.bind(on_press=lambda btn: update_type("unit"))
+
+        type_btn_layout.add_widget(duree_btn)
+        type_btn_layout.add_widget(unite_btn)
+
+        content.add_widget(type_btn_layout)
+        layout.register_focusable(duree_btn)
+        layout.register_focusable(unite_btn)
+
         exercice_reps_input = add_field(self.dictlanguage[self.current_language]["change_routine"][3])
         exercice_repos_input = add_field(self.dictlanguage[self.current_language]["change_routine"][4])
-        exercice_unites_input = add_field(self.dictlanguage[self.current_language]["change_routine"][5])
 
         scroll.add_widget(content)
         layout.add_widget(scroll)
 
-        # Boutons en bas
         btn_layout = BoxLayout(size_hint=(1, 0.15), spacing=10)
         ajouter_btn = StyledButton(text=self.dictlanguage[self.current_language]["change_routine"][6], size_hint=(0.5, None), height=50)
+
         ajouter_btn.bind(on_press=lambda *args: self.ajouter_exercice(
             nom,
             exercice_name_input.text,
-            exercice_duree_input.text,
+            exercice_valeur_input.text if selected_type["value"] == "duration" else "",
             exercice_reps_input.text,
             exercice_repos_input.text,
-            exercice_unites_input.text
+            exercice_valeur_input.text if selected_type["value"] == "unit" else ""
         ))
+
         layout.register_focusable(ajouter_btn)
 
         retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["change_routine"][7], size_hint=(0.5, None), height=50)
@@ -638,7 +684,6 @@ class RoutineApp(App):
 
         btn_layout.add_widget(ajouter_btn)
         btn_layout.add_widget(retour_btn)
-
         layout.add_widget(btn_layout)
 
         return layout

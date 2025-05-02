@@ -49,4 +49,3 @@ Note:
 - Limit characters
 - Return (\n) for display
 - Pop up when bad completion of forms
-- Group time and unity boxes and place a checkbox to choose (or unchoose) time
