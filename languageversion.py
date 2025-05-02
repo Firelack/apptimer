@@ -32,8 +32,9 @@ def resource_path(relative_path):
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
 class MyTextInput(TextInput):
-    def __init__(self, **kwargs):
+    def __init__(self, max_length=50, **kwargs):  # Ajout du paramètre max_length
         super().__init__(**kwargs)
+        self.max_length = max_length  # Définir la longueur maximale
         self.size_hint_x = 0.7
         self.size_hint_y = None
         self.height = 40
@@ -59,6 +60,12 @@ class MyTextInput(TextInput):
             self.background_color = (0.7, 0.7, 0.7, 1)  # Moins opaque (opacité 1)
         else:  # Quand le TextInput perd le focus
             self.background_color = (0.7, 0.7, 0.7, 0.6)  # Opacité 0.6
+
+    def insert_text(self, substring, from_undo=False):
+        """Limite la saisie de texte selon le max_length."""
+        if len(self.text) < self.max_length or substring == "":
+            super().insert_text(substring, from_undo=from_undo)
+
 
 
 class FocusableForm(BoxLayout):
@@ -381,7 +388,7 @@ class RoutineApp(App):
         layout.add_widget(label)
 
         # Champ de saisie juste en dessous du label
-        routine_name_input = MyTextInput(size_hint=(1, None), height=40)
+        routine_name_input = MyTextInput(size_hint=(1, None), max_length=30,height=40)
         layout.register_focusable(routine_name_input)  # Enregistrer le champ de texte pour qu'il soit focusable
         layout.add_widget(routine_name_input)
 
@@ -608,9 +615,9 @@ class RoutineApp(App):
             height=40
         ))
 
-        def add_field(label_text):
+        def add_field(label_text,length=20):
             content.add_widget(Label(text=label_text, size_hint=(1, None), height=25))
-            input_widget = MyTextInput(size_hint=(1, None), height=40)
+            input_widget = MyTextInput(size_hint=(1, None), max_length=length,height=40)
             content.add_widget(input_widget)
             layout.register_focusable(input_widget)
             return input_widget
@@ -619,7 +626,7 @@ class RoutineApp(App):
 
         # === Champ "Valeur" (Durée ou Unités) en 2e position ===
         content.add_widget(Label(text=self.dictlanguage[self.current_language]["change_routine"][8], size_hint=(1, None), height=25))
-        exercice_valeur_input = MyTextInput(size_hint=(1, None), height=40)
+        exercice_valeur_input = MyTextInput(size_hint=(1, None),max_length=5, height=40)
         content.add_widget(exercice_valeur_input)
         layout.register_focusable(exercice_valeur_input)
 
@@ -658,8 +665,8 @@ class RoutineApp(App):
         layout.register_focusable(duree_btn)
         layout.register_focusable(unite_btn)
 
-        exercice_reps_input = add_field(self.dictlanguage[self.current_language]["change_routine"][3])
-        exercice_repos_input = add_field(self.dictlanguage[self.current_language]["change_routine"][4])
+        exercice_reps_input = add_field(self.dictlanguage[self.current_language]["change_routine"][3],4)
+        exercice_repos_input = add_field(self.dictlanguage[self.current_language]["change_routine"][4],4)
 
         scroll.add_widget(content)
         layout.add_widget(scroll)

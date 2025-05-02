@@ -46,6 +46,5 @@ Note:
 - Modification of exercices (+tab)
 - First tab
 - Tab on all page ?
-- Limit characters
 - Return (\n) for display
 - Pop up when bad completion of forms
