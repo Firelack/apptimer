@@ -18,6 +18,8 @@ from kivy.uix.widget import Widget
 from kivy.uix.dropdown import DropDown
 from kivy.uix.behaviors import FocusBehavior
 from kivy.properties import BooleanProperty
+from kivy.uix.anchorlayout import AnchorLayout
+
 
 
 # Désactiver le mode multitouch par défaut (clic droit qui font des points rouges)
@@ -177,8 +179,10 @@ class RoutineApp(App):
         "start_routine" : ["Preparing...","Done","Pause","Skip rest","Back"],
         "toggle_pause" : ["Resume","Pause"],
         "update_routine" : ["Routine completed !","Rest :","s","Repetition "," units"],
-        "change_routine" : ["Add an exercise :","Exercise name :","Duration (seconds) :","Repetitions :",
-                            "Rest (seconds) :","Units : (if no duration)", "Add the exercise","Back","Duration/units :"]
+        "change_routine": ["Add an exercise :","Exercise name :","Duration (seconds) :","Repetitions :",
+                        "Rest (seconds) :","Units : (if no duration)","Add the exercise","Back","Duration/units :",
+                            "Please enter a valid name for the exercise","Duration must be greater than 0 or must be specified",
+                            "Repetitions must be greater than 0 or must be specified","Rest time cannot be negative or must be specified"]
                            }, 
         "French": 
         {"welcome_page" : "Bienvenue dans cette application de routine personnalisée",
@@ -194,7 +198,9 @@ class RoutineApp(App):
         "toggle_pause" : ["Relancer","Pause"],
         "update_routine" : ["Routine terminée !","Repos :","s","Répétition "," unités"],
         "change_routine" : ["Ajouter un exercice :","Nom de l'exercice :","Durée (secondes) :","Répétitions :",
-                            "Repos (secondes) :","Unités : (si pas de durée)", "Ajouter l'exercice","Retour","Durée/unités :"]
+                            "Repos (secondes) :","Unités : (si pas de durée)", "Ajouter l'exercice","Retour","Durée/unités :",
+                            "Veuillez entrer un nom valide pour l'exercice","La durée doit être supérieure à 0 ou doit être spécifiée",
+                            "Les répétitions doivent être supérieures à 0 ou doivent être spécifiées","Le temps de repos ne peut pas être négatif ou doit être spécifié"]
                                                               }
          }#self.dictlanguage[self.current_language]["update_routine"]
 
@@ -695,10 +701,21 @@ class RoutineApp(App):
 
         return layout
 
-
-
     def ajouter_exercice(self, routine_nom, ex_nom, duree, repetitions, repos, unites):
-        if ex_nom.strip():
+        errors = []  # Liste pour accumuler les erreurs
+
+        # Vérifications des conditions non conformes
+        if not ex_nom.strip():  # Vérifie si le nom est vide
+            errors.append(self.dictlanguage[self.current_language]["change_routine"][9])  # Nom vide
+        if not duree or int(duree) <= 0:  # Vérifie si la durée est None ou <= 0
+            errors.append(self.dictlanguage[self.current_language]["change_routine"][10])  # Durée <= 0 ou None
+        if not repetitions or int(repetitions) <= 0:  # Vérifie si les répétitions sont None ou <= 0
+            errors.append(self.dictlanguage[self.current_language]["change_routine"][11])  # Répétitions <= 0 ou None
+        if not repos or int(repos) < 0:  # Vérifie si le repos est None ou < 0
+            errors.append(self.dictlanguage[self.current_language]["change_routine"][12])  # Repos < 0 ou None
+
+        # Si aucune erreur n'a été trouvée, on ajoute l'exercice
+        if not errors:
             exercice = {
                 "name": ex_nom.strip(),
                 "duration": int(duree) if duree else 0,
@@ -708,7 +725,50 @@ class RoutineApp(App):
             }
             self.routines[routine_nom]["fonctions"].append(exercice)
             self.sauvegarder_routines()
-        self.set_root_content(self.page_routine(routine_nom))
+            self.set_root_content(self.page_routine(routine_nom))
+        else:
+            # Si des erreurs ont été détectées, les afficher toutes
+            error_message = "\n".join(errors)  # Joint toutes les erreurs avec des sauts de ligne
+            self.show_error_popup(error_message, routine_nom)
+
+
+    def show_error_popup(self, error_message, routine_nom):
+        """Affiche un message d'erreur sous forme de popup avec un bouton 'Retour'."""
+        content = BoxLayout(orientation='vertical', spacing=10, padding=10)
+
+        # Label centré verticalement et horizontalement
+        label_container = AnchorLayout(anchor_x='center', anchor_y='center', size_hint=(1, 1))
+        label = Label(
+            text=error_message,
+            font_size=20,
+            halign='center',
+            valign='middle'
+        )
+        # Important : force le label à recalculer le placement de son texte
+        label.bind(size=lambda *x: label.setter('text_size')(label, label.size))
+
+        label_container.add_widget(label)
+        content.add_widget(label_container)
+
+        # Bouton retour
+        retour_btn = StyledButton(
+            text=self.dictlanguage[self.current_language]["change_routine"][7],  # "Retour"
+            size_hint=(1, None),
+            height=50
+        )
+
+        popup = Popup(
+            title="Erreur",
+            content=content,
+            size_hint=(0.8, 0.4),
+            auto_dismiss=False
+        )
+
+        retour_btn.bind(on_press=lambda *args: popup.dismiss())
+        content.add_widget(retour_btn)
+
+        popup.open()
+
 
     def charger_routines(self):
         if os.path.exists(self.FILE_PATH):

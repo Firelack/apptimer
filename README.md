@@ -43,8 +43,7 @@ Note:
 
 ## ☑️ To do
 
+- Return (\n) for display
 - Modification of exercices (+tab)
 - First tab
 - Tab on all page ?
-- Return (\n) for display
-- Pop up when bad completion of forms
