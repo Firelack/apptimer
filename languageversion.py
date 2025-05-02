@@ -166,43 +166,47 @@ class StyledButton(FocusBehavior, HoverBehavior, Button):
 class RoutineApp(App):
     FILE_PATH = "routinesV3.json"  # Définition du chemin du fichier JSON
     dictlanguage = {
-        "English": 
-        {"welcome_page" : "Welcome to this personalized routine application",
-         "home_page":"Add a routine",
-         "confirmation" : ["Confirmation",
-                           "Do you really want to delete the routine ",
-                           "Yes","No"],
-        "add_routine" : ["Routine name :",
-                         "Finish",
-                        "Cancel"],
-        "routine_page" : ["Routine :","rep","s","units","Start","Add","Back"],
-        "start_routine" : ["Preparing...","Done","Pause","Skip rest","Back"],
-        "toggle_pause" : ["Resume","Pause"],
-        "update_routine" : ["Routine completed !","Rest :","s","Repetition "," units"],
-        "change_routine": ["Add an exercise :","Exercise name :","Duration (seconds) :","Repetitions :",
-                        "Rest (seconds) :","Units : (if no duration)","Add the exercise","Back","Duration/units :",
-                            "Please enter a valid name for the exercise","Duration must be greater than 0 or must be specified",
-                            "Repetitions must be greater than 0 or must be specified","Rest time cannot be negative or must be specified"]
-                           }, 
-        "French": 
-        {"welcome_page" : "Bienvenue dans cette application de routine personnalisée",
-         "home_page":"Ajouter une routine",
-         "confirmation" : ["Confirmation",
-                           "Voulez-vous vraiment supprimer la routine ",
-                           "Oui","Non"],
-        "add_routine" : ["Nom de la routine :",
-                         "Terminer",
-                         "Annuler"],
-        "routine_page" : ["Routine :","rep","s","unités","Lancer","Ajouter","Retour"],
-        "start_routine" : ["Préparation...","Fait","Pause","Passer le repos","Retour"],
-        "toggle_pause" : ["Relancer","Pause"],
-        "update_routine" : ["Routine terminée !","Repos :","s","Répétition "," unités"],
-        "change_routine" : ["Ajouter un exercice :","Nom de l'exercice :","Durée (secondes) :","Répétitions :",
-                            "Repos (secondes) :","Unités : (si pas de durée)", "Ajouter l'exercice","Retour","Durée/unités :",
-                            "Veuillez entrer un nom valide pour l'exercice","La durée doit être supérieure à 0 ou doit être spécifiée",
-                            "Les répétitions doivent être supérieures à 0 ou doivent être spécifiées","Le temps de repos ne peut pas être négatif ou doit être spécifié"]
-                                                              }
-         }#self.dictlanguage[self.current_language]["update_routine"]
+    "English": {
+        "welcome_page": "Welcome to this personalized routine application",
+        "home_page": "Add a routine",
+        "confirmation": ["Confirmation", "Do you really want to delete the routine ", "Yes", "No"],
+        "add_routine": ["Routine name :", "Finish", "Cancel"],
+        "routine_page": ["Routine :", "rep", "s", "units", "Start", "Add", "Back"],
+        "start_routine": ["Preparing...", "Done", "Pause", "Skip rest", "Back"],
+        "toggle_pause": ["Resume", "Pause"],
+        "update_routine": ["Routine completed !", "Rest :", "s", "Repetition ", " units"],
+        "change_routine": [
+            "Add an exercise :", "Exercise name :", "Duration (seconds) :", "Repetitions :", "Rest (seconds) :",
+            "Units : (if no duration)", "Add the exercise", "Back", "Duration/units :", "Please enter a valid name for the exercise",
+            "Duration must be greater than 0 or must be specified", "Repetitions must be greater than 0 or must be specified", 
+            "Rest time cannot be negative or must be specified", "Please enter a valid number for units", 
+            "Please enter a valid number for the duration", "Please enter a valid number for the repetitions", 
+            "Please enter a valid number for the rest","No duration/units specified"
+        ]
+    },
+    "French": {
+        "welcome_page": "Bienvenue dans cette application de routine personnalisée",
+        "home_page": "Ajouter une routine",
+        "confirmation": ["Confirmation", "Voulez-vous vraiment supprimer la routine ", "Oui", "Non"],
+        "add_routine": ["Nom de la routine :", "Terminer", "Annuler"],
+        "routine_page": ["Routine :", "rep", "s", "unités", "Lancer", "Ajouter", "Retour"],
+        "start_routine": ["Préparation...", "Fait", "Pause", "Passer le repos", "Retour"],
+        "toggle_pause": ["Relancer", "Pause"],
+        "update_routine": ["Routine terminée !", "Repos :", "s", "Répétition ", " unités"],
+        "change_routine": [
+            "Ajouter un exercice :", "Nom de l'exercice :", "Durée (secondes) :", "Répétitions :", "Repos (secondes) :",
+            "Unités : (si pas de durée)", "Ajouter l'exercice", "Retour", "Durée/unités :", 
+            "Veuillez entrer un nom valide pour l'exercice", "La durée doit être supérieure à 0 ou doit être spécifiée", 
+            "Les répétitions doivent être supérieures à 0 ou doivent être spécifiées", 
+            "Le temps de repos ne peut pas être négatif ou doit être spécifié", 
+            "Veuillez entrer un nombre valide pour les unités", "Veuillez entrer un nombre valide pour la durée", 
+            "Veuillez entrer un nombre valide pour les répétitions", "Veuillez entrer un nombre valide pour le temps de repos",
+            "Aucune durée/unités spécifiée"
+        ]
+    }
+}
+
+
 
     def build(self):
         self.routines_data = self.charger_routines()
@@ -702,34 +706,73 @@ class RoutineApp(App):
         return layout
 
     def ajouter_exercice(self, routine_nom, ex_nom, duree, repetitions, repos, unites):
-        errors = []  # Liste pour accumuler les erreurs
+        errors = []
 
-        # Vérifications des conditions non conformes
-        if not ex_nom.strip():  # Vérifie si le nom est vide
+        # Vérifie si le nom est vide
+        if not ex_nom.strip():
             errors.append(self.dictlanguage[self.current_language]["change_routine"][9])  # Nom vide
-        if not duree or int(duree) <= 0:  # Vérifie si la durée est None ou <= 0
-            errors.append(self.dictlanguage[self.current_language]["change_routine"][10])  # Durée <= 0 ou None
-        if not repetitions or int(repetitions) <= 0:  # Vérifie si les répétitions sont None ou <= 0
-            errors.append(self.dictlanguage[self.current_language]["change_routine"][11])  # Répétitions <= 0 ou None
-        if not repos or int(repos) < 0:  # Vérifie si le repos est None ou < 0
-            errors.append(self.dictlanguage[self.current_language]["change_routine"][12])  # Repos < 0 ou None
 
-        # Si aucune erreur n'a été trouvée, on ajoute l'exercice
+        # Vérifie durée et unités : au moins un des deux doit être présent et valide
+        duree_val = None
+        unites_val = None
+        duree_ok = False
+        unites_ok = False
+
+        # Vérification de la durée
+        if duree:
+            try:
+                duree_val = int(duree)
+                if duree_val > 0:
+                    duree_ok = True
+                else:
+                    errors.append(self.dictlanguage[self.current_language]["change_routine"][10])  # Durée ≤ 0
+            except (ValueError, TypeError):
+                errors.append(self.dictlanguage[self.current_language]["change_routine"][14])  # Durée invalide (texte, etc.)
+
+        # Vérification des unités
+        if unites:
+            try:
+                unites_val = int(unites)
+                unites_ok = True
+            except (ValueError, TypeError):
+                errors.append(self.dictlanguage[self.current_language]["change_routine"][13])  # Unités invalides
+
+        if not duree and not unites:
+            errors.append(self.dictlanguage[self.current_language]["change_routine"][17])  # "Aucune durée/unités spécifiée"
+
+        # Vérification des répétitions
+        try:
+            repetitions_val = int(repetitions)
+            if repetitions_val <= 0:
+                errors.append(self.dictlanguage[self.current_language]["change_routine"][11])
+        except (ValueError, TypeError):
+            errors.append(self.dictlanguage[self.current_language]["change_routine"][15])  # Répétitions invalides
+
+        # Vérification du repos
+        try:
+            repos_val = int(repos)
+            if repos_val < 0:
+                errors.append(self.dictlanguage[self.current_language]["change_routine"][12])
+        except (ValueError, TypeError):
+            errors.append(self.dictlanguage[self.current_language]["change_routine"][16])  # Repos invalide
+
+        # Si aucune erreur, on ajoute l'exercice
         if not errors:
             exercice = {
                 "name": ex_nom.strip(),
-                "duration": int(duree) if duree else 0,
-                "repetitions": int(repetitions) if repetitions else 1,
-                "rest": int(repos) if repos else 0,
-                "units": int(unites) if unites else None
+                "duration": duree_val if duree_ok else 0,
+                "repetitions": repetitions_val,
+                "rest": repos_val,
+                "units": unites_val if unites_ok else None
             }
             self.routines[routine_nom]["fonctions"].append(exercice)
             self.sauvegarder_routines()
             self.set_root_content(self.page_routine(routine_nom))
         else:
-            # Si des erreurs ont été détectées, les afficher toutes
-            error_message = "\n".join(errors)  # Joint toutes les erreurs avec des sauts de ligne
+            error_message = "\n".join(errors)
             self.show_error_popup(error_message, routine_nom)
+
+
 
 
     def show_error_popup(self, error_message, routine_nom):
