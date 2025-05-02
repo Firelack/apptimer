@@ -20,8 +20,6 @@ from kivy.uix.behaviors import FocusBehavior
 from kivy.properties import BooleanProperty
 from kivy.uix.anchorlayout import AnchorLayout
 
-
-
 # Désactiver le mode multitouch par défaut (clic droit qui font des points rouges)
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
@@ -33,6 +31,7 @@ def resource_path(relative_path):
         # En exécution normale
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
+
 class MyTextInput(TextInput):
     def __init__(self, max_length=50, **kwargs):  # Ajout du paramètre max_length
         super().__init__(**kwargs)
@@ -67,9 +66,7 @@ class MyTextInput(TextInput):
         """Limite la saisie de texte selon le max_length."""
         if len(self.text) < self.max_length or substring == "":
             super().insert_text(substring, from_undo=from_undo)
-
-
-
+            
 class FocusableForm(BoxLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -77,18 +74,32 @@ class FocusableForm(BoxLayout):
         Window.bind(on_key_down=self._on_key_down)
 
     def register_focusable(self, widget):
+        """Enregistre les widgets qui peuvent être sélectionnés via TAB."""
         self.widgets_list.append(widget)
 
     def _on_key_down(self, window, key, scancode, codepoint, modifiers):
         if key == 9:  # TAB
-            focused = next((i for i, w in enumerate(self.widgets_list) if hasattr(w, "focus") and w.focus), None)
+            # Filtrer les widgets activés uniquement
+            enabled_widgets = [w for w in self.widgets_list if isinstance(w, Button) and w.disabled is False]
+            
+            # Si aucun widget de formulaire n'est focalisé, on se concentre sur le premier bouton activé
+            focused = next((i for i, w in enumerate(enabled_widgets) if hasattr(w, "focus") and w.focus), None)
+
+            if focused is None:  # Aucune focus sur un widget, donc se concentrer sur le premier bouton
+                # Chercher le premier bouton dans la liste activée
+                first_button = next((w for w in enabled_widgets if isinstance(w, Button)), None)
+                if first_button:
+                    first_button.focus = True
+                return True
+
             if focused is not None:
-                self.widgets_list[focused].focus = False
+                # Si un widget est focalisé, on bascule le focus à l'autre widget
+                enabled_widgets[focused].focus = False
                 if 'shift' in modifiers:
-                    next_index = (focused - 1) % len(self.widgets_list)
+                    next_index = (focused - 1) % len(enabled_widgets)
                 else:
-                    next_index = (focused + 1) % len(self.widgets_list)
-                self.widgets_list[next_index].focus = True
+                    next_index = (focused + 1) % len(enabled_widgets)
+                enabled_widgets[next_index].focus = True
                 return True
 
         elif key == 13:  # ENTER
@@ -117,7 +128,6 @@ class HoverBehavior:
 
     def on_hover(self, hovered):
         pass  # À surcharger si besoin
-
 
 class StyledButton(FocusBehavior, HoverBehavior, Button):
     def __init__(self, opacity=0.6, **kwargs):
@@ -162,14 +172,11 @@ class StyledButton(FocusBehavior, HoverBehavior, Button):
         else:
             self.bg_color.a = self.opacity_normal
 
-
 class RoutineApp(App):
     FILE_PATH = "routinesV3.json"  # Définition du chemin du fichier JSON
 
     with open("language.json", 'r', encoding='utf-8') as f:
         dictlanguage = json.load(f)
-
-
 
     def build(self):
         self.routines_data = self.charger_routines()
@@ -195,7 +202,6 @@ class RoutineApp(App):
         self.update_background_image()
 
         return self.root
-
 
     def set_root_content(self, new_content):
         self.content_container.clear_widgets()
@@ -237,12 +243,12 @@ class RoutineApp(App):
 
         self.current_language = langue  # Met à jour la langue active
         self.set_root_content(self.page_accueil())  # Recharge linterface
-
+        
     def page_accueil(self):
         layout = FloatLayout()
 
         # Contenu principal (routines et boutons)
-        content = BoxLayout(orientation="vertical", spacing=10, padding=10, size_hint=(1, 1))
+        content = FocusableForm(orientation="vertical", spacing=10, padding=10, size_hint=(1, 1))  # Utilisation de FocusableForm
 
         # --- MENU LANGUE ---
         top_buttons = BoxLayout(orientation="horizontal", size_hint=(1, 0.1), spacing=10)
@@ -286,18 +292,22 @@ class RoutineApp(App):
             btn = StyledButton(text=nom, size_hint=(0.7, 1))
             btn.bind(on_press=lambda instance, r=nom: self.set_root_content(self.page_routine(r)))
             routine_box.add_widget(btn)
+            content.register_focusable(btn)  # Enregistrer le bouton de routine
 
             up_btn = StyledButton(text="up", size_hint=(0.1, 1))
             up_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, -1))
             routine_box.add_widget(up_btn)
+            content.register_focusable(up_btn)  # Enregistrer le bouton "up"
 
             down_btn = StyledButton(text="dn", size_hint=(0.1, 1))
             down_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, 1))
             routine_box.add_widget(down_btn)
+            content.register_focusable(down_btn)  # Enregistrer le bouton "down"
 
             delete_btn = StyledButton(text="X", size_hint=(0.1, 1))
             delete_btn.bind(on_press=lambda instance, r=nom: self.confirmer_suppression_routine(r))
             routine_box.add_widget(delete_btn)
+            content.register_focusable(delete_btn)  # Enregistrer le bouton "delete"
 
             routine_layout.add_widget(routine_box)
 
@@ -305,6 +315,11 @@ class RoutineApp(App):
         content.add_widget(scroll)
 
         layout.add_widget(content)
+
+        # Enregistrer les boutons pour la navigation "Tab"
+        content.register_focusable(main_lang_btn)
+        content.register_focusable(btn2)
+
         return layout
 
     def deplacer_routine(self, index, direction):
@@ -386,17 +401,15 @@ class RoutineApp(App):
 
         return layout
 
-
-
     def ajouter_routine(self, nom):
         if nom.strip():
             self.routines[nom] = {"name": nom, "fonctions": []}
             self.sauvegarder_routines()
         self.set_root_content(self.page_accueil())
-
+        
     def page_routine(self, nom):
         routine = self.routines[nom]
-        layout = BoxLayout(orientation="vertical", spacing=5, padding=[10, 10, 10, 10])
+        layout = FocusableForm(orientation="vertical", spacing=5, padding=[10, 10, 10, 10])  # Utilisation de FocusableForm
 
         # Titre en haut
         title_label = Label(
@@ -418,6 +431,7 @@ class RoutineApp(App):
         for index, ex in enumerate(routine["fonctions"]):
             ex_layout = BoxLayout(size_hint_y=None, height=50, spacing=10)
 
+            # Ajout des labels et boutons pour chaque exercice
             if ex["duration"]:
                 ex_layout.add_widget(Label(
                     text=f"{ex['name']} - {ex['repetitions']} {self.dictlanguage[self.current_language]['routine_page'][1]}, {ex['duration']}{self.dictlanguage[self.current_language]['routine_page'][2]}",
@@ -429,16 +443,20 @@ class RoutineApp(App):
                     size_hint=(0.5, 1)
                 ))
 
+            # Boutons pour chaque exercice
             up_btn = StyledButton(text="up", size_hint=(0.1, 1))
             up_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(nom, i, -1))
+            layout.register_focusable(up_btn)  # Enregistrement du bouton pour Tab
             ex_layout.add_widget(up_btn)
 
             down_btn = StyledButton(text="dn", size_hint=(0.1, 1))
             down_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(nom, i, 1))
+            layout.register_focusable(down_btn)  # Enregistrement du bouton pour Tab
             ex_layout.add_widget(down_btn)
 
             remove_btn = StyledButton(text="X", size_hint=(0.1, 1))
             remove_btn.bind(on_press=lambda instance, i=index: self.supprimer_exercice(nom, i))
+            layout.register_focusable(remove_btn)  # Enregistrement du bouton pour Tab
             ex_layout.add_widget(remove_btn)
 
             exercice_layout.add_widget(ex_layout)
@@ -448,11 +466,20 @@ class RoutineApp(App):
 
         # Boutons bas de page
         btn_layout = BoxLayout(size_hint=(1, 0.15), spacing=10)
+        
+        # Bouton Lancer (premier bouton)
         lancer_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][4], size_hint=(0.4, None), height=50)
+        layout.register_focusable(lancer_btn)  # Enregistrer le bouton pour Tab
         lancer_btn.bind(on_press=lambda *args: self.lancer_routine(nom))
+
+        # Bouton Modifier
         modifier_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][5], size_hint=(0.4, None), height=50)
+        layout.register_focusable(modifier_btn)  # Enregistrer le bouton pour Tab
         modifier_btn.bind(on_press=lambda *args: self.set_root_content(self.page_modifier_routine(nom)))
+
+        # Bouton Retour
         retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][6], size_hint=(0.4, None), height=50)
+        layout.register_focusable(retour_btn)  # Enregistrer le bouton pour Tab
         retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_accueil()))
 
         btn_layout.add_widget(lancer_btn)
@@ -464,7 +491,6 @@ class RoutineApp(App):
         return layout
 
 
-    
     def deplacer_exercice(self, routine_nom, index, direction):
         exercices = self.routines[routine_nom]["fonctions"]
         if 0 <= index + direction < len(exercices):
@@ -485,28 +511,33 @@ class RoutineApp(App):
         self.is_resting = False
         self.remaining_time = self.routines[nom]["fonctions"][0]["duration"] if self.routines[nom]["fonctions"][0]["duration"] else 0
 
-        self.routine_layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
+        self.routine_layout = FocusableForm(orientation="vertical", spacing=10, padding=10)  # Utiliser FocusableForm ici
         self.timer_label = Label(text=self.dictlanguage[self.current_language]["start_routine"][0], font_size=24)
         self.routine_layout.add_widget(self.timer_label)
-        
+
+        # Enregistrer les boutons comme focusables dans FocusableForm
         self.fait_btn = StyledButton(text=self.dictlanguage[self.current_language]["start_routine"][1], size_hint=(1, 0.2))
         self.fait_btn.bind(on_press=self.marquer_fait)
         self.fait_btn.disabled = True
         self.routine_layout.add_widget(self.fait_btn)
+        self.routine_layout.register_focusable(self.fait_btn)  # Ajouter à la gestion du focus
 
         self.pause_btn = StyledButton(text=self.dictlanguage[self.current_language]["start_routine"][2], size_hint=(1, 0.2))
         self.pause_btn.bind(on_press=self.toggle_pause)
         self.routine_layout.add_widget(self.pause_btn)
+        self.routine_layout.register_focusable(self.pause_btn)  # Ajouter à la gestion du focus
 
         # Nouveau bouton pour passer le temps de repos
         self.skip_rest_btn = StyledButton(text=self.dictlanguage[self.current_language]["start_routine"][3], size_hint=(1, 0.2))
         self.skip_rest_btn.bind(on_press=self.pass_rest_time)
         self.skip_rest_btn.disabled = True  # Ce bouton est désactivé tant qu'on n'est pas en période de repos
         self.routine_layout.add_widget(self.skip_rest_btn)
-        
+        self.routine_layout.register_focusable(self.skip_rest_btn)  # Ajouter à la gestion du focus
+
         stop_btn = StyledButton(text=self.dictlanguage[self.current_language]["start_routine"][4], size_hint=(1, 0.2))
         stop_btn.bind(on_press=lambda *args: self.set_root_content(self.page_routine(nom)))
         self.routine_layout.add_widget(stop_btn)
+        self.routine_layout.register_focusable(stop_btn)  # Ajouter à la gestion du focus
 
         self.set_root_content(self.routine_layout)
         Clock.schedule_interval(self.update_routine, 1.0)
@@ -734,9 +765,6 @@ class RoutineApp(App):
         else:
             error_message = "\n".join(errors)
             self.show_error_popup(error_message, routine_nom)
-
-
-
 
     def show_error_popup(self, error_message, routine_nom):
         """Affiche un message d'erreur sous forme de popup avec un bouton 'Retour'."""

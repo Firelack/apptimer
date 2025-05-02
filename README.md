@@ -45,5 +45,3 @@ Note:
 
 - Return (\n) for display
 - Modification of exercices (+tab)
-- First tab
-- Tab on all page ?
