@@ -488,8 +488,9 @@ class RoutineApp(App):
         # Boutons bas de page
         btn_layout = BoxLayout(size_hint=(1, 0.15), spacing=10)
         
+        has_exercices = len(routine["fonctions"]) > 0  # Vérifie s'il y a des exercices dans la routine
         # Bouton Lancer (premier bouton)
-        lancer_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][4], size_hint=(0.4, None), height=50)
+        lancer_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][4], size_hint=(0.4, None), height=50,disabled=not has_exercices)
         layout.register_focusable(lancer_btn)  # Enregistrer le bouton pour Tab
         lancer_btn.bind(on_press=lambda *args: self.lancer_routine(nom))
 
@@ -633,12 +634,13 @@ class RoutineApp(App):
         content.bind(minimum_height=content.setter("height"))
 
         # Titre
-        content.add_widget(Label(
+        content.add_widget(AutoResizeLabel(
             text=f"{self.dictlanguage[self.current_language]['change_routine'][0]} {routine['name']}",
             font_size=22,
             size_hint=(1, None),
-            height=40
-        ))
+            height=40,
+            halign="center",  # Centrer le texte horizontalement
+            ))
 
         def add_field(label_text,length=20):
             content.add_widget(Label(text=label_text, size_hint=(1, None), height=25))
