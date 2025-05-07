@@ -19,6 +19,7 @@ from kivy.uix.dropdown import DropDown
 from kivy.uix.behaviors import FocusBehavior
 from kivy.properties import BooleanProperty
 from kivy.uix.anchorlayout import AnchorLayout
+from kivy.properties import StringProperty
 
 # Désactiver le mode multitouch par défaut (clic droit qui font des points rouges)
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
@@ -31,6 +32,24 @@ def resource_path(relative_path):
         # En exécution normale
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
+
+class AutoResizeLabel(Label):
+    # Optionnel : tu peux définir des propriétés comme un texte par défaut
+    text_property = StringProperty()
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.bind(size=self._on_size)  # Reagir au changement de taille du parent
+
+    def _on_size(self, instance, value):
+        # Met à jour la taille du texte en fonction de la taille du parent
+        self.text_size = (self.parent.width - 20, None)  # 20 pour laisser une marge
+        self.texture_update()  # Recalcule la texture du label pour qu'il s'affiche correctement
+
+    def on_parent(self, instance, parent):
+        # Cette fonction est appelée quand le label est ajouté à un parent
+        if parent:
+            self._on_size(parent, parent.size)  # Ajuste immédiatement la taille
 
 class MyTextInput(TextInput):
     def __init__(self, max_length=50, **kwargs):  # Ajout du paramètre max_length
@@ -135,7 +154,8 @@ class StyledButton(FocusBehavior, HoverBehavior, Button):
         self.opacity_normal = opacity
         self.opacity_focus = 1.0
         self.opacity_hover = 0.85
-        self.selected = False  # <-- NOUVEAU
+        self.selected = False
+        
 
         self.background_normal = ''
         self.background_color = (0, 0, 0, 0)
@@ -412,12 +432,13 @@ class RoutineApp(App):
         layout = FocusableForm(orientation="vertical", spacing=5, padding=[10, 10, 10, 10])  # Utilisation de FocusableForm
 
         # Titre en haut
-        title_label = Label(
+        title_label = AutoResizeLabel(
             text=f"{self.dictlanguage[self.current_language]['routine_page'][0]} {routine['name']}",
             font_size=22,
             size_hint=(1, None),
-            height=40
-        )
+            height=40,
+            halign="center",  # Centrer le texte horizontalement
+            )
         layout.add_widget(title_label)
 
         # Petit espace sous le titre

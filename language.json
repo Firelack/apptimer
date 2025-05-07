@@ -9,8 +9,8 @@
         "toggle_pause": ["Resume", "Pause"],
         "update_routine": ["Routine completed !", "Rest :", "s", "Repetition ", " units"],
         "change_routine": [
-            "Add an exercise :", "Exercise name :", "Duration (seconds) :", "Repetitions :", "Rest (seconds) :",
-            "Units : (if no duration)", "Add the exercise", "Back", "Duration/units :", "Please enter a valid name for the exercise",
+            "Add an exercise :", "Exercise name :", "Duration (sec) :", "Repetitions :", "Rest (seconds) :",
+            "Units : (if no sec)", "Add the exercise", "Back", "Duration/units :", "Please enter a valid name for the exercise",
             "Duration must be greater than 0 or must be specified", "Repetitions must be greater than 0 or must be specified", 
             "Rest time cannot be negative or must be specified", "Please enter a valid number for units", 
             "Please enter a valid number for the duration", "Please enter a valid number for the repetitions", 
@@ -27,8 +27,8 @@
         "toggle_pause": ["Relancer", "Pause"],
         "update_routine": ["Routine terminée !", "Repos :", "s", "Répétition ", " unités"],
         "change_routine": [
-            "Ajouter un exercice :", "Nom de l'exercice :", "Durée (secondes) :", "Répétitions :", "Repos (secondes) :",
-            "Unités : (si pas de durée)", "Ajouter l'exercice", "Retour", "Durée/unités :", 
+            "Ajouter un exercice :", "Nom de l'exercice :", "Durée (sec) :", "Répétitions :", "Repos (secondes) :",
+            "Unités : (si pas de sec)", "Ajouter l'exercice", "Retour", "Durée/unités :", 
             "Veuillez entrer un nom valide pour l'exercice", "La durée doit être supérieure à 0 ou doit être spécifiée", 
             "Les répétitions doivent être supérieures à 0 ou doivent être spécifiées", 
             "Le temps de repos ne peut pas être négatif ou doit être spécifié", 

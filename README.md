@@ -43,5 +43,11 @@ Note:
 
 ## ☑️ To do
 
-- Return (\n) for display
+- Add arrows
+- Size of :
+ - Delete routine confirmation
+ - Text in button + if select, see all text
+ - Exercices descriptions
+ - Add exercices
+ - Start routine all text
 - Modification of exercices (+tab)
