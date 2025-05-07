@@ -314,12 +314,12 @@ class RoutineApp(App):
             routine_box.add_widget(btn)
             content.register_focusable(btn)  # Enregistrer le bouton de routine
 
-            up_btn = StyledButton(text="up", size_hint=(0.1, 1))
+            up_btn = StyledButton(text="↑",font_name="arial.ttf", size_hint=(0.1, 1))
             up_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, -1))
             routine_box.add_widget(up_btn)
             #content.register_focusable(up_btn)  # Enregistrer le bouton "up"
 
-            down_btn = StyledButton(text="dn", size_hint=(0.1, 1))
+            down_btn = StyledButton(text="↓",font_name="arial.ttf", size_hint=(0.1, 1))
             down_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, 1))
             routine_box.add_widget(down_btn)
             #content.register_focusable(down_btn)  # Enregistrer le bouton "down"
@@ -465,12 +465,12 @@ class RoutineApp(App):
                 ))
 
             # Boutons pour chaque exercice
-            up_btn = StyledButton(text="up", size_hint=(0.1, 1))
+            up_btn = StyledButton(text="↑",font_name="arial.ttf", size_hint=(0.1, 1))
             up_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(nom, i, -1))
             layout.register_focusable(up_btn)  # Enregistrement du bouton pour Tab
             ex_layout.add_widget(up_btn)
 
-            down_btn = StyledButton(text="dn", size_hint=(0.1, 1))
+            down_btn = StyledButton(text="↓",font_name="arial.ttf", size_hint=(0.1, 1))
             down_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(nom, i, 1))
             layout.register_focusable(down_btn)  # Enregistrement du bouton pour Tab
             ex_layout.add_widget(down_btn)

@@ -43,7 +43,6 @@ Note:
 
 ## ☑️ To do
 
-- Add arrows
 - Size of :
  - Delete routine confirmation
  - Text in button + if select, see all text
