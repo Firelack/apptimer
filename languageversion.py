@@ -81,7 +81,6 @@ class FocusableForm(BoxLayout):
         if key == 9:  # TAB
             # Filtrer les widgets activés uniquement
             enabled_widgets = [w for w in self.widgets_list if hasattr(w, 'focus') and getattr(w, 'disabled', False) is False]
-
             
             # Si aucun widget de formulaire n'est focalisé, on se concentre sur le premier bouton activé
             focused = next((i for i, w in enumerate(enabled_widgets) if hasattr(w, "focus") and w.focus), None)
