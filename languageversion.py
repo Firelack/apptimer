@@ -80,7 +80,8 @@ class FocusableForm(BoxLayout):
     def _on_key_down(self, window, key, scancode, codepoint, modifiers):
         if key == 9:  # TAB
             # Filtrer les widgets activés uniquement
-            enabled_widgets = [w for w in self.widgets_list if isinstance(w, Button) and w.disabled is False]
+            enabled_widgets = [w for w in self.widgets_list if hasattr(w, 'focus') and getattr(w, 'disabled', False) is False]
+
             
             # Si aucun widget de formulaire n'est focalisé, on se concentre sur le premier bouton activé
             focused = next((i for i, w in enumerate(enabled_widgets) if hasattr(w, "focus") and w.focus), None)
@@ -297,17 +298,17 @@ class RoutineApp(App):
             up_btn = StyledButton(text="up", size_hint=(0.1, 1))
             up_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, -1))
             routine_box.add_widget(up_btn)
-            content.register_focusable(up_btn)  # Enregistrer le bouton "up"
+            #content.register_focusable(up_btn)  # Enregistrer le bouton "up"
 
             down_btn = StyledButton(text="dn", size_hint=(0.1, 1))
             down_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, 1))
             routine_box.add_widget(down_btn)
-            content.register_focusable(down_btn)  # Enregistrer le bouton "down"
+            #content.register_focusable(down_btn)  # Enregistrer le bouton "down"
 
             delete_btn = StyledButton(text="X", size_hint=(0.1, 1))
             delete_btn.bind(on_press=lambda instance, r=nom: self.confirmer_suppression_routine(r))
             routine_box.add_widget(delete_btn)
-            content.register_focusable(delete_btn)  # Enregistrer le bouton "delete"
+            #content.register_focusable(delete_btn)  # Enregistrer le bouton "delete"
 
             routine_layout.add_widget(routine_box)
 
