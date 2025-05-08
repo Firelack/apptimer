@@ -31,4 +31,5 @@ This application allows you to create, modify, and launch personalized workout o
 
 ## ☑️ To do
 
-- Modification of exercices (+tab) -> change delete ex in this page and actual delete button = modification
+- Modification of exercices better interface
+- Modification of exercice button delete

@@ -538,10 +538,10 @@ class RoutineApp(App):
             layout.register_focusable(down_btn)
             ex_layout.add_widget(down_btn)
 
-            remove_btn = StyledButton(text="\N{pencil}", font_name='SegoeUIEmoji.TTF', size_hint=(0.1, 1))
-            remove_btn.bind(on_press=lambda instance, i=index: self.supprimer_exercice(nom, i))
-            layout.register_focusable(remove_btn)
-            ex_layout.add_widget(remove_btn)
+            modify_btn = StyledButton(text="\N{pencil}", font_name='SegoeUIEmoji.TTF', size_hint=(0.1, 1))
+            modify_btn.bind(on_press=lambda instance, i=index: self.set_root_content(self.page_modifier_exercice(nom, i)))
+            layout.register_focusable(modify_btn)
+            ex_layout.add_widget(modify_btn)
 
             exercice_layout.add_widget(ex_layout)
 
@@ -568,6 +568,101 @@ class RoutineApp(App):
         btn_layout.add_widget(modifier_btn)
         btn_layout.add_widget(retour_btn)
 
+        layout.add_widget(btn_layout)
+
+        return layout
+    
+    def page_modifier_exercice(self, nom, index):
+        routine = self.routines[nom]
+        ex = routine["fonctions"][index]
+        layout = FocusableForm(orientation="vertical", spacing=5, padding=[10, 10, 10, 10])
+
+        scroll = ScrollView(size_hint=(1, 0.85))
+        content = BoxLayout(orientation="vertical", spacing=10, size_hint_y=None)
+        content.bind(minimum_height=content.setter("height"))
+
+        content.add_widget(Widget(size_hint=(1, None), height=20))
+        content.add_widget(AutoResizeLabel(
+            text=f"{self.dictlanguage[self.current_language]['change_routine'][19]} {ex['name']}",  # Nouveau texte à ajouter dans ton dictionnaire de langue
+            font_size=22,
+            size_hint=(1, None),
+            height=40,
+            halign="center"
+        ))
+
+        def add_field(label_text, default_text="", length=20):
+            content.add_widget(Label(text=label_text, size_hint=(1, None), height=25))
+            input_widget = MyTextInput(text=default_text, size_hint=(1, None), max_length=length, height=40)
+            content.add_widget(input_widget)
+            layout.register_focusable(input_widget)
+            return input_widget
+
+        content.add_widget(Widget(size_hint=(1, None), height=30))
+
+        exercice_name_input = add_field(self.dictlanguage[self.current_language]["change_routine"][1], ex["name"])
+
+        is_duration = "duration" in ex and ex["duration"]
+        valeur_init = ex["duration"] if is_duration else ex.get("units", "")
+        exercice_valeur_input = add_field(self.dictlanguage[self.current_language]["change_routine"][8], str(valeur_init), 5)
+
+        selected_type = {"value": "duration" if is_duration else "unit"}
+
+        def update_type(new_type):
+            selected_type["value"] = new_type
+            duree_btn.selected = (new_type == "duration")
+            unite_btn.selected = (new_type == "unit")
+            duree_btn.update_opacity()
+            unite_btn.update_opacity()
+
+        type_btn_layout = BoxLayout(size_hint=(1, None), height=50, spacing=10)
+
+        duree_btn = StyledButton(
+            text=self.dictlanguage[self.current_language]["change_routine"][2],
+            size_hint=(0.5, None), height=40
+        )
+        unite_btn = StyledButton(
+            text=self.dictlanguage[self.current_language]["change_routine"][5],
+            size_hint=(0.5, None), height=40
+        )
+
+        update_type(selected_type["value"])
+
+        duree_btn.bind(on_press=lambda btn: update_type("duration"))
+        unite_btn.bind(on_press=lambda btn: update_type("unit"))
+
+        type_btn_layout.add_widget(duree_btn)
+        type_btn_layout.add_widget(unite_btn)
+
+        content.add_widget(type_btn_layout)
+        layout.register_focusable(duree_btn)
+        layout.register_focusable(unite_btn)
+
+        exercice_reps_input = add_field(self.dictlanguage[self.current_language]["change_routine"][3], str(ex.get("repetitions", "")), 4)
+        exercice_repos_input = add_field(self.dictlanguage[self.current_language]["change_routine"][4], str(ex.get("rest", "")), 4)
+
+        scroll.add_widget(content)
+        layout.add_widget(scroll)
+
+        btn_layout = BoxLayout(size_hint=(1, 0.15), spacing=10)
+        enregistrer_btn = StyledButton(text=self.dictlanguage[self.current_language]["change_routine"][20], size_hint=(0.5, None), height=50)
+
+        enregistrer_btn.bind(on_press=lambda *args: self.enregistrer_modification_exercice(
+            nom, index,
+            exercice_name_input.text,
+            exercice_valeur_input.text if selected_type["value"] == "duration" else "",
+            exercice_reps_input.text,
+            exercice_repos_input.text,
+            exercice_valeur_input.text if selected_type["value"] == "unit" else ""
+        ))
+
+        retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["change_routine"][7], size_hint=(0.5, None), height=50)
+        retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_routine(nom)))
+
+        layout.register_focusable(enregistrer_btn)
+        layout.register_focusable(retour_btn)
+
+        btn_layout.add_widget(enregistrer_btn)
+        btn_layout.add_widget(retour_btn)
         layout.add_widget(btn_layout)
 
         return layout
@@ -856,6 +951,70 @@ class RoutineApp(App):
             else:
                 error_message = "\n".join(errors)
             self.show_error_popup(error_message, routine_nom)
+
+    def enregistrer_modification_exercice(self, routine_nom, index, ex_nom, duree, repetitions, repos, unites):
+        errors = []
+
+        if not ex_nom.strip():
+            errors.append(self.dictlanguage[self.current_language]["change_routine"][9])  # Nom vide
+
+        duree_val = None
+        unites_val = None
+        duree_ok = False
+        unites_ok = False
+
+        if duree:
+            try:
+                duree_val = int(duree)
+                if duree_val > 0:
+                    duree_ok = True
+                else:
+                    errors.append(self.dictlanguage[self.current_language]["change_routine"][10])  # Durée ≤ 0
+            except (ValueError, TypeError):
+                errors.append(self.dictlanguage[self.current_language]["change_routine"][14])  # Durée invalide
+
+        if unites:
+            try:
+                unites_val = int(unites)
+                unites_ok = True
+            except (ValueError, TypeError):
+                errors.append(self.dictlanguage[self.current_language]["change_routine"][13])  # Unités invalides
+
+        if not duree and not unites:
+            errors.append(self.dictlanguage[self.current_language]["change_routine"][17])  # Aucune durée/unité
+
+        try:
+            repetitions_val = int(repetitions)
+            if repetitions_val <= 0:
+                errors.append(self.dictlanguage[self.current_language]["change_routine"][11])  # Répétitions ≤ 0
+        except (ValueError, TypeError):
+            errors.append(self.dictlanguage[self.current_language]["change_routine"][15])  # Répétitions invalides
+
+        try:
+            repos_val = int(repos)
+            if repos_val < 0:
+                errors.append(self.dictlanguage[self.current_language]["change_routine"][12])  # Repos négatif
+        except (ValueError, TypeError):
+            errors.append(self.dictlanguage[self.current_language]["change_routine"][16])  # Repos invalide
+
+        if not errors:
+            exercice = {
+                "name": ex_nom.strip(),
+                "duration": duree_val if duree_ok else 0,
+                "repetitions": repetitions_val,
+                "rest": repos_val,
+                "units": unites_val if unites_ok else None
+            }
+            self.routines[routine_nom]["fonctions"][index] = exercice
+            self.sauvegarder_routines()
+            self.set_root_content(self.page_routine(routine_nom))
+        else:
+            if len(errors) >= 3:
+                error_message = self.dictlanguage[self.current_language]["change_routine"][18]
+            else:
+                error_message = "\n".join(errors)
+            self.show_error_popup(error_message, routine_nom)
+
 
     def show_error_popup(self, error_message, routine_nom):
         """Affiche un message d'erreur sous forme de popup avec un bouton 'Retour'."""
