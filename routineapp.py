@@ -274,6 +274,11 @@ class RoutineApp(App):
             return ' '.join(words[:2])
         return text
     
+    def on_window_resize(self, instance, width, height):
+        if hasattr(self, "routine_buttons"):
+            for btn, nom in self.routine_buttons:
+                btn.text = self.adjust_button_text(nom)
+    
     def changer_langue(self, langue):
         # Charger les données JSON
         with open(self.FILE_PATH, "r", encoding="utf-8") as f:
@@ -305,9 +310,9 @@ class RoutineApp(App):
         dropdown = DropDown()
         self.dropdown_buttons = []  # Stocke les boutons du menu déroulant
 
-        for lang in ["English", "French","Spanish","German"]:
+        for lang in ["English", "French", "Spanish", "German"]:
             btn = StyledButton(text="", size_hint_y=None, height=44, opacity=1)
-            btn.full_text = lang  # Stocker le texte complet
+            btn.full_text = lang
 
             def on_lang_select(btn_instance, dropdown=dropdown):
                 selected_lang = btn_instance.full_text
@@ -323,8 +328,7 @@ class RoutineApp(App):
             dropdown.add_widget(btn)
             self.dropdown_buttons.append(btn)
 
-        self.update_dropdown_language_buttons()  # Appliquer la bonne version de texte
-
+        self.update_dropdown_language_buttons()
         self.main_lang_btn.bind(on_release=lambda btn: Clock.schedule_once(lambda dt: dropdown.open(btn), 0.01))
         top_buttons.add_widget(self.main_lang_btn)
 
@@ -340,6 +344,9 @@ class RoutineApp(App):
         routine_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=10)
         routine_layout.bind(minimum_height=routine_layout.setter("height"))
 
+        # -- Liste des boutons stockés pour le resize
+        self.routine_buttons = []
+
         routines_list = list(self.routines.items())
         for index, (nom, _) in enumerate(routines_list):
             routine_box = BoxLayout(size_hint_y=None, height=50, spacing=10)
@@ -348,6 +355,9 @@ class RoutineApp(App):
             btn.bind(on_press=lambda instance, r=nom: self.set_root_content(self.page_routine(r)))
             routine_box.add_widget(btn)
             content.register_focusable(btn)
+
+            # Stocker bouton + nom pour redimensionnement
+            self.routine_buttons.append((btn, nom))
 
             up_btn = StyledButton(text="↑", font_name="arial.ttf", size_hint=(0.1, 1))
             up_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, -1))
@@ -371,6 +381,10 @@ class RoutineApp(App):
         # Enregistrer les boutons pour la navigation "Tab"
         content.register_focusable(self.main_lang_btn)
         content.register_focusable(btn2)
+
+        # 🔁 Réagir au redimensionnement de la fenêtre
+        Window.unbind(on_resize=self.on_window_resize)
+        Window.bind(on_resize=self.on_window_resize)
 
         return layout
 
