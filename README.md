@@ -45,6 +45,7 @@ Note:
 
 - Size of :
  - Delete routine confirmation
+ - Pop up wrong info of new ex text
  - Text in button + if select, see all text
  - Exercices descriptions
  - Start routine all text
