@@ -222,7 +222,6 @@ class RoutineApp(App):
         self.update_background_image()
         Window.bind(size=self.update_lang_button_text)
         Window.bind(size=lambda *args: self.update_dropdown_language_buttons())
-        Window.bind(on_resize=lambda *args: Clock.schedule_once(lambda dt: self.set_root_content(self.page_accueil()), 0.1))
 
         return self.root
 
@@ -525,7 +524,7 @@ class RoutineApp(App):
             layout.register_focusable(down_btn)
             ex_layout.add_widget(down_btn)
 
-            remove_btn = StyledButton(text="X", size_hint=(0.1, 1))
+            remove_btn = StyledButton(text="\N{pencil}", font_name='SegoeUIEmoji.TTF', size_hint=(0.1, 1))
             remove_btn.bind(on_press=lambda instance, i=index: self.supprimer_exercice(nom, i))
             layout.register_focusable(remove_btn)
             ex_layout.add_widget(remove_btn)
