@@ -434,55 +434,72 @@ class RoutineApp(App):
         
     def page_routine(self, nom):
         routine = self.routines[nom]
-        layout = FocusableForm(orientation="vertical", spacing=5, padding=[10, 10, 10, 10])  # Utilisation de FocusableForm
+        layout = FocusableForm(orientation="vertical", spacing=5, padding=[10, 10, 10, 10])
         layout.add_widget(Widget(size_hint=(1, None), height=10))
-        # Titre en haut
+
+        # Titre centré avec AutoResizeLabel
         title_label = AutoResizeLabel(
             text=f"{self.dictlanguage[self.current_language]['routine_page'][0]} {routine['name']}",
             font_size=22,
             size_hint=(1, None),
             height=40,
-            halign="center",  # Centrer le texte horizontalement
-            )
+            halign="center",
+            valign="middle",
+        )
+        title_label.bind(
+            size=lambda instance, value: setattr(instance, 'text_size', (value[0] - 20, None))
+        )
         layout.add_widget(title_label)
 
-        # Petit espace sous le titre
         layout.add_widget(Widget(size_hint=(1, None), height=10))
 
         # ScrollView contenant les exercices
         scroll = ScrollView(size_hint=(1, 0.70))
-        exercice_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=8)
+        exercice_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=20, padding=[0, 5])
         exercice_layout.bind(minimum_height=exercice_layout.setter("height"))
 
         for index, ex in enumerate(routine["fonctions"]):
-            ex_layout = BoxLayout(size_hint_y=None, height=50, spacing=10)
+            ex_layout = BoxLayout(size_hint_y=None, height=70, spacing=10)
 
-            # Ajout des labels et boutons pour chaque exercice
             if ex["duration"]:
-                ex_layout.add_widget(Label(
-                    text=f"{ex['name']} - {ex['repetitions']} {self.dictlanguage[self.current_language]['routine_page'][1]}, {ex['duration']}{self.dictlanguage[self.current_language]['routine_page'][2]}",
-                    size_hint=(0.5, 1)
-                ))
+                texte = (
+                    f"{ex['name']}\n"
+                    f"{ex['repetitions']} {self.dictlanguage[self.current_language]['routine_page'][1]}, "
+                    f"{ex['duration']}{self.dictlanguage[self.current_language]['routine_page'][2]}"
+                )
             else:
-                ex_layout.add_widget(Label(
-                    text=f"{ex['name']} - {ex['repetitions']} {self.dictlanguage[self.current_language]['routine_page'][1]}, {ex['units']} {self.dictlanguage[self.current_language]['routine_page'][3]}",
-                    size_hint=(0.5, 1)
-                ))
+                texte = (
+                    f"{ex['name']}\n"
+                    f"{ex['repetitions']} {self.dictlanguage[self.current_language]['routine_page'][1]}, "
+                    f"{ex['units']} {self.dictlanguage[self.current_language]['routine_page'][3]}"
+                )
+
+            label = Label(
+                text=texte,
+                size_hint=(0.5, 1),
+                halign="center",
+                valign="middle"
+            )
+            label.bind(
+                size=lambda instance, value: setattr(instance, 'text_size', value)
+            )
+
+            ex_layout.add_widget(label)
 
             # Boutons pour chaque exercice
-            up_btn = StyledButton(text="↑",font_name="arial.ttf", size_hint=(0.1, 1))
+            up_btn = StyledButton(text="↑", font_name="arial.ttf", size_hint=(0.1, 1))
             up_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(nom, i, -1))
-            layout.register_focusable(up_btn)  # Enregistrement du bouton pour Tab
+            layout.register_focusable(up_btn)
             ex_layout.add_widget(up_btn)
 
-            down_btn = StyledButton(text="↓",font_name="arial.ttf", size_hint=(0.1, 1))
+            down_btn = StyledButton(text="↓", font_name="arial.ttf", size_hint=(0.1, 1))
             down_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(nom, i, 1))
-            layout.register_focusable(down_btn)  # Enregistrement du bouton pour Tab
+            layout.register_focusable(down_btn)
             ex_layout.add_widget(down_btn)
 
             remove_btn = StyledButton(text="X", size_hint=(0.1, 1))
             remove_btn.bind(on_press=lambda instance, i=index: self.supprimer_exercice(nom, i))
-            layout.register_focusable(remove_btn)  # Enregistrement du bouton pour Tab
+            layout.register_focusable(remove_btn)
             ex_layout.add_widget(remove_btn)
 
             exercice_layout.add_widget(ex_layout)
@@ -492,21 +509,18 @@ class RoutineApp(App):
 
         # Boutons bas de page
         btn_layout = BoxLayout(size_hint=(1, 0.15), spacing=10)
-        
-        has_exercices = len(routine["fonctions"]) > 0  # Vérifie s'il y a des exercices dans la routine
-        # Bouton Lancer (premier bouton)
-        lancer_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][4], size_hint=(0.4, None), height=50,disabled=not has_exercices)
-        layout.register_focusable(lancer_btn)  # Enregistrer le bouton pour Tab
+
+        has_exercices = len(routine["fonctions"]) > 0
+        lancer_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][4], size_hint=(0.4, None), height=50, disabled=not has_exercices)
+        layout.register_focusable(lancer_btn)
         lancer_btn.bind(on_press=lambda *args: self.lancer_routine(nom))
 
-        # Bouton Modifier
         modifier_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][5], size_hint=(0.4, None), height=50)
-        layout.register_focusable(modifier_btn)  # Enregistrer le bouton pour Tab
+        layout.register_focusable(modifier_btn)
         modifier_btn.bind(on_press=lambda *args: self.set_root_content(self.page_modifier_routine(nom)))
 
-        # Bouton Retour
         retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][6], size_hint=(0.4, None), height=50)
-        layout.register_focusable(retour_btn)  # Enregistrer le bouton pour Tab
+        layout.register_focusable(retour_btn)
         retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_accueil()))
 
         btn_layout.add_widget(lancer_btn)
@@ -516,7 +530,6 @@ class RoutineApp(App):
         layout.add_widget(btn_layout)
 
         return layout
-
 
     def deplacer_exercice(self, routine_nom, index, direction):
         exercices = self.routines[routine_nom]["fonctions"]
