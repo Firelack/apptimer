@@ -49,5 +49,5 @@ Note:
 ## ☑️ To do
 
 - Size of :
- - Text in button + if select, see all text
+ - Name of routine resize
 - Modification of exercices (+tab) -> change delete ex in this page and actual delete button = modification

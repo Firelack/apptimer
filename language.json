@@ -64,5 +64,25 @@
             "No se especificó ninguna duración/unidades",
             "Por favor, complete todos los campos correctamente"
         ]
+    },
+    "German": {
+        "welcome_page": "Willkommen bei dieser personalisierten Routineanwendung",
+        "home_page": "Eine Routine hinzufügen",
+        "confirmation": ["Bestätigung", "Möchten Sie die Routine wirklich löschen ", "Ja", "Nein"],
+        "add_routine": ["Routinenname :", "Fertig", "Abbrechen"],
+        "routine_page": ["Routine :", "Wdh", "s", "Einheit", "Starten", "Hinzufügen", "Zurück"],
+        "start_routine": ["Vorbereitung...", "Fertig", "Pause", "Überspringen", "Zurück"],
+        "toggle_pause": ["Fortsetzen", "Pause"],
+        "update_routine": ["Routine abgeschlossen !", "Pause :", "s", "Wdh ", " Einheiten"],
+        "change_routine": [
+            "Übung hinzufügen:", "Übungsname:", "Dauer (Sek.):", "Wiederholungen:", "Pause (Sek.):",
+            "Einheiten: (x mal)", "Übung hinzufügen", "Zurück", "Dauer/Einheiten:", 
+            "Bitte geben Sie einen gültigen Namen für die Übung ein", "Dauer muss größer als 0 sein oder angegeben werden", 
+            "Wiederholungen müssen größer als 0 sein oder angegeben werden", 
+            "Die Ruhezeit darf nicht negativ sein oder muss angegeben werden." ,
+            "Bitte geben Sie eine gültige Zahl für Einheiten ein", "Bitte geben Sie eine gültige Zahl für Dauer ein", 
+            "Bitte geben Sie eine gültige Zahl für Wiederholungen ein", "Bitte geben Sie eine gültige Zahl für die Ruhezeit ein",
+            "Keine Dauer/Einheiten angegeben","Bitte füllen Sie alle Felder korrekt aus"
+        ]
     }
 }
