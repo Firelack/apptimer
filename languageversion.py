@@ -353,12 +353,7 @@ class RoutineApp(App):
 
     def confirmer_suppression_routine(self, nom):
         popup_layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
-        popup_layout.add_widget(AutoResizeLabel(text=f"{self.dictlanguage[self.current_language]['confirmation'][1]} {nom} ?"),
-            font_size=22,
-            size_hint=(1, None),
-            height=40,
-            halign="center",  # Centrer le texte horizontalement
-            )
+        popup_layout.add_widget(AutoResizeLabel(text=f"{self.dictlanguage[self.current_language]['confirmation'][1]} {nom} ?",halign="center", valign="middle", font_size=20))
         btn_layout = BoxLayout(size_hint=(1, None), height=50, spacing=10)
 
         popup = Popup(title=self.dictlanguage[self.current_language]["confirmation"][0], content=popup_layout, size_hint=(0.8, 0.4))
