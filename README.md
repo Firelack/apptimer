@@ -44,7 +44,6 @@ Note:
 ## ☑️ To do
 
 - Size of :
- - Delete routine confirmation
  - Pop up wrong info of new ex text
  - Text in button + if select, see all text
  - Start routine all text

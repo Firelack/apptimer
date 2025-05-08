@@ -14,7 +14,7 @@
             "Duration must be greater than 0 or must be specified", "Repetitions must be greater than 0 or must be specified", 
             "Rest time cannot be negative or must be specified", "Please enter a valid number for units", 
             "Please enter a valid number for the duration", "Please enter a valid number for the repetitions", 
-            "Please enter a valid number for the rest","No duration/units specified"
+            "Please enter a valid number for the rest","No duration/units specified","Please fill in all fields correctly"
         ]
     },
     "French": {
@@ -34,7 +34,7 @@
             "Le temps de repos ne peut pas être négatif ou doit être spécifié", 
             "Veuillez entrer un nombre valide pour les unités", "Veuillez entrer un nombre valide pour la durée", 
             "Veuillez entrer un nombre valide pour les répétitions", "Veuillez entrer un nombre valide pour le temps de repos",
-            "Aucune durée/unités spécifiée"
+            "Aucune durée/unités spécifiée","Veuillez remplir correctement tous les champs"
         ]
     }
 }

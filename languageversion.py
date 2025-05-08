@@ -804,7 +804,10 @@ class RoutineApp(App):
             self.sauvegarder_routines()
             self.set_root_content(self.page_routine(routine_nom))
         else:
-            error_message = "\n".join(errors)
+            if len(errors) >= 3:
+                error_message = self.dictlanguage[self.current_language]["change_routine"][18]
+            else:
+                error_message = "\n".join(errors)
             self.show_error_popup(error_message, routine_nom)
 
     def show_error_popup(self, error_message, routine_nom):
@@ -813,7 +816,7 @@ class RoutineApp(App):
 
         # Label centré verticalement et horizontalement
         label_container = AnchorLayout(anchor_x='center', anchor_y='center', size_hint=(1, 1))
-        label = Label(
+        label = AutoResizeLabel(
             text=error_message,
             font_size=20,
             halign='center',
