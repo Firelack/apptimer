@@ -2,29 +2,39 @@
 
 This application allows you to create, modify, and launch personalized workout or activity routines.
 
+## 📚 Table of Contents
+
+- [✨ Features](#-features)
+- [📁 Available Versions](#-available-versions-different-progression)
+- [⚠️ Known Issues](#-known-issues)
+- [🌍 Language Support](#-language-support)
+- [🛠️ Notes](#️-notes)
+
 ## ✨ Features
 
 - Built-in routines with customizable exercises.
 - Modify the order of exercises and routines.
 - Launch routines with a built-in timer.
-- Language selection (available in specific versions).
+- Language selection.
 
-## 📁 Available Versions
+## 📁 Available Versions (different progression)
 
-- `routineapp.py`: Full-featured version with interface and language selection (English/French and more).
-- `fonctionbase.py`: Minimal version — routines managed in pure Python, no graphical interface, only french.
+- [`routineapp.py`](./routineapp.py) — Full GUI version with multilingual support (English, French, and more).
+- [`fonctionbase.py`](./fonctionbase.py) — Minimal version using only Python logic (no GUI, French only).
+
+⚠️ Important: The two versions use different storage formats for routines, so saved routines are not shared between them.
 
 ## ⚠️ Known Issues
 
 - **Timer speed bug**: If the timer runs too fast, restarting the app usually fixes it. Cause unknown.
 
-## 🚨 Warning
+## 🌍 Language Support
 
-- Different versions of the app code use separate files to save progress. If you switch between versions, your progress may not be saved.
+Languages are loaded from  [`language.json`](./language.json).  
+To add or modify a language:
+1. Edit or extend the existing JSON structure.
+2. Make sure keys match those in the app code.
 
 ## 🔧 Notes
 
-- Some comments and function names in the codebase are still in French.
-- To add a new language :
-    - Add it in `routineapp.py` : *for lang in ["English", "French","Spanish",...]:*
-    - Add all the text in `language.json`
+- Some comments and function names are still in French; they will be updated in a future version.
