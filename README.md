@@ -44,7 +44,5 @@ Note:
 ## ☑️ To do
 
 - Size of :
- - Pop up wrong info of new ex text
  - Text in button + if select, see all text
- - Start routine all text
 - Modification of exercices (+tab) -> change delete ex in this page and actual delete button = modification

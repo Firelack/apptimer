@@ -547,7 +547,8 @@ class RoutineApp(App):
         self.remaining_time = self.routines[nom]["fonctions"][0]["duration"] if self.routines[nom]["fonctions"][0]["duration"] else 0
 
         self.routine_layout = FocusableForm(orientation="vertical", spacing=10, padding=10)  # Utiliser FocusableForm ici
-        self.timer_label = Label(text=self.dictlanguage[self.current_language]["start_routine"][0], font_size=24)
+        self.timer_label = AutoResizeLabel(text=self.dictlanguage[self.current_language]["start_routine"][0], font_size=24,
+            halign='center',valign='middle')
         self.routine_layout.add_widget(self.timer_label)
 
         # Enregistrer les boutons comme focusables dans FocusableForm
@@ -620,7 +621,7 @@ class RoutineApp(App):
         else:
             if exercise["duration"]:
                 if self.remaining_time > 0:
-                    self.timer_label.text = f"{exercise['name']} - {self.dictlanguage[self.current_language]['update_routine'][3]} {self.current_repetition}/{exercise['repetitions']} - {self.remaining_time}{self.dictlanguage[self.current_language]['update_routine'][2]}"
+                    self.timer_label.text = f"{exercise['name']}\n{self.dictlanguage[self.current_language]['update_routine'][3]} {self.current_repetition}/{exercise['repetitions']} - {self.remaining_time}{self.dictlanguage[self.current_language]['update_routine'][2]}"
                     self.remaining_time -= 1
                 else:
                     # Vérifier si c'est la dernière répétition du dernier exercice
