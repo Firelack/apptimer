@@ -193,9 +193,9 @@ class StyledButton(FocusBehavior, HoverBehavior, Button):
             self.bg_color.a = self.opacity_normal
 
 class RoutineApp(App):
-    FILE_PATH = "routinesV3.json"  # Définition du chemin du fichier JSON
+    FILE_PATH = "necessary/routinesV3.json"  # Définition du chemin du fichier JSON
 
-    with open("language.json", 'r', encoding='utf-8') as f:
+    with open("necessary/language.json", 'r', encoding='utf-8') as f:
         dictlanguage = json.load(f)
 
     def build(self):
@@ -359,11 +359,11 @@ class RoutineApp(App):
             # Stocker bouton + nom pour redimensionnement
             self.routine_buttons.append((btn, nom))
 
-            up_btn = StyledButton(text="↑", font_name="arial.ttf", size_hint=(0.1, 1))
+            up_btn = StyledButton(text="↑", font_name="necessary/arial.ttf", size_hint=(0.1, 1))
             up_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, -1))
             routine_box.add_widget(up_btn)
 
-            down_btn = StyledButton(text="↓", font_name="arial.ttf", size_hint=(0.1, 1))
+            down_btn = StyledButton(text="↓", font_name="necessary/arial.ttf", size_hint=(0.1, 1))
             down_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, 1))
             routine_box.add_widget(down_btn)
 
@@ -528,17 +528,17 @@ class RoutineApp(App):
             ex_layout.add_widget(label)
 
             # Boutons pour chaque exercice
-            up_btn = StyledButton(text="↑", font_name="arial.ttf", size_hint=(0.1, 1))
+            up_btn = StyledButton(text="↑", font_name="necessary/arial.ttf", size_hint=(0.1, 1))
             up_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(nom, i, -1))
             layout.register_focusable(up_btn)
             ex_layout.add_widget(up_btn)
 
-            down_btn = StyledButton(text="↓", font_name="arial.ttf", size_hint=(0.1, 1))
+            down_btn = StyledButton(text="↓", font_name="necessary/arial.ttf", size_hint=(0.1, 1))
             down_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(nom, i, 1))
             layout.register_focusable(down_btn)
             ex_layout.add_widget(down_btn)
 
-            modify_btn = StyledButton(text="\N{pencil}", font_name='SegoeUIEmoji.TTF', size_hint=(0.1, 1))
+            modify_btn = StyledButton(text="\N{pencil}", font_name='necessary/SegoeUIEmoji.TTF', size_hint=(0.1, 1))
             modify_btn.bind(on_press=lambda instance, i=index: self.set_root_content(self.page_modifier_exercice(nom, i)))
             layout.register_focusable(modify_btn)
             ex_layout.add_widget(modify_btn)
@@ -658,7 +658,7 @@ class RoutineApp(App):
         retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["change_routine"][7], size_hint=(0.45, None), height=50)
         retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_routine(nom)))
 
-        remove_btn = StyledButton(text="X", font_name='SegoeUIEmoji.TTF', size_hint=(0.1, None), height=50)
+        remove_btn = StyledButton(text="X", size_hint=(0.1, None), height=50)
         remove_btn.bind(on_press=lambda instance, i=index: self.supprimer_exercice(nom, i))
 
         layout.register_focusable(enregistrer_btn)

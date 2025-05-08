@@ -1,0 +1,74 @@
+{
+    "first_time": false,
+    "language": "English",
+    "routines": {
+        "test": {
+            "name": "test",
+            "fonctions": [
+                {
+                    "name": "111",
+                    "duration": 0,
+                    "repetitions": 12,
+                    "rest": 1,
+                    "units": 150
+                },
+                {
+                    "name": "ssssssssssssssssssss",
+                    "duration": 14,
+                    "repetitions": 14,
+                    "rest": 14,
+                    "units": null
+                }
+            ]
+        },
+        "r": {
+            "name": "r",
+            "fonctions": [
+                {
+                    "name": "Nico",
+                    "duration": 0,
+                    "repetitions": 0,
+                    "rest": 0,
+                    "units": null
+                },
+                {
+                    "name": "nico 2",
+                    "duration": 0,
+                    "repetitions": 0,
+                    "rest": 0,
+                    "units": 0
+                }
+            ]
+        },
+        "test nouveau bouton": {
+            "name": "test nouveau bouton",
+            "fonctions": [
+                {
+                    "name": "0repos",
+                    "duration": 10,
+                    "repetitions": 1,
+                    "rest": 0,
+                    "units": null
+                },
+                {
+                    "name": "coucou",
+                    "duration": 40,
+                    "repetitions": 2,
+                    "rest": 5,
+                    "units": null
+                },
+                {
+                    "name": "rere",
+                    "duration": 0,
+                    "repetitions": 2,
+                    "rest": 15,
+                    "units": 10
+                }
+            ]
+        },
+        "mmmmmmmmmmmmmmmmmmmm": {
+            "name": "mmmmmmmmmmmmmmmmmmmm",
+            "fonctions": []
+        }
+    }
+}
