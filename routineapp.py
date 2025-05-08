@@ -310,7 +310,7 @@ class RoutineApp(App):
         dropdown = DropDown()
         self.dropdown_buttons = []  # Stocke les boutons du menu déroulant
 
-        for lang in ["English", "French", "Spanish", "German"]:
+        for lang in ["English", "French", "Spanish", "German", "Italian", "Dutch", "Portuguese", "Russian", "Chinese", "Japanese"]:
             btn = StyledButton(text="", size_hint_y=None, height=44, opacity=1)
             btn.full_text = lang
 

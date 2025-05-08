@@ -11,7 +11,7 @@ This application allows you to create, modify, and launch personalized workout o
 
 ## 📁 Available Versions
 
-- `routineapp.py`: Full-featured version with interface and language selection (English/French).
+- `routineapp.py`: Full-featured version with interface and language selection (English/French and more).
 - `fonctionbase.py`: Minimal version — routines managed in pure Python, no graphical interface, only french.
 
 ## ⚠️ Known Issues
