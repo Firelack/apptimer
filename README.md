@@ -6,6 +6,7 @@ This application allows you to create, modify, and launch personalized workout o
 
 - [✨ Features](#-features)
 - [📁 Available Versions](#-available-versions-different-progression)
+- [▶️ How to run](#-how-to-run)
 - [⚠️ Known Issues](#-known-issues)
 - [🌍 Language Support](#-language-support)
 - [🛠️ Notes](#️-notes)
@@ -23,6 +24,12 @@ This application allows you to create, modify, and launch personalized workout o
 - [`fonctionbase.py`](./fonctionbase.py) — Minimal version using only Python logic (no GUI, French only).
 
 ⚠️ Important: The two versions use different storage formats for routines, so saved routines are not shared between them.
+
+## ▶️ How to Run
+
+1. Download the latest release.
+2. Make sure that both [`routineapp.exe`](https://github.com/Firelack/apptimer/releases/download/v1/routineapp.exe) and [`language.json`](./language.json) are in the **same folder**.
+3. Double-click [`routineapp.exe`](https://github.com/Firelack/apptimer/releases/download/v1/routineapp.exe) to launch the application.
 
 ## ⚠️ Known Issues
 
