@@ -8,11 +8,10 @@ This application allows you to create, modify, and launch personalized workout o
 - Modify the order of exercises and routines.
 - Launch routines with a built-in timer.
 - Language selection (available in specific versions).
-- Recent updates have improved the interface and are only available in the `languageversion.py`
 
 ## 📁 Available Versions
 
-- `languageversion.py`: Full-featured version with interface and language selection (English/French).
+- `routineapp.py`: Full-featured version with interface and language selection (English/French).
 - `fonctionbase.py`: Minimal version — routines managed in pure Python, no graphical interface, only french.
 
 ## ⚠️ Known Issues
@@ -27,7 +26,7 @@ This application allows you to create, modify, and launch personalized workout o
 
 - Some comments and function names in the codebase are still in French.
 - To add a new language :
-    - Add it in `languageversion.py` : *for lang in ["English", "French","Spanish",...]:*
+    - Add it in `routineapp.py` : *for lang in ["English", "French","Spanish",...]:*
     - Add all the text in `language.json`
 
 ## ☑️ To do
