@@ -644,7 +644,7 @@ class RoutineApp(App):
         layout.add_widget(scroll)
 
         btn_layout = BoxLayout(size_hint=(1, 0.15), spacing=10)
-        enregistrer_btn = StyledButton(text=self.dictlanguage[self.current_language]["change_routine"][20], size_hint=(0.5, None), height=50)
+        enregistrer_btn = StyledButton(text=self.dictlanguage[self.current_language]["change_routine"][20], size_hint=(0.45, None), height=50)
 
         enregistrer_btn.bind(on_press=lambda *args: self.enregistrer_modification_exercice(
             nom, index,
@@ -655,14 +655,19 @@ class RoutineApp(App):
             exercice_valeur_input.text if selected_type["value"] == "unit" else ""
         ))
 
-        retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["change_routine"][7], size_hint=(0.5, None), height=50)
+        retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["change_routine"][7], size_hint=(0.45, None), height=50)
         retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_routine(nom)))
+
+        remove_btn = StyledButton(text="X", font_name='SegoeUIEmoji.TTF', size_hint=(0.1, None), height=50)
+        remove_btn.bind(on_press=lambda instance, i=index: self.supprimer_exercice(nom, i))
 
         layout.register_focusable(enregistrer_btn)
         layout.register_focusable(retour_btn)
+        layout.register_focusable(remove_btn)
 
         btn_layout.add_widget(enregistrer_btn)
         btn_layout.add_widget(retour_btn)
+        btn_layout.add_widget(remove_btn)
         layout.add_widget(btn_layout)
 
         return layout
