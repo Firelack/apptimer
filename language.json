@@ -14,7 +14,8 @@
             "Duration must be greater than 0 or must be specified", "Repetitions must be greater than 0 or must be specified", 
             "Rest time cannot be negative or must be specified", "Please enter a valid number for units", 
             "Please enter a valid number for the duration", "Please enter a valid number for the repetitions", 
-            "Please enter a valid number for the rest","No duration/units specified","Please fill in all fields correctly"
+            "Please enter a valid number for the rest","No duration/units specified","Please fill in all fields correctly",
+            "Modify exercise","Validate"
         ]
     },
     "French": {
@@ -34,7 +35,8 @@
             "Le temps de repos ne peut pas être négatif ou doit être spécifié", 
             "Veuillez entrer un nombre valide pour les unités", "Veuillez entrer un nombre valide pour la durée", 
             "Veuillez entrer un nombre valide pour les répétitions", "Veuillez entrer un nombre valide pour le temps de repos",
-            "Aucune durée/unités spécifiée","Veuillez remplir correctement tous les champs"
+            "Aucune durée/unités spécifiée","Veuillez remplir correctement tous les champs",
+            "Modifier l'exercice","Valider"
         ]
     },
     "Spanish": {
@@ -62,7 +64,8 @@
             "Por favor, ingrese un número válido para las repeticiones",
             "Por favor, ingrese un número válido para el tiempo de descanso",
             "No se especificó ninguna duración/unidades",
-            "Por favor, complete todos los campos correctamente"
+            "Por favor, complete todos los campos correctamente",
+            "Modificar ejercicio","Validar"
         ]
     },
     "German": {
@@ -82,7 +85,8 @@
             "Die Ruhezeit darf nicht negativ sein oder muss angegeben werden." ,
             "Bitte geben Sie eine gültige Zahl für Einheiten ein", "Bitte geben Sie eine gültige Zahl für Dauer ein", 
             "Bitte geben Sie eine gültige Zahl für Wiederholungen ein", "Bitte geben Sie eine gültige Zahl für die Ruhezeit ein",
-            "Keine Dauer/Einheiten angegeben","Bitte füllen Sie alle Felder korrekt aus"
+            "Keine Dauer/Einheiten angegeben","Bitte füllen Sie alle Felder korrekt aus",
+            "Übung ändern","Zur Validierung"
         ]
     },
     "Italian": {
@@ -112,7 +116,8 @@
             "Si prega di inserire un numero valido per la durata",
             "Si prega di inserire un numero valido per le ripetizioni",
             "Si prega di inserire un numero valido per il tempo di riposo",
-            "Nessuna durata/unità specificata","Si prega di compilare correttamente tutti i campi"
+            "Nessuna durata/unità specificata","Si prega di compilare correttamente tutti i campi",
+            "Modifica esercizio","Convalida"
         ]
     },
     "Dutch": {
@@ -120,59 +125,30 @@
         "home_page": "Voeg een routine toe",
         "confirmation": ["Bevestiging", "Wilt u de routine echt verwijderen ", "Ja", "Nee"],
         "add_routine": ["Routine naam :", "Klaar", "Annuleren"],
-        "routine_page": ["Routine :", "herh", "s", "eenh", "Start", "Toevoegen", "Terug"],
+        "routine_page": ["Routine :", "rep", "s", "uni", "Start", "Toevoegen", "Terug"],
         "start_routine": ["Voorbereiden...", "Klaar", "Pauze", "Sla rust over", "Terug"],
         "toggle_pause": ["Hervatten", "Pauze"],
-        "update_routine": ["Routine voltooid !", "Rust :", "s", "Herhaling ", " eenh"],
+        "update_routine": ["Routine voltooid !", "Rust :", "s", "Herhaling ", " eenheden"],
         "change_routine": [
             "Oefening toevoegen :", 
             "Oefening naam :", 
             "Duur (sec) :", 
             "Herhalingen :", 
             "Rust (sec) :",
-            "Eenheden : (xkeer)", 
+            "Eenheden : (x keer)", 
             "Voeg de oefening toe", 
             "Terug", 
             "Duur/eenheden :", 
             "Voer een geldige naam in voor de oefening",
             "Duur moet groter zijn dan 0 of moet worden opgegeven",
             "Herhalingen moeten groter zijn dan 0 of moeten worden opgegeven",
-            "Rusttijd mag niet negatief zijn of moet worden opgegeven",
+            "De rusttijd mag niet negatief zijn of moet worden opgegeven",
             "Voer een geldig nummer in voor eenheden",
             "Voer een geldig nummer in voor de duur",
             "Voer een geldig nummer in voor de herhalingen",
             "Voer een geldig nummer in voor de rusttijd",
-            "Geen duur/eenheden opgegeven","Vul alle velden correct in"
-        ]
-    },
-    "Portuguese": {
-        "welcome_page": "Bem-vindo a este aplicativo de rotina personalizada",
-        "home_page": "Adicionar uma rotina",
-        "confirmation": ["Confirmação", "Você realmente deseja excluir a rotina ", "Sim", "Não"],
-        "add_routine": ["Nome da rotina :", "Concluir", "Cancelar"],
-        "routine_page": ["Rotina :", "rep", "s", "uni", "Iniciar", "Adicionar", "Voltar"],
-        "start_routine": ["Preparando...", "Feito", "Pausa", "Pular descanso", "Voltar"],
-        "toggle_pause": ["Retomar", "Pausa"],
-        "update_routine": ["Rotina concluída !", "Descanso :", "s", "Repetição ", " unidades"],
-        "change_routine": [
-            "Adicionar um exercício :", 
-            "Nome do exercício :", 
-            "Duração (seg) :", 
-            "Repetições :", 
-            "Descanso (seg) :",
-            "Unidades : (xvezes)", 
-            "Adicionar o exercício", 
-            "Voltar", 
-            "Duração/unidades :", 
-            "Por favor, insira um nome válido para o exercício",
-            "A duração deve ser maior que 0 ou deve ser especificada",
-            "As repetições devem ser maiores que 0 ou devem ser especificadas",
-            "O tempo de descanso não pode ser negativo ou deve ser especificado",
-            "Por favor, insira um número válido para as unidades",
-            "Por favor, insira um número válido para a duração",
-            "Por favor, insira um número válido para as repetições",
-            "Por favor, insira um número válido para o tempo de descanso",
-            "Nenhuma duração/unidades especificada","Preencha todos os campos corretamente"
+            "Geen duur/eenheden opgegeven","Vul alle velden correct in",
+            "Oefening wijzigen","Valideren"
         ]
     },
     "Russian": {
@@ -180,10 +156,10 @@
         "home_page": "Добавить тренировку",
         "confirmation": ["Подтверждение", "Вы действительно хотите удалить тренировку ", "Да", "Нет"],
         "add_routine": ["Имя тренировки :", "Завершить", "Отмена"],
-        "routine_page": ["Тренировка :", "повт", "с", "ед", "Начать", "Добавить", "Назад"],
+        "routine_page": ["Тренировка :", "повтор", "с", "единица", "Начать", "Добавить", "Назад"],
         "start_routine": ["Подготовка...", "Готово", "Пауза", "Пропустить отдых", "Назад"],
         "toggle_pause": ["Продолжить", "Пауза"],
-        "update_routine": ["Тренировка завершена !", "Отдых :", "с", "Повторение ", " ед"],
+        "update_routine": ["Тренировка завершена !", "Отдых :", "с", "Повторение ", " единицы"],
         "change_routine": [
             "Добавить упражнение :", 
             "Имя упражнения :", 
@@ -198,11 +174,12 @@
             "Длительность должна быть больше 0 или должна быть указана",
             "Повторения должны быть больше 0 или должны быть указаны",
             "Время отдыха не может быть отрицательным или должно быть указано",
-            "Пожалуйста, введите допустимое число для единиц",
-            "Пожалуйста, введите допустимое число для длительности",
-            "Пожалуйста, введите допустимое число для повторений",
-            "Пожалуйста, введите допустимое число для времени отдыха",
-            "Не указана длительность/единицы","Пожалуйста, заполните все поля правильно"
+            "Пожалуйста, введите действительное число для единиц",
+            "Пожалуйста, введите действительное число для длительности",
+            "Пожалуйста, введите действительное число для повторений",
+            "Пожалуйста, введите действительное число для времени отдыха",
+            "Не указана длительность/единицы","Пожалуйста, заполните все поля правильно",
+            "Изменить упражнение","Подтвердить"
         ]
     },
     "Chinese": {
@@ -210,9 +187,9 @@
         "home_page": "添加例程",
         "confirmation": ["确认", "您真的要删除例程吗 ", "是", "否"],
         "add_routine": ["例程名称 :", "完成", "取消"],
-        "routine_page": ["例程 :", "次", "秒", "单位", "开始", "添加", "返回"],
+        "routine_page": ["例程 :", "重复", "秒", "单位", "开始", "添加", "返回"],
         "start_routine": ["准备中...", "完成", "暂停", "跳过休息", "返回"],
-        "toggle_pause": ["继续", "暂停"],
+        "toggle_pause": ["恢复", "暂停"],
         "update_routine": ["例程完成！", "休息 :", "秒", "重复 ", " 单位"],
         "change_routine": [
             "添加练习 :", 
@@ -232,7 +209,8 @@
             "请输入有效的持续时间数字",
             "请输入有效的重复次数数字",
             "请输入有效的休息时间数字",
-            "未指定持续时间/单位","请正确填写所有字段"
+            "未指定持续时间/单位","请正确填写所有字段",
+            "修改练习","验证"
         ]
     },
     "Japanese": {
@@ -243,7 +221,7 @@
         "routine_page": ["ルーチン :", "回", "秒", "単位", "開始", "追加", "戻る"],
         "start_routine": ["準備中...", "完了", "一時停止", "休憩をスキップ", "戻る"],
         "toggle_pause": ["再開", "一時停止"],
-        "update_routine": ["ルーチン完了！", "休憩 :", "秒", "繰り返し ", " 単位"],
+        "update_routine": ["ルーチンが完了しました！", "休憩 :", "秒", "繰り返し ", " 単位"],
         "change_routine": [
             "エクササイズを追加 :", 
             "エクササイズ名 :", 
@@ -258,11 +236,12 @@
             "時間は 0 より大きいか、指定する必要があります",
             "繰り返しは 0 より大きいか、指定する必要があります",
             "休憩時間は負にできないか、指定する必要があります",
-            "単位の有効な数値を入力してください",
-            "時間の有効な数値を入力してください",
-            "繰り返しの有効な数値を入力してください",
-            "休憩時間の有効な数値を入力してください",
-            "指定された時間/単位なし","すべてのフィールドに正しく記入してください"
+            "単位の有効な数字を入力してください",
+            "時間の有効な数字を入力してください",
+            "繰り返しの有効な数字を入力してください",
+            "休憩時間の有効な数字を入力してください",
+            "指定された時間/単位なし","すべてのフィールドに正しく記入してください",
+            "エクササイズを変更","検証"
         ]
     }
 }
