@@ -28,8 +28,3 @@ This application allows you to create, modify, and launch personalized workout o
 - To add a new language :
     - Add it in `routineapp.py` : *for lang in ["English", "French","Spanish",...]:*
     - Add all the text in `language.json`
-
-## ☑️ To do
-
-- Modification of exercices better interface
-- Modification of exercice button delete

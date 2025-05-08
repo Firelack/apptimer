@@ -597,7 +597,7 @@ class RoutineApp(App):
             layout.register_focusable(input_widget)
             return input_widget
 
-        content.add_widget(Widget(size_hint=(1, None), height=30))
+        content.add_widget(Widget(size_hint=(1, None), height=10))
 
         exercice_name_input = add_field(self.dictlanguage[self.current_language]["change_routine"][1], ex["name"])
 
@@ -812,7 +812,7 @@ class RoutineApp(App):
             layout.register_focusable(input_widget)
             return input_widget
         
-        content.add_widget(Widget(size_hint=(1, None), height=30))
+        content.add_widget(Widget(size_hint=(1, None), height=10))
 
         exercice_name_input = add_field(self.dictlanguage[self.current_language]["change_routine"][1])
 
