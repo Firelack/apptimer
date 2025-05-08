@@ -48,4 +48,4 @@ Note:
  - Text in button + if select, see all text
  - Exercices descriptions
  - Start routine all text
-- Modification of exercices (+tab)
+- Modification of exercices (+tab) -> change delete ex in this page and actual delete button = modification

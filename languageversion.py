@@ -430,7 +430,7 @@ class RoutineApp(App):
     def page_routine(self, nom):
         routine = self.routines[nom]
         layout = FocusableForm(orientation="vertical", spacing=5, padding=[10, 10, 10, 10])  # Utilisation de FocusableForm
-
+        layout.add_widget(Widget(size_hint=(1, None), height=10))
         # Titre en haut
         title_label = AutoResizeLabel(
             text=f"{self.dictlanguage[self.current_language]['routine_page'][0]} {routine['name']}",
@@ -633,6 +633,9 @@ class RoutineApp(App):
         content = BoxLayout(orientation="vertical", spacing=10, size_hint_y=None)
         content.bind(minimum_height=content.setter("height"))
 
+        # Espacement au-dessus du titre pour descendre tout le formulaire
+        content.add_widget(Widget(size_hint=(1, None), height=20))
+
         # Titre
         content.add_widget(AutoResizeLabel(
             text=f"{self.dictlanguage[self.current_language]['change_routine'][0]} {routine['name']}",
@@ -648,6 +651,8 @@ class RoutineApp(App):
             content.add_widget(input_widget)
             layout.register_focusable(input_widget)
             return input_widget
+        
+        content.add_widget(Widget(size_hint=(1, None), height=30))
 
         exercice_name_input = add_field(self.dictlanguage[self.current_language]["change_routine"][1])
 
