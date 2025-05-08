@@ -41,6 +41,11 @@ Note:
 
 - Different versions of the app code use separate files to save progress. If you switch between versions, your progress may not be saved.
 
+## To add a new language 
+
+- Add it in `languageversion.py` : *for lang in ["English", "French","Spanish"]:*
+- Add all the text in `language.json`
+
 ## ☑️ To do
 
 - Size of :

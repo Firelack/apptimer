@@ -9,8 +9,8 @@
         "toggle_pause": ["Resume", "Pause"],
         "update_routine": ["Routine completed !", "Rest :", "s", "Repetition ", " units"],
         "change_routine": [
-            "Add an exercise :", "Exercise name :", "Duration (sec) :", "Repetitions :", "Rest (seconds) :",
-            "Units : (if no sec)", "Add the exercise", "Back", "Duration/units :", "Please enter a valid name for the exercise",
+            "Add an exercise :", "Exercise name :", "Duration (sec) :", "Repetitions :", "Rest (sec) :",
+            "Units : (xtime)", "Add the exercise", "Back", "Duration/units :", "Please enter a valid name for the exercise",
             "Duration must be greater than 0 or must be specified", "Repetitions must be greater than 0 or must be specified", 
             "Rest time cannot be negative or must be specified", "Please enter a valid number for units", 
             "Please enter a valid number for the duration", "Please enter a valid number for the repetitions", 
@@ -27,14 +27,42 @@
         "toggle_pause": ["Relancer", "Pause"],
         "update_routine": ["Routine terminée !", "Repos :", "s", "Répétition ", " unités"],
         "change_routine": [
-            "Ajouter un exercice :", "Nom de l'exercice :", "Durée (sec) :", "Répétitions :", "Repos (secondes) :",
-            "Unités : (si pas de sec)", "Ajouter l'exercice", "Retour", "Durée/unités :", 
+            "Ajouter un exercice :", "Nom de l'exercice :", "Durée (sec) :", "Répétitions :", "Repos (sec) :",
+            "Unités : (xfois)", "Ajouter l'exercice", "Retour", "Durée/unités :", 
             "Veuillez entrer un nom valide pour l'exercice", "La durée doit être supérieure à 0 ou doit être spécifiée", 
             "Les répétitions doivent être supérieures à 0 ou doivent être spécifiées", 
             "Le temps de repos ne peut pas être négatif ou doit être spécifié", 
             "Veuillez entrer un nombre valide pour les unités", "Veuillez entrer un nombre valide pour la durée", 
             "Veuillez entrer un nombre valide pour les répétitions", "Veuillez entrer un nombre valide pour le temps de repos",
             "Aucune durée/unités spécifiée","Veuillez remplir correctement tous les champs"
+        ]
+    },
+    "Spanish": {
+        "welcome_page": "Bienvenido a esta aplicación de rutina personalizada",
+        "home_page": "Agregar una rutina",
+        "confirmation": ["Confirmación", "¿Realmente quieres eliminar la rutina ", "Sí", "No"],
+        "add_routine": ["Nombre de la rutina :", "Terminar", "Cancelar"],
+        "routine_page": ["Rutina :", "rep", "s", "uni", "Iniciar", "Agregar", "Atrás"],
+        "start_routine": ["Preparando...", "Hecho", "Pausa", "Saltar el descanso", "Atrás"],
+        "toggle_pause": ["Reanudar", "Pausa"],
+        "update_routine": ["¡Rutina completada!", "Descanso :", "s", "Repetición ", " unidades"],
+        "change_routine": [
+            "Agregar un ejercicio :", "Nombre del ejercicio :", "Duración (seg) :", 
+            "Repeticiones :", "Descanso (seg) :", 
+            "Unidades : (xveces)", 
+            "Agregar el ejercicio", 
+            "Atrás", 
+            "Duración/unidades :", 
+            "Por favor, ingrese un nombre válido para el ejercicio",
+            "La duración debe ser mayor que 0 o debe especificarse",
+            "Las repeticiones deben ser mayores que 0 o deben especificarse",
+            "El tiempo de descanso no puede ser negativo o debe especificarse",
+            "Por favor, ingrese un número válido para las unidades",
+            "Por favor, ingrese un número válido para la duración",
+            "Por favor, ingrese un número válido para las repeticiones",
+            "Por favor, ingrese un número válido para el tiempo de descanso",
+            "No se especificó ninguna duración/unidades",
+            "Por favor, complete todos los campos correctamente"
         ]
     }
 }

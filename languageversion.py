@@ -220,6 +220,8 @@ class RoutineApp(App):
 
         Window.bind(size=self.update_background_image)
         self.update_background_image()
+        Window.bind(size=self.update_lang_button_text)
+        Window.bind(size=lambda *args: self.update_dropdown_language_buttons())
 
         return self.root
 
@@ -248,6 +250,23 @@ class RoutineApp(App):
             self.background_image.source = resource_path('images/fondportraitbienvenue.jpg')
         else:
             self.background_image.source = resource_path('images/fondpaysagebienvenue.png')
+
+    def update_lang_button_text(self, *args):
+        lang = self.routines_data["language"]
+        if Window.width < Window.height:
+            self.main_lang_btn.text = lang[:2]
+        else:
+            self.main_lang_btn.text = lang
+
+    def update_dropdown_language_buttons(self):
+        if not hasattr(self, 'dropdown_buttons'):
+            return
+        for btn in self.dropdown_buttons:
+            lang = btn.full_text
+            if Window.width < Window.height:
+                btn.text = lang[:2]
+            else:
+                btn.text = lang
     
     def changer_langue(self, langue):
         # Charger les données JSON
@@ -268,30 +287,40 @@ class RoutineApp(App):
         layout = FloatLayout()
 
         # Contenu principal (routines et boutons)
-        content = FocusableForm(orientation="vertical", spacing=10, padding=10, size_hint=(1, 1))  # Utilisation de FocusableForm
+        content = FocusableForm(orientation="vertical", spacing=10, padding=10, size_hint=(1, 1))
 
         # --- MENU LANGUE ---
         top_buttons = BoxLayout(orientation="horizontal", size_hint=(1, 0.1), spacing=10)
 
         # Bouton principal qui ouvre le menu déroulant
-        main_lang_btn = StyledButton(text=self.routines_data["language"], size_hint=(0.1, 1))
-        dropdown = DropDown()
+        self.main_lang_btn = StyledButton(text="", size_hint=(0.1, 1))
+        self.update_lang_button_text()  # Appliquer le bon texte selon orientation
 
-        for lang in ["English", "French"]:
-            btn = StyledButton(text=lang, size_hint_y=None, height=44, opacity=1)
+        dropdown = DropDown()
+        self.dropdown_buttons = []  # Stocke les boutons du menu déroulant
+
+        for lang in ["English", "French","Spanish"]:
+            btn = StyledButton(text="", size_hint_y=None, height=44, opacity=1)
+            btn.full_text = lang  # Stocker le texte complet
+
             def on_lang_select(btn_instance, dropdown=dropdown):
-                selected_lang = btn_instance.text
+                selected_lang = btn_instance.full_text
                 self.routines_data["language"] = selected_lang
                 self.current_language = selected_lang
                 self.sauvegarder_routines()
-                main_lang_btn.text = selected_lang
+                self.update_lang_button_text()
+                self.update_dropdown_language_buttons()
                 dropdown.dismiss()
                 Clock.schedule_once(lambda dt: self.set_root_content(self.page_accueil()), 0.1)
+
             btn.bind(on_release=on_lang_select)
             dropdown.add_widget(btn)
+            self.dropdown_buttons.append(btn)
 
-        main_lang_btn.bind(on_release=lambda btn: Clock.schedule_once(lambda dt: dropdown.open(btn), 0.01))
-        top_buttons.add_widget(main_lang_btn)
+        self.update_dropdown_language_buttons()  # Appliquer la bonne version de texte
+
+        self.main_lang_btn.bind(on_release=lambda btn: Clock.schedule_once(lambda dt: dropdown.open(btn), 0.01))
+        top_buttons.add_widget(self.main_lang_btn)
 
         # --- BOUTON "Ajouter une routine" ---
         btn2 = StyledButton(text=self.dictlanguage[self.current_language]["home_page"], size_hint=(0.9, 1))
@@ -312,22 +341,19 @@ class RoutineApp(App):
             btn = StyledButton(text=nom, size_hint=(0.7, 1))
             btn.bind(on_press=lambda instance, r=nom: self.set_root_content(self.page_routine(r)))
             routine_box.add_widget(btn)
-            content.register_focusable(btn)  # Enregistrer le bouton de routine
+            content.register_focusable(btn)
 
-            up_btn = StyledButton(text="↑",font_name="arial.ttf", size_hint=(0.1, 1))
+            up_btn = StyledButton(text="↑", font_name="arial.ttf", size_hint=(0.1, 1))
             up_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, -1))
             routine_box.add_widget(up_btn)
-            #content.register_focusable(up_btn)  # Enregistrer le bouton "up"
 
-            down_btn = StyledButton(text="↓",font_name="arial.ttf", size_hint=(0.1, 1))
+            down_btn = StyledButton(text="↓", font_name="arial.ttf", size_hint=(0.1, 1))
             down_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, 1))
             routine_box.add_widget(down_btn)
-            #content.register_focusable(down_btn)  # Enregistrer le bouton "down"
 
             delete_btn = StyledButton(text="X", size_hint=(0.1, 1))
             delete_btn.bind(on_press=lambda instance, r=nom: self.confirmer_suppression_routine(r))
             routine_box.add_widget(delete_btn)
-            #content.register_focusable(delete_btn)  # Enregistrer le bouton "delete"
 
             routine_layout.add_widget(routine_box)
 
@@ -337,7 +363,7 @@ class RoutineApp(App):
         layout.add_widget(content)
 
         # Enregistrer les boutons pour la navigation "Tab"
-        content.register_focusable(main_lang_btn)
+        content.register_focusable(self.main_lang_btn)
         content.register_focusable(btn2)
 
         return layout
@@ -396,7 +422,7 @@ class RoutineApp(App):
         layout.add_widget(label)
 
         # Champ de saisie juste en dessous du label
-        routine_name_input = MyTextInput(size_hint=(1, None), max_length=30,height=40)
+        routine_name_input = MyTextInput(size_hint=(1, None), max_length=20,height=40)
         layout.register_focusable(routine_name_input)  # Enregistrer le champ de texte pour qu'il soit focusable
         layout.add_widget(routine_name_input)
 
