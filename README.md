@@ -48,6 +48,4 @@ Note:
 
 ## ☑️ To do
 
-- Size of :
- - Name of routine resize
 - Modification of exercices (+tab) -> change delete ex in this page and actual delete button = modification

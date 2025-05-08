@@ -222,6 +222,7 @@ class RoutineApp(App):
         self.update_background_image()
         Window.bind(size=self.update_lang_button_text)
         Window.bind(size=lambda *args: self.update_dropdown_language_buttons())
+        Window.bind(on_resize=lambda *args: Clock.schedule_once(lambda dt: self.set_root_content(self.page_accueil()), 0.1))
 
         return self.root
 
@@ -267,6 +268,12 @@ class RoutineApp(App):
                 btn.text = lang[:2]
             else:
                 btn.text = lang
+
+    def adjust_button_text(self, text):
+        words = text.split()
+        if len(words) > 2 and Window.width < Window.height:  # Mode portrait
+            return ' '.join(words[:2])
+        return text
     
     def changer_langue(self, langue):
         # Charger les données JSON
@@ -338,7 +345,7 @@ class RoutineApp(App):
         for index, (nom, _) in enumerate(routines_list):
             routine_box = BoxLayout(size_hint_y=None, height=50, spacing=10)
 
-            btn = StyledButton(text=nom, size_hint=(0.7, 1))
+            btn = StyledButton(text=self.adjust_button_text(nom), size_hint=(0.7, 1))
             btn.bind(on_press=lambda instance, r=nom: self.set_root_content(self.page_routine(r)))
             routine_box.add_widget(btn)
             content.register_focusable(btn)
