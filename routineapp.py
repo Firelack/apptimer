@@ -248,9 +248,9 @@ class RoutineApp(App):
 
     def update_background_image(self, *args):
         if Window.height > Window.width:
-            self.background_image.source = resource_path('images/fondportraitbienvenue.jpg')
+            self.background_image.source = resource_path('necessary/images/fondportraitbienvenue.jpg')
         else:
-            self.background_image.source = resource_path('images/fondpaysagebienvenue.png')
+            self.background_image.source = resource_path('necessary/images/fondpaysagebienvenue.png')
 
     def update_lang_button_text(self, *args):
         lang = self.routines_data["language"]
