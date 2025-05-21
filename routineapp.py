@@ -596,48 +596,48 @@ class RoutineApp(App):
         return layout
 
     def page_renommer_routine(self, nom):
-        layout = FocusableForm(orientation="vertical", spacing=10, padding=[20, 20, 20, 20])
+        layout = FocusableForm(orientation="vertical", spacing=10, padding=10)
 
-        layout.add_widget(Label(
+        # Espace vide en haut (10%)
+        layout.add_widget(Widget(size_hint=(1, 0.1)))
+
+        # Titre centré
+        label = Label(
             text=self.dictlanguage[self.current_language].get("rename_routine", "Rename the routine"),
-            font_size=22,
+            font_size=30,
             size_hint=(1, None),
             height=40,
             halign="center",
             valign="middle"
-        ))
+        )
+        label.bind(size=label.setter('text_size'))
+        layout.add_widget(label)
 
-        # Champ texte avec le nom actuel
-        text_input = TextInput(
+        # Champ de texte
+        routine_name_input = MyTextInput(
             text=self.routines[nom]["name"],
-            multiline=False,
             size_hint=(1, None),
-            height=40
+            height=40,
+            max_length=20
         )
-        layout.register_focusable(text_input)
-        layout.add_widget(text_input)
+        layout.register_focusable(routine_name_input)
+        layout.add_widget(routine_name_input)
 
-        layout.add_widget(Widget(size_hint=(1, None), height=10))
+        # Espace pour pousser les boutons vers le bas
+        layout.add_widget(Widget())
 
-        # Boutons : Valider / Retour
-        btn_layout = BoxLayout(size_hint=(1, None), height=50, spacing=10)
+        # Boutons (20% de hauteur)
+        btn_layout = BoxLayout(size_hint=(1, 0.2), spacing=10)
 
-        valider_btn = StyledButton(
-            text=self.dictlanguage[self.current_language].get("confirm", "Confirm"),
-            size_hint=(0.5, 1)
-        )
+        valider_btn = StyledButton(text=self.dictlanguage[self.current_language].get("confirm", "Confirm"))
         layout.register_focusable(valider_btn)
-
-        retour_btn = StyledButton(
-            text=self.dictlanguage[self.current_language]["routine_page"][6],  # "Back"
-            size_hint=(0.5, 1)
-        )
+        retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][6])  # "Back"
         layout.register_focusable(retour_btn)
 
         def valider_renommage(instance):
-            nouveau_nom = text_input.text.strip()
+            nouveau_nom = routine_name_input.text.strip()
             if nouveau_nom and nouveau_nom != nom and nouveau_nom not in self.routines:
-                # Création d'un nouvel OrderedDict avec la routine renommée
+                # Conserver l’ordre
                 nouvelles_routines = {}
                 for k, v in self.routines.items():
                     if k == nom:
@@ -646,20 +646,18 @@ class RoutineApp(App):
                     else:
                         nouvelles_routines[k] = v
                 self.routines = nouvelles_routines
-
-                # Mettre à jour routines_data aussi
                 self.routines_data["routines"] = self.routines
                 self.sauvegarder_routines()
-
                 self.set_root_content(self.page_routine(nouveau_nom))
             else:
-                self.set_root_content(self.page_routine(nom))  # pas de changement ou nom déjà pris
+                self.set_root_content(self.page_routine(nom))  # Pas de renommage si nom invalide
 
         valider_btn.bind(on_press=valider_renommage)
         retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_routine(nom)))
 
         btn_layout.add_widget(valider_btn)
         btn_layout.add_widget(retour_btn)
+
         layout.add_widget(btn_layout)
 
         return layout
