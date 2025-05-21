@@ -16,7 +16,10 @@
             "Please enter a valid number for the duration", "Please enter a valid number for the repetitions", 
             "Please enter a valid number for the rest","No duration/units specified","Please fill in all fields correctly",
             "Modify exercise","Validate"
-        ]
+        ],
+        "helppage": [
+            "Welcome to this application designed to help you easily manage your personalized routines.\n\nCreating Routines\nYou can create as many routines as you want. A routine is a set of exercises that you will perform during your sessions.\n\nAdding Exercises\nEach routine can contain several exercises. For each exercise, you can configure:\n\n• Duration: This is the time during which you perform the exercise.\n  Example: Do push-ups for 10 seconds.\n\n• Number of units: An alternative to duration.\n  Example: Do 10 push-ups.\n  If you specify a number of units, the duration will not be used.\n\n• Number of repetitions: The number of times you will repeat the complete exercise.\n  Example: 5 repetitions means doing your 10 push-ups 5 times.\n\n• Rest time: Pause between each repetition.\n  Example: 30 seconds of rest between each set.",
+        "Help - Routine Management"]
     },
     "Français": {
         "welcome_page": "Bienvenue dans cette application de routine personnalisée",
@@ -37,7 +40,10 @@
             "Veuillez entrer un nombre valide pour les répétitions", "Veuillez entrer un nombre valide pour le temps de repos",
             "Aucune durée/unités spécifiée","Veuillez remplir correctement tous les champs",
             "Modifier l'exercice","Valider"
-        ]
+        ],
+        "helppage": [
+    "Bienvenue dans cette application conçue pour vous aider à gérer facilement vos routines personnalisées.\n\nCréation de routines\nVous pouvez créer autant de routines que vous le souhaitez. Une routine est un ensemble d'exercices que vous allez enchaîner lors de vos séances.\n\nAjout d'exercices\nChaque routine peut contenir plusieurs exercices. Pour chaque exercice, vous pouvez configurer :\n\n• La durée : C'est le temps pendant lequel vous effectuez l'exercice.\n  Exemple : Faire des pompes pendant 10 secondes.\n\n• Le nombre d'unités : Une alternative à la durée.\n  Exemple : Faire 10 pompes.\n  Si vous indiquez un nombre d'unités, la durée ne sera pas utilisée.\n\n• Le nombre de répétitions : Le nombre de fois que vous allez répéter l'exercice complet.\n  Exemple : 5 répétitions signifie faire vos 10 pompes 5 fois.\n\n• Le temps de repos : Pause entre chaque répétition.\n  Exemple : 30 secondes de repos entre chaque série.",
+"Aide - Gestion des Routines"]
     },
     "Español": {
         "welcome_page": "Bienvenido a esta aplicación de rutina personalizada",
@@ -66,7 +72,10 @@
             "No se especificó ninguna duración/unidades",
             "Por favor, complete todos los campos correctamente",
             "Modificar ejercicio","Validar"
-        ]
+        ],
+        "helppage": [
+            "Bienvenido a esta aplicación diseñada para ayudarle a gestionar fácilmente sus rutinas personalizadas.\n\nCreación de rutinas\nPuede crear tantas rutinas como desee. Una rutina es un conjunto de ejercicios que realizará durante sus sesiones.\n\nAgregar ejercicios\nCada rutina puede contener varios ejercicios. Para cada ejercicio, puede configurar:\n\n• Duración: Este es el tiempo durante el cual realiza el ejercicio.\n  Ejemplo: Hacer flexiones durante 10 segundos.\n\n• Número de unidades: Una alternativa a la duración.\n  Ejemplo: Hacer 10 flexiones.\n  Si especifica un número de unidades, no se utilizará la duración.\n\n• Número de repeticiones: El número de veces que repetirá el ejercicio completo.\n  Ejemplo: 5 repeticiones significa hacer sus 10 flexiones 5 veces.\n\n• Tiempo de descanso: Pausa entre cada repetición.\n  Ejemplo: 30 segundos de descanso entre cada serie.",
+            "Ayuda - Gestión de Rutinas"]
     },
     "Deutsch": {
         "welcome_page": "Willkommen bei dieser personalisierten Routineanwendung",
@@ -87,7 +96,10 @@
             "Bitte geben Sie eine gültige Zahl für Wiederholungen ein", "Bitte geben Sie eine gültige Zahl für die Ruhezeit ein",
             "Keine Dauer/Einheiten angegeben","Bitte füllen Sie alle Felder korrekt aus",
             "Übung ändern","Zur Validierung"
-        ]
+        ],
+        "helppage": [
+    "Willkommen in dieser App, mit der Sie ganz einfach Ihre persönlichen Trainingsroutinen verwalten können.\n\nErstellen von Routinen\nSie können beliebig viele Routinen erstellen. Eine Routine ist eine Abfolge von Übungen, die Sie während einer Trainingseinheit durchführen.\n\nHinzufügen von Übungen\nJede Routine kann mehrere Übungen enthalten. Für jede Übung können Sie folgende Einstellungen vornehmen:\n\n• Die Dauer: Die Zeit, in der Sie die Übung ausführen.\n  Beispiel: 10 Sekunden Liegestütze machen.\n\n• Die Anzahl der Einheiten: Eine Alternative zur Dauer.\n  Beispiel: 10 Liegestütze machen.\n  Wenn Sie eine Anzahl an Einheiten angeben, wird die Dauer nicht berücksichtigt.\n\n• Die Anzahl der Wiederholungen: Gibt an, wie oft die gesamte Übung wiederholt wird.\n  Beispiel: 5 Wiederholungen bedeutet, dass Sie Ihre 10 Liegestütze fünfmal ausführen.\n\n• Die Ruhezeit: Die Pause zwischen den Wiederholungen.\n  Beispiel: 30 Sekunden Pause zwischen den Sätzen.",
+    "Hilfe - Routinenverwaltung"]
     },
     "Italiano": {
         "welcome_page": "Benvenuto in questa applicazione per routine personalizzate",
@@ -118,7 +130,10 @@
             "Si prega di inserire un numero valido per il tempo di riposo",
             "Nessuna durata/unità specificata","Si prega di compilare correttamente tutti i campi",
             "Modifica esercizio","Convalida"
-        ]
+        ],
+        "helppage": [
+            "Benvenuto in questa applicazione progettata per aiutarti a gestire facilmente le tue routine personalizzate.\n\nCreazione di routine\nPuoi creare quante più routine desideri. Una routine è un insieme di esercizi che eseguirai durante le tue sessioni.\n\nAggiunta di esercizi\nOgni routine può contenere più esercizi. Per ogni esercizio, puoi configurare:\n\n• Durata: Questo è il tempo durante il quale esegui l'esercizio.\n  Esempio: Fai flessioni per 10 secondi.\n\n• Numero di unità: Un'alternativa alla durata.\n  Esempio: Fai 10 flessioni.\n  Se specifichi un numero di unità, la durata non verrà utilizzata.\n\n• Numero di ripetizioni: Il numero di volte che ripeterai l'esercizio completo.\n  Esempio: 5 ripetizioni significano fare le tue 10 flessioni 5 volte.\n\n• Tempo di riposo: Pausa tra ogni ripetizione.\n  Esempio: 30 secondi di riposo tra ogni serie.",
+            "Aiuto - Gestione delle Routine"]
     },
     "Português": {
         "welcome_page": "Bem-vindo a este aplicativo de rotina personalizada",
@@ -149,7 +164,10 @@
             "Por favor, insira um número válido para o tempo de descanso",
             "Nenhuma duração/unidades especificada","Preencha todos os campos corretamente",
             "Modificar exercício","Validar"
-        ]
+        ],
+        "helppage": [
+            "Bem-vindo a este aplicativo projetado para ajudá-lo a gerenciar facilmente suas rotinas personalizadas.\n\nCriação de rotinas\nVocê pode criar quantas rotinas quiser. Uma rotina é um conjunto de exercícios que você realizará durante suas sessões.\n\nAdicionando exercícios\nCada rotina pode conter vários exercícios. Para cada exercício, você pode configurar:\n\n• Duração: Este é o tempo durante o qual você realiza o exercício.\n  Exemplo: Faça flexões por 10 segundos.\n\n• Número de unidades: Uma alternativa à duração.\n  Exemplo: Faça 10 flexões.\n  Se você especificar um número de unidades, a duração não será utilizada.\n\n• Número de repetições: O número de vezes que você repetirá o exercício completo.\n  Exemplo: 5 repetições significam fazer suas 10 flexões 5 vezes.\n\n• Tempo de descanso: Pausa entre cada repetição.\n  Exemplo: 30 segundos de descanso entre cada série.",
+            "Ajuda - Gerenciamento de Rotinas"]
     },
     "Русский": {
         "welcome_page": "Добро пожаловать в это приложение для персонализированных тренировок",
@@ -180,6 +198,9 @@
             "Пожалуйста, введите действительное число для времени отдыха",
             "Не указана длительность/единицы","Пожалуйста, заполните все поля правильно",
             "Изменить упражнение","Подтвердить"
-        ]
+        ],
+        "helppage": [
+            "Добро пожаловать в это приложение, разработанное для того, чтобы помочь вам легко управлять своими персонализированными тренировками.\n\nСоздание тренировок\nВы можете создать столько тренировок, сколько захотите. Тренировка - это набор упражнений, которые вы будете выполнять во время своих занятий.\n\nДобавление упражнений\nКаждая тренировка может содержать несколько упражнений. Для каждого упражнения вы можете настроить:\n\n• Длительность: Это время, в течение которого вы выполняете упражнение.\n  Пример: Сделайте отжимания в течение 10 секунд.\n\n• Количество единиц: Альтернатива длительности.\n  Пример: Сделайте 10 отжиманий.\n  Если вы укажете количество единиц, длительность не будет использоваться.\n\n• Количество повторений: Количество раз, которое вы повторите полное упражнение.\n  Пример: 5 повторений означает сделать ваши 10 отжиманий 5 раз.\n\n• Время отдыха: Пауза между каждым повторением.\n  Пример: 30 секунд отдыха между каждой серией.",
+            "Помощь - Управление тренировками"]
     }
 }

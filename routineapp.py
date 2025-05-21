@@ -334,9 +334,13 @@ class RoutineApp(App):
         top_buttons.add_widget(self.main_lang_btn)
 
         # --- BOUTON "Ajouter une routine" ---
-        btn2 = StyledButton(text=self.dictlanguage[self.current_language]["home_page"], size_hint=(0.9, 1))
+        btn2 = StyledButton(text=self.dictlanguage[self.current_language]["home_page"], size_hint=(0.8, 1))
         btn2.bind(on_press=lambda *args: self.set_root_content(self.page_ajouter_routine()))
         top_buttons.add_widget(btn2)
+
+        helpbtn = StyledButton(text="?", size_hint=(0.1, 1))
+        helpbtn.bind(on_press=lambda *args: self.set_root_content(self.help_page()))
+        top_buttons.add_widget(helpbtn)
 
         content.add_widget(top_buttons)
 
@@ -386,6 +390,55 @@ class RoutineApp(App):
         # 🔁 Réagir au redimensionnement de la fenêtre
         Window.unbind(on_resize=self.on_window_resize)
         Window.bind(on_resize=self.on_window_resize)
+
+        return layout
+    
+    def help_page(self):
+        layout = FocusableForm(orientation="vertical", spacing=10, padding=10)
+
+        # Espace vide en haut (10%)
+
+        title = self.dictlanguage[self.current_language]["helppage"][1]
+        # Titre
+        titre = AutoResizeLabel(
+            text=title,
+            font_size=30,
+            size_hint=(1, 0.2),
+            height=40,
+            halign="center",
+            valign="middle"
+        )
+        titre.bind(size=titre.setter('text_size'))
+        layout.add_widget(titre)
+
+        # Texte d'aide
+        aide_texte = self.dictlanguage[self.current_language]["helppage"][0]
+
+        # ScrollView pour le texte, avec hauteur calculée
+        scroll = ScrollView(size_hint=(1, 1))  # prendra toute la hauteur restante
+        label_aide = AutoResizeLabel(
+            text=aide_texte,
+            size_hint_y=None,
+            halign="center",
+            valign="middle",
+            font_size=16
+        )
+        label_aide.bind(texture_size=lambda instance, size: setattr(instance, 'height', size[1]))
+        scroll.add_widget(label_aide)
+        layout.add_widget(scroll)
+
+        # Petit espace de 10 pixels
+        layout.add_widget(Widget(size_hint=(1, None), height=10))
+
+        # Bouton retour
+        retour_btn = StyledButton(
+            text=self.dictlanguage[self.current_language]["routine_page"][6],  # "Retour"
+            size_hint=(1, None),
+            height=50
+        )
+        layout.register_focusable(retour_btn)
+        retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_accueil()))
+        layout.add_widget(retour_btn)
 
         return layout
 
