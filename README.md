@@ -49,5 +49,5 @@ To add or modify a language:
 ## To do
 
 - Add a .ico for the .exe
-- Add a fonction to rename routine
 - Add a ? button
+- Add an error if routine name already exist and same for exercices

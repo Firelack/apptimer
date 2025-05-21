@@ -550,29 +550,120 @@ class RoutineApp(App):
         layout.add_widget(scroll)
 
         # Boutons bas de page
-        btn_layout = BoxLayout(size_hint=(1, 0.15), spacing=10)
+        ligne1 = BoxLayout(size_hint=(1, None), height=50, spacing=10)
+
+        add_btn = StyledButton(
+            text=self.dictlanguage[self.current_language]["routine_page"][5],  # "Add"
+            size_hint=(0.5, 1)
+        )
+        add_btn.bind(on_press=lambda *args: self.set_root_content(self.page_modifier_routine(nom)))
+        layout.register_focusable(add_btn)
+
+        rename_btn = StyledButton(
+            text=self.dictlanguage[self.current_language]["routine_page"][7],  # "Rename"
+            size_hint=(0.5, 1)
+        )
+        rename_btn.bind(on_press=lambda *args: self.set_root_content(self.page_renommer_routine(nom)))
+        layout.register_focusable(rename_btn)
+
+        ligne1.add_widget(add_btn)
+        ligne1.add_widget(rename_btn)
+        layout.add_widget(ligne1)
+
+        # Deuxième ligne : Lancer et Retour
+        ligne2 = BoxLayout(size_hint=(1, None), height=50, spacing=10)
 
         has_exercices = len(routine["fonctions"]) > 0
-        lancer_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][4], size_hint=(0.4, None), height=50, disabled=not has_exercices)
-        layout.register_focusable(lancer_btn)
+        lancer_btn = StyledButton(
+            text=self.dictlanguage[self.current_language]["routine_page"][4],  # "Start"
+            size_hint=(0.5, 1),
+            disabled=not has_exercices
+        )
         lancer_btn.bind(on_press=lambda *args: self.lancer_routine(nom))
+        layout.register_focusable(lancer_btn)
 
-        modifier_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][5], size_hint=(0.4, None), height=50)
-        layout.register_focusable(modifier_btn)
-        modifier_btn.bind(on_press=lambda *args: self.set_root_content(self.page_modifier_routine(nom)))
-
-        retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][6], size_hint=(0.4, None), height=50)
-        layout.register_focusable(retour_btn)
+        retour_btn = StyledButton(
+            text=self.dictlanguage[self.current_language]["routine_page"][6],  # "Back"
+            size_hint=(0.5, 1)
+        )
         retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_accueil()))
+        layout.register_focusable(retour_btn)
 
-        btn_layout.add_widget(lancer_btn)
-        btn_layout.add_widget(modifier_btn)
+        ligne2.add_widget(lancer_btn)
+        ligne2.add_widget(retour_btn)
+        layout.add_widget(ligne2)
+
+        return layout
+
+    def page_renommer_routine(self, nom):
+        layout = FocusableForm(orientation="vertical", spacing=10, padding=[20, 20, 20, 20])
+
+        layout.add_widget(Label(
+            text=self.dictlanguage[self.current_language].get("rename_routine", "Rename the routine"),
+            font_size=22,
+            size_hint=(1, None),
+            height=40,
+            halign="center",
+            valign="middle"
+        ))
+
+        # Champ texte avec le nom actuel
+        text_input = TextInput(
+            text=self.routines[nom]["name"],
+            multiline=False,
+            size_hint=(1, None),
+            height=40
+        )
+        layout.register_focusable(text_input)
+        layout.add_widget(text_input)
+
+        layout.add_widget(Widget(size_hint=(1, None), height=10))
+
+        # Boutons : Valider / Retour
+        btn_layout = BoxLayout(size_hint=(1, None), height=50, spacing=10)
+
+        valider_btn = StyledButton(
+            text=self.dictlanguage[self.current_language].get("confirm", "Confirm"),
+            size_hint=(0.5, 1)
+        )
+        layout.register_focusable(valider_btn)
+
+        retour_btn = StyledButton(
+            text=self.dictlanguage[self.current_language]["routine_page"][6],  # "Back"
+            size_hint=(0.5, 1)
+        )
+        layout.register_focusable(retour_btn)
+
+        def valider_renommage(instance):
+            nouveau_nom = text_input.text.strip()
+            if nouveau_nom and nouveau_nom != nom and nouveau_nom not in self.routines:
+                # Création d'un nouvel OrderedDict avec la routine renommée
+                nouvelles_routines = {}
+                for k, v in self.routines.items():
+                    if k == nom:
+                        nouvelles_routines[nouveau_nom] = v
+                        nouvelles_routines[nouveau_nom]["name"] = nouveau_nom
+                    else:
+                        nouvelles_routines[k] = v
+                self.routines = nouvelles_routines
+
+                # Mettre à jour routines_data aussi
+                self.routines_data["routines"] = self.routines
+                self.sauvegarder_routines()
+
+                self.set_root_content(self.page_routine(nouveau_nom))
+            else:
+                self.set_root_content(self.page_routine(nom))  # pas de changement ou nom déjà pris
+
+        valider_btn.bind(on_press=valider_renommage)
+        retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_routine(nom)))
+
+        btn_layout.add_widget(valider_btn)
         btn_layout.add_widget(retour_btn)
-
         layout.add_widget(btn_layout)
 
         return layout
-    
+
     def page_modifier_exercice(self, nom, index):
         routine = self.routines[nom]
         ex = routine["fonctions"][index]
