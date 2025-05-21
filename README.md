@@ -10,6 +10,7 @@ This application allows you to create, modify, and launch personalized workout o
 - [⚠️ Known Issues](#-known-issues)
 - [🌍 Language Support](#-language-support)
 - [🛠️ Notes](#️-notes)
+- [To do](#-to-do)
 
 ## ✨ Features
 
@@ -46,3 +47,7 @@ To add or modify a language:
 ## 🔧 Notes
 
 - Some comments and function names are still in French; they will be updated in a future version.
+
+## To do
+
+- Add duplicate routine option
