@@ -45,3 +45,9 @@ To add or modify a language:
 ## 🔧 Notes
 
 - Some comments and function names are still in French; they will be updated in a future version.
+
+## To do
+
+- Add a .ico for the .exe
+- Add a fonction to rename routine
+- Add a ? button
