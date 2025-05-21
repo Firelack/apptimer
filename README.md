@@ -28,8 +28,9 @@ This application allows you to create, modify, and launch personalized workout o
 ## ▶️ How to Run
 
 1. Download the latest release zip file ([`app.zip`](https://github.com/Firelack/apptimer/releases/download/v1/app.zip))
-2. Make sure that `routineapp.exe` and the `necessary` **folder** are in the **same folder**.
-3. Double-click `routineapp.exe` to launch the application.
+2. Unzip the zip file
+3. Make sure that `routineapp.exe` and the `necessary` **folder** are in the **same folder**.
+4. Double-click `routineapp.exe` to launch the application.
 
 ## ⚠️ Known Issues
 
