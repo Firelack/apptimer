@@ -64,6 +64,7 @@ class MyTextInput(TextInput):
 
         self.halign = 'center'  # Centrage horizontal
         self.valign = 'middle'  # Centrage vertical
+        self.multiline=False
 
         self.bind(size=self.update_padding, text=self.update_padding)
         self.update_padding()
