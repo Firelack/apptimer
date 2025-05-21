@@ -423,14 +423,10 @@ class RoutineApp(App):
         popup.dismiss()
         self.set_root_content(self.page_accueil())
 
-    def page_ajouter_routine(self):
-        # Utiliser FocusableForm comme conteneur principal
+    def page_ajouter_routine(self, message_erreur=""):
         layout = FocusableForm(orientation="vertical", spacing=10, padding=10)
-
-        # Espace vide en haut (10% de l'écran)
         layout.add_widget(Widget(size_hint=(1, 0.1)))
 
-        # Label centré horizontalement
         label = Label(
             text=self.dictlanguage[self.current_language]["add_routine"][0],
             font_size=30,
@@ -439,26 +435,49 @@ class RoutineApp(App):
             halign="center",
             valign="middle"
         )
-        label.bind(size=label.setter('text_size'))  # Nécessaire pour centrer le texte
+        label.bind(size=label.setter('text_size'))
         layout.add_widget(label)
 
-        # Champ de saisie juste en dessous du label
-        routine_name_input = MyTextInput(size_hint=(1, None), max_length=20,height=40)
-        layout.register_focusable(routine_name_input)  # Enregistrer le champ de texte pour qu'il soit focusable
+        routine_name_input = MyTextInput(size_hint=(1, None), max_length=20, height=40)
+        layout.register_focusable(routine_name_input)
         layout.add_widget(routine_name_input)
 
-        # Espace vide pour pousser les boutons vers le bas
-        layout.add_widget(Widget())  # Prend tout l'espace restant au milieu
+        # Label d'erreur si nécessaire
+        if message_erreur:
+            error_label = Label(
+                text=message_erreur,
+                color=(1, 1, 1, 1),  # Rouge
+                size_hint=(1, None),
+                height=30,
+                halign="center",
+                valign="middle"
+            )
+            error_label.bind(size=error_label.setter("text_size"))
+            layout.add_widget(error_label)
+        else:
+            layout.add_widget(Widget(size_hint=(1, None), height=30))  # Espace réservé vide
 
-        # Boutons en bas (20% de hauteur)
+        layout.add_widget(Widget())
+
         btn_layout = BoxLayout(size_hint=(1, 0.2), spacing=10)
-        
+
         terminer_btn = StyledButton(text=self.dictlanguage[self.current_language]["add_routine"][1])
-        layout.register_focusable(terminer_btn)  # Enregistrer le bouton pour qu'il soit focusable
-        terminer_btn.bind(on_press=lambda *args: self.ajouter_routine(routine_name_input.text))
-        
+        layout.register_focusable(terminer_btn)
         annuler_btn = StyledButton(text=self.dictlanguage[self.current_language]["add_routine"][2])
-        layout.register_focusable(annuler_btn)  # Enregistrer l'autre bouton pour qu'il soit focusable
+        layout.register_focusable(annuler_btn)
+
+        def valider_ajout(instance):
+            nom = routine_name_input.text.strip()
+            if not nom:
+                self.set_root_content(self.page_ajouter_routine(self.dictlanguage[self.current_language]["add_routine"][3]))  # "Nom vide !"
+            elif nom in self.routines:
+                self.set_root_content(self.page_ajouter_routine(self.dictlanguage[self.current_language]["add_routine"][4]))  # "Routine déjà existante !"
+            else:
+                self.routines[nom] = {"name": nom, "fonctions": []}
+                self.sauvegarder_routines()
+                self.set_root_content(self.page_accueil())
+
+        terminer_btn.bind(on_press=valider_ajout)
         annuler_btn.bind(on_press=lambda *args: self.set_root_content(self.page_accueil()))
 
         btn_layout.add_widget(terminer_btn)
@@ -467,12 +486,6 @@ class RoutineApp(App):
         layout.add_widget(btn_layout)
 
         return layout
-
-    def ajouter_routine(self, nom):
-        if nom.strip():
-            self.routines[nom] = {"name": nom, "fonctions": []}
-            self.sauvegarder_routines()
-        self.set_root_content(self.page_accueil())
         
     def page_routine(self, nom):
         routine = self.routines[nom]
@@ -623,41 +636,50 @@ class RoutineApp(App):
         layout.register_focusable(routine_name_input)
         layout.add_widget(routine_name_input)
 
+        # Label d'erreur invisible au départ
+        error_label = Label(
+            text="",
+            font_size=18,
+            color=(1, 1, 1, 1),
+            size_hint=(1, None),
+            height=30
+        )
+        layout.add_widget(error_label)
+
         # Espace pour pousser les boutons vers le bas
         layout.add_widget(Widget())
 
-        # Boutons (20% de hauteur)
-        btn_layout = BoxLayout(size_hint=(1, 0.2), spacing=10)
-
-        valider_btn = StyledButton(text=self.dictlanguage[self.current_language].get("confirm", "Confirm"))
-        layout.register_focusable(valider_btn)
-        retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][6])  # "Back"
-        layout.register_focusable(retour_btn)
-
+        # Fonction de validation
         def valider_renommage(instance):
             nouveau_nom = routine_name_input.text.strip()
-            if nouveau_nom and nouveau_nom != nom and nouveau_nom not in self.routines:
-                # Conserver l’ordre
-                nouvelles_routines = {}
-                for k, v in self.routines.items():
-                    if k == nom:
-                        nouvelles_routines[nouveau_nom] = v
-                        nouvelles_routines[nouveau_nom]["name"] = nouveau_nom
-                    else:
-                        nouvelles_routines[k] = v
-                self.routines = nouvelles_routines
-                self.routines_data["routines"] = self.routines
-                self.sauvegarder_routines()
-                self.set_root_content(self.page_routine(nouveau_nom))
+            if not nouveau_nom:
+                error_label.text = self.dictlanguage[self.current_language]["add_routine"][3]
+            elif nouveau_nom in self.routines and nouveau_nom != nom:
+                error_label.text = self.dictlanguage[self.current_language]["add_routine"][4]
             else:
-                self.set_root_content(self.page_routine(nom))  # Pas de renommage si nom invalide
+                # Préserver l'ordre
+                routines_ordonnees = list(self.routines.items())
+                index = [i for i, (k, _) in enumerate(routines_ordonnees) if k == nom][0]
+                _, ancienne_valeur = routines_ordonnees.pop(index)
+                ancienne_valeur["name"] = nouveau_nom
+                routines_ordonnees.insert(index, (nouveau_nom, ancienne_valeur))
 
+                self.routines = dict(routines_ordonnees)
+                self.sauvegarder_routines()
+                self.set_root_content(self.page_accueil())
+
+        # Boutons
+        btn_layout = BoxLayout(size_hint=(1, 0.2), spacing=10)
+        valider_btn = StyledButton(text=self.dictlanguage[self.current_language]["add_routine"][1])
+        layout.register_focusable(valider_btn)
         valider_btn.bind(on_press=valider_renommage)
+
+        retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["add_routine"][2])  # "Back"
+        layout.register_focusable(retour_btn)
         retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_routine(nom)))
 
         btn_layout.add_widget(valider_btn)
         btn_layout.add_widget(retour_btn)
-
         layout.add_widget(btn_layout)
 
         return layout

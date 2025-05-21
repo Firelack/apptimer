@@ -50,4 +50,3 @@ To add or modify a language:
 
 - Add a .ico for the .exe
 - Add a ? button
-- Add an error if routine name already exist and same for exercices
