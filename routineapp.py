@@ -390,6 +390,19 @@ class RoutineApp(App):
             ))
             dropdown2.add_widget(rename_btn)
 
+            # Bouton "Copier"
+            copy_btn = StyledButton(
+                text=self.dictlanguage[self.current_language]["home_page"][3],
+                size_hint=(None, None),
+                size=(dropdown_width, 50),
+                opacity=1
+            )
+            copy_btn.bind(on_release=lambda instance, r=nom, dd=dropdown2: (
+                self.set_root_content(self.copy_routine(r)),
+                dd.dismiss()
+            ))
+            dropdown2.add_widget(copy_btn)
+
             # Bouton "Supprimer"
             delete_btn = StyledButton(
                 text=self.dictlanguage[self.current_language]["home_page"][1],
@@ -433,6 +446,14 @@ class RoutineApp(App):
         Window.bind(on_resize=self.on_window_resize)
 
         return layout
+    
+    def copy_routine(self, nom):
+        routine = self.routines[nom]
+        new_routine_name = f"{routine['name']} (copie)"
+        new_routine = {"name": new_routine_name, "fonctions": routine["fonctions"][:]}
+        self.routines[new_routine_name] = new_routine
+        self.sauvegarder_routines()
+        return self.page_accueil()
     
     def help_page(self):
         layout = FocusableForm(orientation="vertical", spacing=10, padding=10)
