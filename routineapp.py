@@ -334,7 +334,7 @@ class RoutineApp(App):
         top_buttons.add_widget(self.main_lang_btn)
 
         # --- BOUTON "Ajouter une routine" ---
-        btn2 = StyledButton(text=self.dictlanguage[self.current_language]["home_page"], size_hint=(0.8, 1))
+        btn2 = StyledButton(text=self.dictlanguage[self.current_language]["home_page"][0], size_hint=(0.8, 1))
         btn2.bind(on_press=lambda *args: self.set_root_content(self.page_ajouter_routine()))
         top_buttons.add_widget(btn2)
 
@@ -372,11 +372,52 @@ class RoutineApp(App):
             down_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, 1))
             routine_box.add_widget(down_btn)
 
-            delete_btn = StyledButton(text="X", size_hint=(0.1, 1))
-            delete_btn.bind(on_press=lambda instance, r=nom: self.confirmer_suppression_routine(r))
-            routine_box.add_widget(delete_btn)
+            # Création du dropdown avec 30% de la largeur de la fenêtre
+            dropdown2 = DropDown(auto_width=False)
+            dropdown_width = Window.width * 0.3
+            dropdown2.width = dropdown_width
+
+            # Bouton "Renommer"
+            rename_btn = StyledButton(
+                text=self.dictlanguage[self.current_language]["home_page"][2],
+                size_hint=(None, None),
+                size=(dropdown_width, 50),
+                opacity=1
+            )
+            rename_btn.bind(on_release=lambda instance, r=nom, dd=dropdown2: (
+                self.set_root_content(self.page_renommer_routine(r)),
+                dd.dismiss()
+            ))
+            dropdown2.add_widget(rename_btn)
+
+            # Bouton "Supprimer"
+            delete_btn = StyledButton(
+                text=self.dictlanguage[self.current_language]["home_page"][1],
+                size_hint=(None, None),
+                size=(dropdown_width, 50),
+                opacity=1
+            )
+            delete_btn.bind(on_release=lambda instance, r=nom, dd=dropdown2: (
+                self.confirmer_suppression_routine(r),
+                dd.dismiss()
+            ))
+            dropdown2.add_widget(delete_btn)
+
+            # Bouton "..."
+            more_btn = StyledButton(text="...", size_hint=(0.1, 1))
+            more_btn.bind(on_release=lambda btn, dd=dropdown2: dd.open(btn))
+            routine_box.add_widget(more_btn)
 
             routine_layout.add_widget(routine_box)
+
+        # Optionnel : mettre à jour la taille du dropdown si la fenêtre est redimensionnée
+        def update_dropdown_width(*args):
+            new_width = Window.width * 0.3
+            dropdown2.width = new_width
+            rename_btn.size = (new_width, 50)
+            delete_btn.size = (new_width, 50)
+
+        Window.bind(on_resize=update_dropdown_width)
 
         scroll.add_widget(routine_layout)
         content.add_widget(scroll)
@@ -616,48 +657,26 @@ class RoutineApp(App):
         layout.add_widget(scroll)
 
         # Boutons bas de page
-        ligne1 = BoxLayout(size_hint=(1, None), height=50, spacing=10)
-
-        add_btn = StyledButton(
-            text=self.dictlanguage[self.current_language]["routine_page"][5],  # "Add"
-            size_hint=(0.5, 1)
-        )
-        add_btn.bind(on_press=lambda *args: self.set_root_content(self.page_modifier_routine(nom)))
-        layout.register_focusable(add_btn)
-
-        rename_btn = StyledButton(
-            text=self.dictlanguage[self.current_language]["routine_page"][7],  # "Rename"
-            size_hint=(0.5, 1)
-        )
-        rename_btn.bind(on_press=lambda *args: self.set_root_content(self.page_renommer_routine(nom)))
-        layout.register_focusable(rename_btn)
-
-        ligne1.add_widget(add_btn)
-        ligne1.add_widget(rename_btn)
-        layout.add_widget(ligne1)
-
-        # Deuxième ligne : Lancer et Retour
-        ligne2 = BoxLayout(size_hint=(1, None), height=50, spacing=10)
+        btn_layout = BoxLayout(size_hint=(1, 0.15), spacing=10)
 
         has_exercices = len(routine["fonctions"]) > 0
-        lancer_btn = StyledButton(
-            text=self.dictlanguage[self.current_language]["routine_page"][4],  # "Start"
-            size_hint=(0.5, 1),
-            disabled=not has_exercices
-        )
-        lancer_btn.bind(on_press=lambda *args: self.lancer_routine(nom))
+        lancer_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][4], size_hint=(0.4, None), height=50, disabled=not has_exercices)
         layout.register_focusable(lancer_btn)
+        lancer_btn.bind(on_press=lambda *args: self.lancer_routine(nom))
 
-        retour_btn = StyledButton(
-            text=self.dictlanguage[self.current_language]["routine_page"][6],  # "Back"
-            size_hint=(0.5, 1)
-        )
-        retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_accueil()))
+        modifier_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][5], size_hint=(0.4, None), height=50)
+        layout.register_focusable(modifier_btn)
+        modifier_btn.bind(on_press=lambda *args: self.set_root_content(self.page_modifier_routine(nom)))
+
+        retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][6], size_hint=(0.4, None), height=50)
         layout.register_focusable(retour_btn)
+        retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_accueil()))
 
-        ligne2.add_widget(lancer_btn)
-        ligne2.add_widget(retour_btn)
-        layout.add_widget(ligne2)
+        btn_layout.add_widget(lancer_btn)
+        btn_layout.add_widget(modifier_btn)
+        btn_layout.add_widget(retour_btn)
+
+        layout.add_widget(btn_layout)
 
         return layout
 
@@ -729,7 +748,7 @@ class RoutineApp(App):
 
         retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["add_routine"][2])  # "Back"
         layout.register_focusable(retour_btn)
-        retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_routine(nom)))
+        retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_accueil()))
 
         btn_layout.add_widget(valider_btn)
         btn_layout.add_widget(retour_btn)

@@ -1,7 +1,7 @@
 {
     "English": {
         "welcome_page": "Welcome to this personalized routine application",
-        "home_page": "Add a routine",
+        "home_page": ["Add a routine","Delete", "Rename", "Copy"],
         "confirmation": ["Confirmation", "Do you really want to delete the routine ", "Yes", "No"],
         "add_routine": ["Routine name:", "Finish", "Cancel","Empty name", "Name already used"],
         "routine_page": ["Routine:", "rep", "s", "uni", "Start", "Add", "Back", "Rename"],
@@ -23,7 +23,7 @@
     },
     "Français": {
         "welcome_page": "Bienvenue dans cette application de routine personnalisée",
-        "home_page": "Ajouter une routine",
+        "home_page": ["Ajouter une routine","Supprimer", "Renommer", "Copier"],
         "confirmation": ["Confirmation", "Voulez-vous vraiment supprimer la routine ", "Oui", "Non"],
         "add_routine": ["Nom de la routine :", "Terminer", "Annuler","Nom vide","Nom déjà utilisé"],
         "routine_page": ["Routine :", "rep", "s", "uni", "Lancer", "Ajouter", "Retour", "Renommer"],
@@ -47,7 +47,7 @@
     },
     "Español": {
         "welcome_page": "Bienvenido a esta aplicación de rutina personalizada",
-        "home_page": "Agregar una rutina",
+        "home_page": ["Agregar una rutina","Eliminar", "Renombrar", "Copiar"],
         "confirmation": ["Confirmación", "¿Realmente quieres eliminar la rutina ", "Sí", "No"],
         "add_routine": ["Nombre de la rutina :", "Terminar", "Cancelar","Nombre vacío", "Nombre ya utilizado"],
         "routine_page": ["Rutina :", "rep", "s", "uni", "Iniciar", "Agregar", "Atrás", "Renombrar"],
@@ -79,7 +79,7 @@
     },
     "Deutsch": {
         "welcome_page": "Willkommen bei dieser personalisierten Routineanwendung",
-        "home_page": "Eine Routine hinzufügen",
+        "home_page": ["Eine Routine hinzufügen","Löschen", "Umbenennen", "Kopieren"],
         "confirmation": ["Bestätigung", "Möchten Sie die Routine wirklich löschen ", "Ja", "Nein"],
         "add_routine": ["Routinenname :", "Fertig", "Abbrechen","Leerer Name", "Name bereits verwendet"],
         "routine_page": ["Routine :", "Wdh", "s", "Einheit", "Starten", "Hinzufügen", "Zurück", "Umbenennen"],
@@ -103,7 +103,7 @@
     },
     "Italiano": {
         "welcome_page": "Benvenuto in questa applicazione per routine personalizzate",
-        "home_page": "Aggiungi una routine",
+        "home_page": ["Aggiungi una routine","Elimina", "Rinomina", "Copia"],
         "confirmation": ["Conferma", "Vuoi davvero eliminare la routine ", "Sì", "No"],
         "add_routine": ["Nome della routine :", "Fine", "Annulla","Nome vuoto", "Nome già utilizzato"],
         "routine_page": ["Routine :", "rep", "s", "uni", "Inizia", "Aggiungi", "Indietro", "Rinomina"],
@@ -137,7 +137,7 @@
     },
     "Português": {
         "welcome_page": "Bem-vindo a este aplicativo de rotina personalizada",
-        "home_page": "Adicionar uma rotina",
+        "home_page": ["Adicionar uma rotina","Excluir", "Renomear", "Copiar"],
         "confirmation": ["Confirmação", "Você realmente deseja excluir a rotina ", "Sim", "Não"],
         "add_routine": ["Nome da rotina :", "Concluir", "Cancelar","Nome vazio", "Nome já utilizado"],
         "routine_page": ["Rotina :", "rep", "s", "uni", "Iniciar", "Adicionar", "Voltar", "Renomear"],
@@ -171,7 +171,7 @@
     },
     "Русский": {
         "welcome_page": "Добро пожаловать в это приложение для персонализированных тренировок",
-        "home_page": "Добавить тренировку",
+        "home_page": ["Добавить тренировку","Удалить", "Переименовать", "Копировать"],
         "confirmation": ["Подтверждение", "Вы действительно хотите удалить тренировку ", "Да", "Нет"],
         "add_routine": ["Имя тренировки :", "Завершить", "Отмена","Пустое имя", "Имя уже используется"],
         "routine_page": ["Тренировка :", "повтор", "с", "единица", "Начать", "Добавить", "Назад", "Переименовать"],
