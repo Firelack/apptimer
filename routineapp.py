@@ -21,108 +21,117 @@ from kivy.properties import BooleanProperty
 from kivy.uix.anchorlayout import AnchorLayout
 from kivy.properties import StringProperty
 
-# Désactiver le mode multitouch par défaut (clic droit qui font des points rouges)
+# Disable default multitouch behavior on desktop (e.g. prevents red dot on right-click)
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
 def resource_path(relative_path):
+    """Return absolute path to resource, compatible with PyInstaller or normal execution."""
     try:
-        # PyInstaller extrait dans un dossier temporaire
+        # If bundled with PyInstaller
         base_path = sys._MEIPASS
     except AttributeError:
-        # En exécution normale
+        # In normal execution
         base_path = os.path.abspath(".")
     return os.path.join(base_path, relative_path)
 
 class AutoResizeLabel(Label):
-    # Optionnel : tu peux définir des propriétés comme un texte par défaut
-    text_property = StringProperty()
+    """Label that adjusts its text size to fit the parent widget's width."""
+
+    text_property = StringProperty()  # Custom property for use in Kivy or Python
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.bind(size=self._on_size)  # Reagir au changement de taille du parent
+        # Trigger size adjustment when the widget resizes
+        self.bind(size=self._on_size)
 
     def _on_size(self, instance, value):
-        # Met à jour la taille du texte en fonction de la taille du parent
-        self.text_size = (self.parent.width - 20, None)  # 20 pour laisser une marge
-        self.texture_update()  # Recalcule la texture du label pour qu'il s'affiche correctement
+        """Update text size to match parent width with margin."""
+        if self.parent:
+            self.text_size = (self.parent.width - 20, None)  # Apply horizontal margin
+            self.texture_update()  # Recalculate texture for rendering
 
     def on_parent(self, instance, parent):
-        # Cette fonction est appelée quand le label est ajouté à un parent
+        """Adjust size immediately when added to a parent widget."""
         if parent:
-            self._on_size(parent, parent.size)  # Ajuste immédiatement la taille
+            self._on_size(parent, parent.size)
 
 class MyTextInput(TextInput):
-    def __init__(self, max_length=50, **kwargs):  # Ajout du paramètre max_length
+    def __init__(self, max_length=50, **kwargs):
+        """Custom TextInput with max length and dynamic background on focus."""
         super().__init__(**kwargs)
-        self.max_length = max_length  # Définir la longueur maximale
+        self.max_length = max_length  # Maximum number of characters allowed
+
+        # Layout and style configuration
         self.size_hint_x = 0.7
         self.size_hint_y = None
         self.height = 40
         self.pos_hint = {'center_x': 0.5}
-        self.background_color = (0.7, 0.7, 0.7, 0.6)  # Couleur de fond initiale
+        self.background_color = (0.7, 0.7, 0.7, 0.6)  # Default background (semi-transparent)
         self.foreground_color = (1, 1, 1, 1)
 
-        self.halign = 'center'  # Centrage horizontal
-        self.valign = 'middle'  # Centrage vertical
-        self.multiline=False
+        # Center text both horizontally and vertically
+        self.halign = 'center'
+        self.valign = 'middle'
+        self.multiline = False  # Single-line input
 
+        # Recalculate padding when size or text changes
         self.bind(size=self.update_padding, text=self.update_padding)
         self.update_padding()
 
-        # Ajout de l'écouteur pour l'événement 'on_focus'
+        # Listen for focus events to change background opacity
         self.bind(on_focus=self.on_focus)
 
     def update_padding(self, *args):
+        """Adjust vertical padding to center text within the input box."""
         self.padding = [10, (self.height - self.line_height) / 2]  # [horizontal, vertical]
 
     def on_focus(self, instance, value):
-        """Change la couleur de fond lorsque le TextInput reçoit ou perd le focus."""
-        if value:  # Quand le TextInput est sélectionné (focus)
-            self.background_color = (0.7, 0.7, 0.7, 1)  # Moins opaque (opacité 1)
-        else:  # Quand le TextInput perd le focus
-            self.background_color = (0.7, 0.7, 0.7, 0.6)  # Opacité 0.6
+        """Change background opacity when input gains or loses focus."""
+        if value:
+            self.background_color = (0.7, 0.7, 0.7, 1)  # Fully opaque when focused
+        else:
+            self.background_color = (0.7, 0.7, 0.7, 0.6)  # Semi-transparent when unfocused
 
     def insert_text(self, substring, from_undo=False):
-        """Limite la saisie de texte selon le max_length."""
+        """Limit input length to max_length."""
         if len(self.text) < self.max_length or substring == "":
             super().insert_text(substring, from_undo=from_undo)
             
 class FocusableForm(BoxLayout):
     def __init__(self, **kwargs):
+        """BoxLayout that manages focus switching with TAB and triggering with ENTER."""
         super().__init__(**kwargs)
-        self.widgets_list = []
-        Window.bind(on_key_down=self._on_key_down)
+        self.widgets_list = []  # Stores widgets that can receive focus
+        Window.bind(on_key_down=self._on_key_down)  # Listen for keyboard input
 
     def register_focusable(self, widget):
-        """Enregistre les widgets qui peuvent être sélectionnés via TAB."""
+        """Register a widget as focusable with TAB."""
         self.widgets_list.append(widget)
 
     def _on_key_down(self, window, key, scancode, codepoint, modifiers):
-        if key == 9:  # TAB
-            # Filtrer les widgets activés uniquement
-            enabled_widgets = [w for w in self.widgets_list if hasattr(w, 'focus') and getattr(w, 'disabled', False) is False]
-            
-            # Si aucun widget de formulaire n'est focalisé, on se concentre sur le premier bouton activé
-            focused = next((i for i, w in enumerate(enabled_widgets) if hasattr(w, "focus") and w.focus), None)
+        """Handle TAB to cycle focus and ENTER to trigger buttons."""
+        if key == 9:  # TAB key
+            # Only consider widgets that are enabled and have focus capability
+            enabled_widgets = [w for w in self.widgets_list if hasattr(w, 'focus') and not getattr(w, 'disabled', False)]
 
-            if focused is None:  # Aucune focus sur un widget, donc se concentrer sur le premier bouton
-                # Chercher le premier bouton dans la liste activée
+            # Find the currently focused widget
+            focused = next((i for i, w in enumerate(enabled_widgets) if w.focus), None)
+
+            if focused is None:
+                # No widget has focus: focus the first active button if available
                 first_button = next((w for w in enabled_widgets if isinstance(w, Button)), None)
                 if first_button:
                     first_button.focus = True
                 return True
 
-            if focused is not None:
-                # Si un widget est focalisé, on bascule le focus à l'autre widget
-                enabled_widgets[focused].focus = False
-                if 'shift' in modifiers:
-                    next_index = (focused - 1) % len(enabled_widgets)
-                else:
-                    next_index = (focused + 1) % len(enabled_widgets)
-                enabled_widgets[next_index].focus = True
-                return True
+            # Move focus to the next or previous widget based on SHIFT key
+            enabled_widgets[focused].focus = False
+            next_index = (focused - 1 if 'shift' in modifiers else focused + 1) % len(enabled_widgets)
+            enabled_widgets[next_index].focus = True
+            return True
 
-        elif key == 13:  # ENTER
+        elif key == 13:  # ENTER key
+            # Trigger the focused button if any
             focused_btn = next((w for w in self.widgets_list if isinstance(w, Button) and w.focus), None)
             if focused_btn:
                 focused_btn.trigger_action(duration=0)
@@ -131,46 +140,53 @@ class FocusableForm(BoxLayout):
         return False
 
 class HoverBehavior:
-    hovered = BooleanProperty(False)
-    border_point= None
+    hovered = BooleanProperty(False)  # Tracks whether the mouse is over the widget
+    border_point = None  # Optional: used for additional hover logic (not implemented here)
 
     def __init__(self, **kwargs):
+        """Base class to detect mouse hover over a widget."""
         super().__init__(**kwargs)
-        Window.bind(mouse_pos=self.on_mouse_pos)
+        Window.bind(mouse_pos=self.on_mouse_pos)  # Bind mouse movement to handler
 
     def on_mouse_pos(self, *args):
+        """Update hovered state based on mouse position."""
         if not self.get_root_window():
-            return  # Widget pas affiché
+            return  # Ignore if widget is not displayed
+
         pos = args[1]
-        inside = self.collide_point(*self.to_widget(*pos))
+        inside = self.collide_point(*self.to_widget(*pos))  # Check if mouse is inside widget bounds
         self.hovered = inside
-        self.on_hover(inside)
+        self.on_hover(inside)  # Trigger hover callback
 
     def on_hover(self, hovered):
-        pass  # À surcharger si besoin
+        """Called when hover state changes; override to customize behavior."""
+        pass
 
 class StyledButton(FocusBehavior, HoverBehavior, Button):
     def __init__(self, opacity=0.6, **kwargs):
+        """Custom button with hover/focus visual feedback and rounded border."""
         super().__init__(**kwargs)
         self.opacity_normal = opacity
         self.opacity_focus = 1.0
         self.opacity_hover = 0.85
-        self.selected = False
+        self.selected = False  # Used to highlight a selected button
         
-
         self.background_normal = ''
-        self.background_color = (0, 0, 0, 0)
+        self.background_color = (0, 0, 0, 0)  # Fully transparent default background
 
+        # Draw custom background and border
         with self.canvas.before:
             self.bg_color = Color(0.7, 0.7, 0.7, self.opacity_normal)
             self.bg_rect = RoundedRectangle(pos=self.pos, size=self.size, radius=[30])
             self.border_color = Color(0, 0, 0, 1)
             self.border_line = Line(width=1.5)
 
+        # Update visuals on relevant changes
         self.bind(pos=self.update_graphics, size=self.update_graphics,
                   focus=self.on_focus, hovered=self.on_hover)
 
     def update_graphics(self, *args):
+        """Update shape and position of background and border."""
         self.bg_rect.pos = self.pos
         self.bg_rect.size = self.size
         self.border_line.rounded_rectangle = (
@@ -178,13 +194,16 @@ class StyledButton(FocusBehavior, HoverBehavior, Button):
         )
 
     def on_focus(self, instance, value):
+        """Adjust opacity when focus changes."""
         self.update_opacity()
 
     def on_hover(self, *args):
+        """Adjust opacity when hover state changes."""
         self.update_opacity()
 
     def update_opacity(self):
-        if self.selected:  # <-- Priorité au bouton sélectionné
+        """Set background opacity based on selection, focus, or hover."""
+        if self.selected:  # Priority: selected state overrides others
             self.bg_color.a = self.opacity_focus
         elif self.focus:
             self.bg_color.a = self.opacity_focus
@@ -194,12 +213,13 @@ class StyledButton(FocusBehavior, HoverBehavior, Button):
             self.bg_color.a = self.opacity_normal
 
 class RoutineApp(App):
-    FILE_PATH = "necessary/routinesV3.json"  # Définition du chemin du fichier JSON
+    FILE_PATH = "necessary/routinesV3.json"
 
     with open("necessary/language.json", 'r', encoding='utf-8') as f:
         dictlanguage = json.load(f)
 
     def build(self):
+        """Initialize the interface using routines and language data."""
         self.routines_data = self.charger_routines()
         self.routines = self.routines_data.get("routines", {})
         self.current_language = self.routines_data["language"]
@@ -211,7 +231,6 @@ class RoutineApp(App):
         self.content_container = BoxLayout()
         self.root.add_widget(self.content_container)
 
-        # Affichage selon "premiere_fois"
         if self.routines_data.get("first_time", True):
             self.set_root_content(self.page_bienvenue())
             self.routines_data["first_time"] = False
@@ -227,95 +246,91 @@ class RoutineApp(App):
         return self.root
 
     def set_root_content(self, new_content):
+        """Replace the central content with a new widget."""
         self.content_container.clear_widgets()
         self.content_container.add_widget(new_content)
 
     def page_bienvenue(self):
+        """Display the welcome page."""
         layout = FloatLayout()
-
-        # Texte de bienvenue
         box = BoxLayout(orientation="vertical", padding=10)
         label = Label(text=self.dictlanguage[self.current_language]["welcome_page"],
-                    font_size=24, halign="center", valign="middle")
+                      font_size=24, halign="center", valign="middle")
         label.bind(size=label.setter('text_size'))
         box.add_widget(label)
         layout.add_widget(box)
-
-        # Gestion du changement de page au clic
         layout.bind(on_touch_down=lambda *args: self.set_root_content(self.page_accueil()))
-
         return layout
 
     def update_background_image(self, *args):
-        if Window.height > Window.width:
-            self.background_image.source = resource_path('necessary/images/fondportraitbienvenue.jpg')
-        else:
-            self.background_image.source = resource_path('necessary/images/fondpaysagebienvenue.png')
+        """Adjust background image based on orientation."""
+        img = 'fondportraitbienvenue.jpg' if Window.height > Window.width else 'fondpaysagebienvenue.png'
+        self.background_image.source = resource_path(f'necessary/images/{img}')
 
     def update_lang_button_text(self, *args):
+        """Shorten or display the full language button text."""
         lang = self.routines_data["language"]
-        if Window.width < Window.height:
-            self.main_lang_btn.text = lang[:2]
-        else:
-            self.main_lang_btn.text = lang
+        self.main_lang_btn.text = lang[:2] if Window.width < Window.height else lang
 
     def update_dropdown_language_buttons(self):
+        """Update the labels of the language dropdown buttons."""
         if not hasattr(self, 'dropdown_buttons'):
             return
         for btn in self.dropdown_buttons:
             lang = btn.full_text
-            if Window.width < Window.height:
-                btn.text = lang[:2]
-            else:
-                btn.text = lang
+            btn.text = lang[:2] if Window.width < Window.height else lang
 
     def adjust_button_text(self, text):
+        """Shorten long button texts when in portrait mode."""
         words = text.split()
-        if len(words) > 2 and Window.width < Window.height:  # Mode portrait
-            return ' '.join(words[:2])
-        return text
-    
+        return ' '.join(words[:2]) if len(words) > 2 and Window.width < Window.height else text
+
     def on_window_resize(self, instance, width, height):
+        """Adjust the text of routine buttons upon window resizing."""
         if hasattr(self, "routine_buttons"):
-            for btn, nom in self.routine_buttons:
-                btn.text = self.adjust_button_text(nom)
-    
+            for btn, name in self.routine_buttons:
+                btn.text = self.adjust_button_text(name)
+
     def changer_langue(self, langue):
-        # Charger les données JSON
+        """Change the app language and save the settings."""
         with open(self.FILE_PATH, "r", encoding="utf-8") as f:
             data = json.load(f)
-
-        # Modifier la langue
         data["language"] = langue
-
-        # Sauvegarder le fichier
         with open(self.FILE_PATH, "w", encoding="utf-8") as f:
             json.dump(data, f, indent=4)
+        self.current_language = langue
+        self.set_root_content(self.page_accueil())
 
-        self.current_language = langue  # Met à jour la langue active
-        self.set_root_content(self.page_accueil())  # Recharge linterface
-        
     def page_accueil(self):
+        """
+        Create the main home page including:
+        - a dropdown menu for language selection,
+        - a button to add a new routine,
+        - a help button,
+        - a scrollable list of routines with options (rename, copy, delete),
+        - handles resizing and keyboard navigation.
+        """
         layout = FloatLayout()
 
-        # Contenu principal (routines et boutons)
+        # Main vertical container with focus management
         content = FocusableForm(orientation="vertical", spacing=10, padding=10, size_hint=(1, 1))
 
-        # --- MENU LANGUE ---
+        # --- Top bar: language selection + add routine + help ---
         top_buttons = BoxLayout(orientation="horizontal", size_hint=(1, 0.1), spacing=10)
 
-        # Bouton principal qui ouvre le menu déroulant
+        # Main button showing current language and opening dropdown menu
         self.main_lang_btn = StyledButton(text="", size_hint=(0.1, 1))
-        self.update_lang_button_text()  # Appliquer le bon texte selon orientation
+        self.update_lang_button_text()
 
         dropdown = DropDown()
-        self.dropdown_buttons = []  # Stocke les boutons du menu déroulant
+        self.dropdown_buttons = []  # List of language buttons in the dropdown
 
         for lang in self.dictlanguage:
             btn = StyledButton(text="", size_hint_y=None, height=44, opacity=1)
             btn.full_text = lang
 
             def on_lang_select(btn_instance, dropdown=dropdown):
+                # Language change: update, save, and reload home page
                 selected_lang = btn_instance.full_text
                 self.routines_data["language"] = selected_lang
                 self.current_language = selected_lang
@@ -333,37 +348,38 @@ class RoutineApp(App):
         self.main_lang_btn.bind(on_release=lambda btn: Clock.schedule_once(lambda dt: dropdown.open(btn), 0.01))
         top_buttons.add_widget(self.main_lang_btn)
 
-        # --- BOUTON "Ajouter une routine" ---
+        # "Add a routine" button
         btn2 = StyledButton(text=self.dictlanguage[self.current_language]["home_page"][0], size_hint=(0.8, 1))
         btn2.bind(on_press=lambda *args: self.set_root_content(self.page_ajouter_routine()))
         top_buttons.add_widget(btn2)
 
+        # Help "?" button
         helpbtn = StyledButton(text="?", size_hint=(0.1, 1))
         helpbtn.bind(on_press=lambda *args: self.set_root_content(self.help_page()))
         top_buttons.add_widget(helpbtn)
 
         content.add_widget(top_buttons)
 
-        # --- Scroll des routines ---
+        # --- Scroll view containing the routines list ---
         scroll = ScrollView(size_hint=(1, 0.8))
         routine_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=10)
         routine_layout.bind(minimum_height=routine_layout.setter("height"))
 
-        # -- Liste des boutons stockés pour le resize
-        self.routine_buttons = []
+        self.routine_buttons = []  # Store routine buttons to handle resizing
 
         routines_list = list(self.routines.items())
-        for index, (nom, _) in enumerate(routines_list):
+        for index, (name, _) in enumerate(routines_list):
             routine_box = BoxLayout(size_hint_y=None, height=50, spacing=10)
 
-            btn = StyledButton(text=self.adjust_button_text(nom), size_hint=(0.7, 1))
-            btn.bind(on_press=lambda instance, r=nom: self.set_root_content(self.page_routine(r)))
+            # Main routine button
+            btn = StyledButton(text=self.adjust_button_text(name), size_hint=(0.7, 1))
+            btn.bind(on_press=lambda instance, r=name: self.set_root_content(self.page_routine(r)))
             routine_box.add_widget(btn)
             content.register_focusable(btn)
 
-            # Stocker bouton + nom pour redimensionnement
-            self.routine_buttons.append((btn, nom))
+            self.routine_buttons.append((btn, name))
 
+            # Up/down movement buttons
             up_btn = StyledButton(text="↑", font_name="necessary/arial.ttf", size_hint=(0.1, 1))
             up_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, -1))
             routine_box.add_widget(up_btn)
@@ -372,58 +388,55 @@ class RoutineApp(App):
             down_btn.bind(on_press=lambda instance, i=index: self.deplacer_routine(i, 1))
             routine_box.add_widget(down_btn)
 
-            # Création du dropdown avec 30% de la largeur de la fenêtre
+            # Dropdown options: rename, copy, delete (30% of window width)
             dropdown2 = DropDown(auto_width=False)
             dropdown_width = Window.width * 0.3
             dropdown2.width = dropdown_width
 
-            # Bouton "Renommer"
             rename_btn = StyledButton(
                 text=self.dictlanguage[self.current_language]["home_page"][2],
                 size_hint=(None, None),
                 size=(dropdown_width, 50),
                 opacity=1
             )
-            rename_btn.bind(on_release=lambda instance, r=nom, dd=dropdown2: (
+            rename_btn.bind(on_release=lambda instance, r=name, dd=dropdown2: (
                 self.set_root_content(self.page_renommer_routine(r)),
                 dd.dismiss()
             ))
             dropdown2.add_widget(rename_btn)
 
-            # Bouton "Copier"
             copy_btn = StyledButton(
                 text=self.dictlanguage[self.current_language]["home_page"][3],
                 size_hint=(None, None),
                 size=(dropdown_width, 50),
                 opacity=1
             )
-            copy_btn.bind(on_release=lambda instance, r=nom, dd=dropdown2: (
+            copy_btn.bind(on_release=lambda instance, r=name, dd=dropdown2: (
                 self.set_root_content(self.copy_routine(r)),
                 dd.dismiss()
             ))
             dropdown2.add_widget(copy_btn)
 
-            # Bouton "Supprimer"
             delete_btn = StyledButton(
                 text=self.dictlanguage[self.current_language]["home_page"][1],
                 size_hint=(None, None),
                 size=(dropdown_width, 50),
                 opacity=1
             )
-            delete_btn.bind(on_release=lambda instance, r=nom, dd=dropdown2: (
+            delete_btn.bind(on_release=lambda instance, r=name, dd=dropdown2: (
                 self.confirmer_suppression_routine(r),
                 dd.dismiss()
             ))
             dropdown2.add_widget(delete_btn)
 
-            # Bouton "..."
+            # Button opening the options dropdown
             more_btn = StyledButton(text="...", size_hint=(0.1, 1))
             more_btn.bind(on_release=lambda btn, dd=dropdown2: dd.open(btn))
             routine_box.add_widget(more_btn)
 
             routine_layout.add_widget(routine_box)
 
-        # Optionnel : mettre à jour la taille du dropdown si la fenêtre est redimensionnée
+        # Adapt dropdown options width on window resize
         def update_dropdown_width(*args):
             new_width = Window.width * 0.3
             dropdown2.width = new_width
@@ -437,32 +450,32 @@ class RoutineApp(App):
 
         layout.add_widget(content)
 
-        # Enregistrer les boutons pour la navigation "Tab"
+        # Register buttons for tab navigation
         content.register_focusable(self.main_lang_btn)
         content.register_focusable(btn2)
 
-        # 🔁 Réagir au redimensionnement de la fenêtre
+        # Manage global resizing
         Window.unbind(on_resize=self.on_window_resize)
         Window.bind(on_resize=self.on_window_resize)
 
         return layout
     
-    def copy_routine(self, nom):
-        routine = self.routines[nom]
-        new_routine_name = f"{routine['name']} (copie)"
+    def copy_routine(self, name):
+        """Copy a routine and add it with '(copy)' suffix."""
+        routine = self.routines[name]
+        new_routine_name = f"{routine['name']} (copy)"
         new_routine = {"name": new_routine_name, "fonctions": routine["fonctions"][:]}
         self.routines[new_routine_name] = new_routine
         self.sauvegarder_routines()
         return self.page_accueil()
     
     def help_page(self):
+        """Create the help page layout with scrollable instructions and return button."""
         layout = FocusableForm(orientation="vertical", spacing=10, padding=10)
 
-        # Espace vide en haut (10%)
-
+        # Title label
         title = self.dictlanguage[self.current_language]["helppage"][1]
-        # Titre
-        titre = AutoResizeLabel(
+        title_label = AutoResizeLabel(
             text=title,
             font_size=30,
             size_hint=(1, 0.2),
@@ -470,75 +483,88 @@ class RoutineApp(App):
             halign="center",
             valign="middle"
         )
-        titre.bind(size=titre.setter('text_size'))
-        layout.add_widget(titre)
+        title_label.bind(size=title_label.setter('text_size'))
+        layout.add_widget(title_label)
 
-        # Texte d'aide
-        aide_texte = self.dictlanguage[self.current_language]["helppage"][0]
-
-        # ScrollView pour le texte, avec hauteur calculée
-        scroll = ScrollView(size_hint=(1, 1))  # prendra toute la hauteur restante
-        label_aide = AutoResizeLabel(
-            text=aide_texte,
+        # Help text inside a scrollview
+        help_text = self.dictlanguage[self.current_language]["helppage"][0]
+        scroll = ScrollView(size_hint=(1, 1))
+        help_label = AutoResizeLabel(
+            text=help_text,
             size_hint_y=None,
             halign="center",
             valign="middle",
             font_size=16
         )
-        label_aide.bind(texture_size=lambda instance, size: setattr(instance, 'height', size[1]))
-        scroll.add_widget(label_aide)
+        help_label.bind(texture_size=lambda instance, size: setattr(instance, 'height', size[1]))
+        scroll.add_widget(help_label)
         layout.add_widget(scroll)
 
-        # Petit espace de 10 pixels
+        # Small spacer
         layout.add_widget(Widget(size_hint=(1, None), height=10))
 
-        # Bouton retour
-        retour_btn = StyledButton(
-            text=self.dictlanguage[self.current_language]["routine_page"][6],  # "Retour"
+        # Return button
+        back_btn = StyledButton(
+            text=self.dictlanguage[self.current_language]["routine_page"][6],  # "Back"
             size_hint=(1, None),
             height=50
         )
-        layout.register_focusable(retour_btn)
-        retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_accueil()))
-        layout.add_widget(retour_btn)
+        layout.register_focusable(back_btn)
+        back_btn.bind(on_press=lambda *args: self.set_root_content(self.page_accueil()))
+        layout.add_widget(back_btn)
 
         return layout
 
     def deplacer_routine(self, index, direction):
+        """Move a routine up or down in the list."""
         routines_list = list(self.routines.items())
         new_index = index + direction
         if 0 <= new_index < len(routines_list):
             routines_list[index], routines_list[new_index] = routines_list[new_index], routines_list[index]
-            self.routines = {nom: data for nom, data in routines_list}
+            self.routines = {name: data for name, data in routines_list}
             self.sauvegarder_routines()
             self.set_root_content(self.page_accueil())
 
-    def confirmer_suppression_routine(self, nom):
+    def confirmer_suppression_routine(self, name):
+        """Show a confirmation popup to delete a routine."""
         popup_layout = BoxLayout(orientation="vertical", spacing=10, padding=10)
-        popup_layout.add_widget(AutoResizeLabel(text=f"{self.dictlanguage[self.current_language]['confirmation'][1]} {nom} ?",halign="center", valign="middle", font_size=20))
+        popup_layout.add_widget(
+            AutoResizeLabel(
+                text=f"{self.dictlanguage[self.current_language]['confirmation'][1]} {name} ?",
+                halign="center",
+                valign="middle",
+                font_size=20
+            )
+        )
         btn_layout = BoxLayout(size_hint=(1, None), height=50, spacing=10)
 
-        popup = Popup(title=self.dictlanguage[self.current_language]["confirmation"][0], content=popup_layout, size_hint=(0.8, 0.4))
+        popup = Popup(
+            title=self.dictlanguage[self.current_language]["confirmation"][0],
+            content=popup_layout,
+            size_hint=(0.8, 0.4)
+        )
 
-        oui_btn = StyledButton(text=self.dictlanguage[self.current_language]["confirmation"][2])
-        oui_btn.bind(on_press=lambda *args: self.supprimer_routine(nom, popup))
-        non_btn = StyledButton(text=self.dictlanguage[self.current_language]["confirmation"][3])
-        non_btn.bind(on_press=popup.dismiss)
+        yes_btn = StyledButton(text=self.dictlanguage[self.current_language]["confirmation"][2])
+        yes_btn.bind(on_press=lambda *args: self.supprimer_routine(name, popup))
+        no_btn = StyledButton(text=self.dictlanguage[self.current_language]["confirmation"][3])
+        no_btn.bind(on_press=popup.dismiss)
 
-        btn_layout.add_widget(oui_btn)
-        btn_layout.add_widget(non_btn)
+        btn_layout.add_widget(yes_btn)
+        btn_layout.add_widget(no_btn)
         popup_layout.add_widget(btn_layout)
 
         popup.open()
 
-    def supprimer_routine(self, nom, popup):
-        if nom in self.routines:
-            del self.routines[nom]
+    def supprimer_routine(self, name, popup):
+        """Delete a routine and close the confirmation popup."""
+        if name in self.routines:
+            del self.routines[name]
             self.sauvegarder_routines()
         popup.dismiss()
         self.set_root_content(self.page_accueil())
 
-    def page_ajouter_routine(self, message_erreur=""):
+    def page_ajouter_routine(self, error_message=""):
+        """Create layout to add a new routine with optional error message."""
         layout = FocusableForm(orientation="vertical", spacing=10, padding=10)
         layout.add_widget(Widget(size_hint=(1, 0.1)))
 
@@ -557,11 +583,11 @@ class RoutineApp(App):
         layout.register_focusable(routine_name_input)
         layout.add_widget(routine_name_input)
 
-        # Label d'erreur si nécessaire
-        if message_erreur:
+        # Show error message if provided
+        if error_message:
             error_label = Label(
-                text=message_erreur,
-                color=(1, 1, 1, 1),  # Rouge
+                text=error_message,
+                color=(1, 1, 1, 1),  # Red
                 size_hint=(1, None),
                 height=30,
                 halign="center",
@@ -570,44 +596,45 @@ class RoutineApp(App):
             error_label.bind(size=error_label.setter("text_size"))
             layout.add_widget(error_label)
         else:
-            layout.add_widget(Widget(size_hint=(1, None), height=30))  # Espace réservé vide
+            layout.add_widget(Widget(size_hint=(1, None), height=30))  # Reserved empty space
 
         layout.add_widget(Widget())
 
         btn_layout = BoxLayout(size_hint=(1, 0.2), spacing=10)
 
-        terminer_btn = StyledButton(text=self.dictlanguage[self.current_language]["add_routine"][1])
-        layout.register_focusable(terminer_btn)
-        annuler_btn = StyledButton(text=self.dictlanguage[self.current_language]["add_routine"][2])
-        layout.register_focusable(annuler_btn)
+        finish_btn = StyledButton(text=self.dictlanguage[self.current_language]["add_routine"][1])
+        layout.register_focusable(finish_btn)
+        cancel_btn = StyledButton(text=self.dictlanguage[self.current_language]["add_routine"][2])
+        layout.register_focusable(cancel_btn)
 
-        def valider_ajout(instance):
-            nom = routine_name_input.text.strip()
-            if not nom:
-                self.set_root_content(self.page_ajouter_routine(self.dictlanguage[self.current_language]["add_routine"][3]))  # "Nom vide !"
-            elif nom in self.routines:
-                self.set_root_content(self.page_ajouter_routine(self.dictlanguage[self.current_language]["add_routine"][4]))  # "Routine déjà existante !"
+        def validate_add(instance):
+            name = routine_name_input.text.strip()
+            if not name:
+                self.set_root_content(self.page_ajouter_routine(self.dictlanguage[self.current_language]["add_routine"][3]))  # "Empty name!"
+            elif name in self.routines:
+                self.set_root_content(self.page_ajouter_routine(self.dictlanguage[self.current_language]["add_routine"][4]))  # "Routine already exists!"
             else:
-                self.routines[nom] = {"name": nom, "fonctions": []}
+                self.routines[name] = {"name": name, "fonctions": []}
                 self.sauvegarder_routines()
                 self.set_root_content(self.page_accueil())
 
-        terminer_btn.bind(on_press=valider_ajout)
-        annuler_btn.bind(on_press=lambda *args: self.set_root_content(self.page_accueil()))
+        finish_btn.bind(on_press=validate_add)
+        cancel_btn.bind(on_press=lambda *args: self.set_root_content(self.page_accueil()))
 
-        btn_layout.add_widget(terminer_btn)
-        btn_layout.add_widget(annuler_btn)
+        btn_layout.add_widget(finish_btn)
+        btn_layout.add_widget(cancel_btn)
 
         layout.add_widget(btn_layout)
 
         return layout
-        
-    def page_routine(self, nom):
-        routine = self.routines[nom]
+
+    def page_routine(self, name):
+        """Display routine page with list of exercises and control buttons."""
+        routine = self.routines[name]
         layout = FocusableForm(orientation="vertical", spacing=5, padding=[10, 10, 10, 10])
         layout.add_widget(Widget(size_hint=(1, None), height=10))
 
-        # Titre centré avec AutoResizeLabel
+        # Centered title label with auto-resize
         title_label = AutoResizeLabel(
             text=f"{self.dictlanguage[self.current_language]['routine_page'][0]} {routine['name']}",
             font_size=22,
@@ -623,7 +650,7 @@ class RoutineApp(App):
 
         layout.add_widget(Widget(size_hint=(1, None), height=10))
 
-        # ScrollView contenant les exercices
+        # ScrollView containing exercises
         scroll = ScrollView(size_hint=(1, 0.70))
         exercice_layout = BoxLayout(orientation="vertical", size_hint_y=None, spacing=20, padding=[0, 5])
         exercice_layout.bind(minimum_height=exercice_layout.setter("height"))
@@ -631,21 +658,22 @@ class RoutineApp(App):
         for index, ex in enumerate(routine["fonctions"]):
             ex_layout = BoxLayout(size_hint_y=None, height=70, spacing=10)
 
+            # Build exercise description text
             if ex["duration"]:
-                texte = (
+                text = (
                     f"{ex['name']}\n"
                     f"{ex['repetitions']} {self.dictlanguage[self.current_language]['routine_page'][1]}, "
                     f"{ex['duration']}{self.dictlanguage[self.current_language]['routine_page'][2]}"
                 )
             else:
-                texte = (
+                text = (
                     f"{ex['name']}\n"
                     f"{ex['repetitions']} {self.dictlanguage[self.current_language]['routine_page'][1]}, "
                     f"{ex['units']} {self.dictlanguage[self.current_language]['routine_page'][3]}"
                 )
 
             label = Label(
-                text=texte,
+                text=text,
                 size_hint=(0.5, 1),
                 halign="center",
                 valign="middle"
@@ -653,22 +681,21 @@ class RoutineApp(App):
             label.bind(
                 size=lambda instance, value: setattr(instance, 'text_size', value)
             )
-
             ex_layout.add_widget(label)
 
-            # Boutons pour chaque exercice
+            # Buttons for each exercise: up, down, modify
             up_btn = StyledButton(text="↑", font_name="necessary/arial.ttf", size_hint=(0.1, 1))
-            up_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(nom, i, -1))
+            up_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(name, i, -1))
             layout.register_focusable(up_btn)
             ex_layout.add_widget(up_btn)
 
             down_btn = StyledButton(text="↓", font_name="necessary/arial.ttf", size_hint=(0.1, 1))
-            down_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(nom, i, 1))
+            down_btn.bind(on_press=lambda instance, i=index: self.deplacer_exercice(name, i, 1))
             layout.register_focusable(down_btn)
             ex_layout.add_widget(down_btn)
 
             modify_btn = StyledButton(text="\N{pencil}", font_name='necessary/SegoeUIEmoji.TTF', size_hint=(0.1, 1))
-            modify_btn.bind(on_press=lambda instance, i=index: self.set_root_content(self.page_modifier_exercice(nom, i)))
+            modify_btn.bind(on_press=lambda instance, i=index: self.set_root_content(self.page_modifier_exercice(name, i)))
             layout.register_focusable(modify_btn)
             ex_layout.add_widget(modify_btn)
 
@@ -677,37 +704,38 @@ class RoutineApp(App):
         scroll.add_widget(exercice_layout)
         layout.add_widget(scroll)
 
-        # Boutons bas de page
+        # Bottom buttons: launch, modify, back
         btn_layout = BoxLayout(size_hint=(1, 0.15), spacing=10)
 
-        has_exercices = len(routine["fonctions"]) > 0
-        lancer_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][4], size_hint=(0.4, None), height=50, disabled=not has_exercices)
-        layout.register_focusable(lancer_btn)
-        lancer_btn.bind(on_press=lambda *args: self.lancer_routine(nom))
+        has_exercises = len(routine["fonctions"]) > 0
+        launch_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][4], size_hint=(0.4, None), height=50, disabled=not has_exercises)
+        layout.register_focusable(launch_btn)
+        launch_btn.bind(on_press=lambda *args: self.lancer_routine(name))
 
-        modifier_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][5], size_hint=(0.4, None), height=50)
-        layout.register_focusable(modifier_btn)
-        modifier_btn.bind(on_press=lambda *args: self.set_root_content(self.page_modifier_routine(nom)))
+        modify_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][5], size_hint=(0.4, None), height=50)
+        layout.register_focusable(modify_btn)
+        modify_btn.bind(on_press=lambda *args: self.set_root_content(self.page_modifier_routine(name)))
 
-        retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][6], size_hint=(0.4, None), height=50)
-        layout.register_focusable(retour_btn)
-        retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_accueil()))
+        back_btn = StyledButton(text=self.dictlanguage[self.current_language]["routine_page"][6], size_hint=(0.4, None), height=50)
+        layout.register_focusable(back_btn)
+        back_btn.bind(on_press=lambda *args: self.set_root_content(self.page_accueil()))
 
-        btn_layout.add_widget(lancer_btn)
-        btn_layout.add_widget(modifier_btn)
-        btn_layout.add_widget(retour_btn)
+        btn_layout.add_widget(launch_btn)
+        btn_layout.add_widget(modify_btn)
+        btn_layout.add_widget(back_btn)
 
         layout.add_widget(btn_layout)
 
         return layout
 
     def page_renommer_routine(self, nom):
+        """Return layout to rename a routine."""
         layout = FocusableForm(orientation="vertical", spacing=10, padding=10)
 
-        # Espace vide en haut (10%)
+        # Top spacer (10%)
         layout.add_widget(Widget(size_hint=(1, 0.1)))
 
-        # Titre centré
+        # Centered title
         label = Label(
             text=self.dictlanguage[self.current_language].get("rename_routine", "Rename the routine"),
             font_size=30,
@@ -719,7 +747,7 @@ class RoutineApp(App):
         label.bind(size=label.setter('text_size'))
         layout.add_widget(label)
 
-        # Champ de texte
+        # Text input for routine name
         routine_name_input = MyTextInput(
             text=self.routines[nom]["name"],
             size_hint=(1, None),
@@ -729,7 +757,7 @@ class RoutineApp(App):
         layout.register_focusable(routine_name_input)
         layout.add_widget(routine_name_input)
 
-        # Label d'erreur invisible au départ
+        # Error label, initially empty
         error_label = Label(
             text="",
             font_size=18,
@@ -739,18 +767,18 @@ class RoutineApp(App):
         )
         layout.add_widget(error_label)
 
-        # Espace pour pousser les boutons vers le bas
+        # Spacer to push buttons down
         layout.add_widget(Widget())
 
-        # Fonction de validation
         def valider_renommage(instance):
+            """Validate and apply the new routine name."""
             nouveau_nom = routine_name_input.text.strip()
             if not nouveau_nom:
                 error_label.text = self.dictlanguage[self.current_language]["add_routine"][3]
             elif nouveau_nom in self.routines and nouveau_nom != nom:
                 error_label.text = self.dictlanguage[self.current_language]["add_routine"][4]
             else:
-                # Préserver l'ordre
+                # Preserve order when renaming
                 routines_ordonnees = list(self.routines.items())
                 index = [i for i, (k, _) in enumerate(routines_ordonnees) if k == nom][0]
                 _, ancienne_valeur = routines_ordonnees.pop(index)
@@ -761,13 +789,13 @@ class RoutineApp(App):
                 self.sauvegarder_routines()
                 self.set_root_content(self.page_accueil())
 
-        # Boutons
+        # Buttons layout
         btn_layout = BoxLayout(size_hint=(1, 0.2), spacing=10)
         valider_btn = StyledButton(text=self.dictlanguage[self.current_language]["add_routine"][1])
         layout.register_focusable(valider_btn)
         valider_btn.bind(on_press=valider_renommage)
 
-        retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["add_routine"][2])  # "Back"
+        retour_btn = StyledButton(text=self.dictlanguage[self.current_language]["add_routine"][2])
         layout.register_focusable(retour_btn)
         retour_btn.bind(on_press=lambda *args: self.set_root_content(self.page_accueil()))
 
@@ -777,7 +805,9 @@ class RoutineApp(App):
 
         return layout
 
+
     def page_modifier_exercice(self, nom, index):
+        """Return layout to edit an exercise."""
         routine = self.routines[nom]
         ex = routine["fonctions"][index]
         layout = FocusableForm(orientation="vertical", spacing=5, padding=[10, 10, 10, 10])
@@ -788,7 +818,7 @@ class RoutineApp(App):
 
         content.add_widget(Widget(size_hint=(1, None), height=20))
         content.add_widget(AutoResizeLabel(
-            text=f"{self.dictlanguage[self.current_language]['change_routine'][19]} {ex['name']}",  # Nouveau texte à ajouter dans ton dictionnaire de langue
+            text=f"{self.dictlanguage[self.current_language]['change_routine'][19]} {ex['name']}",
             font_size=22,
             size_hint=(1, None),
             height=40,
@@ -796,6 +826,7 @@ class RoutineApp(App):
         ))
 
         def add_field(label_text, default_text="", length=20):
+            """Helper to add labeled input."""
             content.add_widget(Label(text=label_text, size_hint=(1, None), height=25))
             input_widget = MyTextInput(text=default_text, size_hint=(1, None), max_length=length, height=40)
             content.add_widget(input_widget)
@@ -813,6 +844,7 @@ class RoutineApp(App):
         selected_type = {"value": "duration" if is_duration else "unit"}
 
         def update_type(new_type):
+            """Update selected type button states."""
             selected_type["value"] = new_type
             duree_btn.selected = (new_type == "duration")
             unite_btn.selected = (new_type == "unit")
@@ -876,8 +908,9 @@ class RoutineApp(App):
         layout.add_widget(btn_layout)
 
         return layout
-
+    
     def deplacer_exercice(self, routine_nom, index, direction):
+        """Move an exercise up or down in the list."""
         exercices = self.routines[routine_nom]["fonctions"]
         if 0 <= index + direction < len(exercices):
             exercices.insert(index + direction, exercices.pop(index))
@@ -885,61 +918,80 @@ class RoutineApp(App):
             self.set_root_content(self.page_routine(routine_nom))
 
     def supprimer_exercice(self, routine_nom, index):
+        """Delete an exercise from the routine."""
         del self.routines[routine_nom]["fonctions"][index]
         self.sauvegarder_routines()
         self.set_root_content(self.page_routine(routine_nom))
 
     def lancer_routine(self, nom):
+        """Start running the routine."""
         self.paused = False
         self.routine = self.routines[nom]
         self.current_exercise_index = 0
         self.current_repetition = 1
         self.is_resting = False
-        self.remaining_time = self.routines[nom]["fonctions"][0]["duration"] if self.routines[nom]["fonctions"][0]["duration"] else 0
+        self.remaining_time = self.routine["fonctions"][0]["duration"] or 0
 
-        self.routine_layout = FocusableForm(orientation="vertical", spacing=10, padding=10)  # Utiliser FocusableForm ici
-        self.timer_label = AutoResizeLabel(text=self.dictlanguage[self.current_language]["start_routine"][0], font_size=24,
-            halign='center',valign='middle')
+        self.routine_layout = FocusableForm(orientation="vertical", spacing=10, padding=10)
+        self.timer_label = AutoResizeLabel(
+            text=self.dictlanguage[self.current_language]["start_routine"][0],
+            font_size=24, halign='center', valign='middle'
+        )
         self.routine_layout.add_widget(self.timer_label)
 
-        # Enregistrer les boutons comme focusables dans FocusableForm
-        self.fait_btn = StyledButton(text=self.dictlanguage[self.current_language]["start_routine"][1], size_hint=(1, 0.2))
+        # Done button
+        self.fait_btn = StyledButton(
+            text=self.dictlanguage[self.current_language]["start_routine"][1], size_hint=(1, 0.2)
+        )
         self.fait_btn.bind(on_press=self.marquer_fait)
         self.fait_btn.disabled = True
         self.routine_layout.add_widget(self.fait_btn)
-        self.routine_layout.register_focusable(self.fait_btn)  # Ajouter à la gestion du focus
+        self.routine_layout.register_focusable(self.fait_btn)
 
-        self.pause_btn = StyledButton(text=self.dictlanguage[self.current_language]["start_routine"][2], size_hint=(1, 0.2))
+        # Pause button
+        self.pause_btn = StyledButton(
+            text=self.dictlanguage[self.current_language]["start_routine"][2], size_hint=(1, 0.2)
+        )
         self.pause_btn.bind(on_press=self.toggle_pause)
         self.routine_layout.add_widget(self.pause_btn)
-        self.routine_layout.register_focusable(self.pause_btn)  # Ajouter à la gestion du focus
+        self.routine_layout.register_focusable(self.pause_btn)
 
-        # Nouveau bouton pour passer le temps de repos
-        self.skip_rest_btn = StyledButton(text=self.dictlanguage[self.current_language]["start_routine"][3], size_hint=(1, 0.2))
+        # Skip rest button
+        self.skip_rest_btn = StyledButton(
+            text=self.dictlanguage[self.current_language]["start_routine"][3], size_hint=(1, 0.2)
+        )
         self.skip_rest_btn.bind(on_press=self.pass_rest_time)
-        self.skip_rest_btn.disabled = True  # Ce bouton est désactivé tant qu'on n'est pas en période de repos
+        self.skip_rest_btn.disabled = True
         self.routine_layout.add_widget(self.skip_rest_btn)
-        self.routine_layout.register_focusable(self.skip_rest_btn)  # Ajouter à la gestion du focus
+        self.routine_layout.register_focusable(self.skip_rest_btn)
 
-        stop_btn = StyledButton(text=self.dictlanguage[self.current_language]["start_routine"][4], size_hint=(1, 0.2))
+        # Stop button
+        stop_btn = StyledButton(
+            text=self.dictlanguage[self.current_language]["start_routine"][4], size_hint=(1, 0.2)
+        )
         stop_btn.bind(on_press=lambda *args: self.set_root_content(self.page_routine(nom)))
         self.routine_layout.add_widget(stop_btn)
-        self.routine_layout.register_focusable(stop_btn)  # Ajouter à la gestion du focus
+        self.routine_layout.register_focusable(stop_btn)
 
         self.set_root_content(self.routine_layout)
         Clock.schedule_interval(self.update_routine, 1.0)
 
     def toggle_pause(self, instance):
+        """Toggle pause/resume state."""
         self.paused = not self.paused
-        instance.text = self.dictlanguage[self.current_language]["toggle_pause"][0] if self.paused else self.dictlanguage[self.current_language]["toggle_pause"][1]
+        instance.text = (
+            self.dictlanguage[self.current_language]["toggle_pause"][0]
+            if self.paused else
+            self.dictlanguage[self.current_language]["toggle_pause"][1]
+        )
 
     def pass_rest_time(self, instance):
-        # Passer directement le temps de repos
+        """Skip the current rest period."""
         self.is_resting = False
         self.remaining_time = 0
-        self.skip_rest_btn.disabled = True  # Désactiver le bouton après l'avoir utilisé
+        self.skip_rest_btn.disabled = True  # Disable skip button after use
 
-        # Passer à l'exercice suivant
+        # Advance to next repetition or exercise
         self.current_repetition += 1
         if self.current_repetition > self.routine["fonctions"][self.current_exercise_index]["repetitions"]:
             self.current_exercise_index += 1
@@ -947,8 +999,10 @@ class RoutineApp(App):
         self.afficher_exercice()
 
     def update_routine(self, dt):
+        """Update timer and routine state every second."""
         if self.paused:
             return
+
         if self.current_exercise_index >= len(self.routine["fonctions"]):
             self.timer_label.text = self.dictlanguage[self.current_language]["update_routine"][0]
             Clock.unschedule(self.update_routine)
@@ -957,10 +1011,13 @@ class RoutineApp(App):
         exercise = self.routine["fonctions"][self.current_exercise_index]
 
         if self.is_resting:
-            self.skip_rest_btn.disabled = False  # Activer le bouton pour passer le temps de repos
-            self.fait_btn.disabled = True  # Désactiver le bouton "Fait" pendant le repos
+            self.skip_rest_btn.disabled = False  # Enable skip rest button
+            self.fait_btn.disabled = True  # Disable done button during rest
             if self.remaining_time > 0:
-                self.timer_label.text = f"{self.dictlanguage[self.current_language]['update_routine'][1]} {self.remaining_time}{self.dictlanguage[self.current_language]['update_routine'][2]}"
+                self.timer_label.text = (
+                    f"{self.dictlanguage[self.current_language]['update_routine'][1]} "
+                    f"{self.remaining_time}{self.dictlanguage[self.current_language]['update_routine'][2]}"
+                )
                 self.remaining_time -= 1
             else:
                 self.is_resting = False
@@ -972,25 +1029,36 @@ class RoutineApp(App):
         else:
             if exercise["duration"]:
                 if self.remaining_time > 0:
-                    self.timer_label.text = f"{exercise['name']}\n{self.dictlanguage[self.current_language]['update_routine'][3]} {self.current_repetition}/{exercise['repetitions']} - {self.remaining_time}{self.dictlanguage[self.current_language]['update_routine'][2]}"
+                    self.timer_label.text = (
+                        f"{exercise['name']}\n"
+                        f"{self.dictlanguage[self.current_language]['update_routine'][3]} "
+                        f"{self.current_repetition}/{exercise['repetitions']} - "
+                        f"{self.remaining_time}{self.dictlanguage[self.current_language]['update_routine'][2]}"
+                    )
                     self.remaining_time -= 1
                 else:
-                    # Vérifier si c'est la dernière répétition du dernier exercice
-                    dernier_exercice = self.current_exercise_index == len(self.routine["fonctions"]) - 1
-                    derniere_repetition = self.current_repetition == exercise["repetitions"]
+                    last_exercise = self.current_exercise_index == len(self.routine["fonctions"]) - 1
+                    last_repetition = self.current_repetition == exercise["repetitions"]
 
-                    if not dernier_exercice or not derniere_repetition:
+                    if not last_exercise or not last_repetition:
                         self.is_resting = True
                         self.remaining_time = exercise["rest"]
                     else:
-                        # Fin de la routine
+                        # End of routine
                         self.timer_label.text = self.dictlanguage[self.current_language]["update_routine"][0]
                         Clock.unschedule(self.update_routine)
             else:
-                self.timer_label.text = f"{exercise['name']} - {self.dictlanguage[self.current_language]['update_routine'][3]} {self.current_repetition}/{exercise['repetitions']} - {exercise['units']} {self.dictlanguage[self.current_language]['update_routine'][4]}"
+                self.timer_label.text = (
+                    f"{exercise['name']} - "
+                    f"{self.dictlanguage[self.current_language]['update_routine'][3]} "
+                    f"{self.current_repetition}/{exercise['repetitions']} - "
+                    f"{exercise['units']} "
+                    f"{self.dictlanguage[self.current_language]['update_routine'][4]}"
+                )
                 self.fait_btn.disabled = False
 
     def page_modifier_routine(self, nom):
+        """Build UI to modify a routine."""
         routine = self.routines[nom]
         layout = FocusableForm(orientation="vertical", spacing=5, padding=[10, 10, 10, 10])
 
@@ -998,32 +1066,33 @@ class RoutineApp(App):
         content = BoxLayout(orientation="vertical", spacing=10, size_hint_y=None)
         content.bind(minimum_height=content.setter("height"))
 
-        # Espacement au-dessus du titre pour descendre tout le formulaire
+        # Spacer above title
         content.add_widget(Widget(size_hint=(1, None), height=20))
 
-        # Titre
+        # Title label
         content.add_widget(AutoResizeLabel(
             text=f"{self.dictlanguage[self.current_language]['change_routine'][0]} {routine['name']}",
             font_size=22,
             size_hint=(1, None),
             height=40,
-            halign="center",  # Centrer le texte horizontalement
-            ))
+            halign="center",
+        ))
 
-        def add_field(label_text,length=20):
+        def add_field(label_text, length=20):
+            """Add label and input field."""
             content.add_widget(Label(text=label_text, size_hint=(1, None), height=25))
-            input_widget = MyTextInput(size_hint=(1, None), max_length=length,height=40)
+            input_widget = MyTextInput(size_hint=(1, None), max_length=length, height=40)
             content.add_widget(input_widget)
             layout.register_focusable(input_widget)
             return input_widget
-        
+
         content.add_widget(Widget(size_hint=(1, None), height=10))
 
         exercice_name_input = add_field(self.dictlanguage[self.current_language]["change_routine"][1])
 
-        # === Champ "Valeur" (Durée ou Unités) en 2e position ===
+        # Value field (duration or units)
         content.add_widget(Label(text=self.dictlanguage[self.current_language]["change_routine"][8], size_hint=(1, None), height=25))
-        exercice_valeur_input = MyTextInput(size_hint=(1, None),max_length=5, height=40)
+        exercice_valeur_input = MyTextInput(size_hint=(1, None), max_length=5, height=40)
         content.add_widget(exercice_valeur_input)
         layout.register_focusable(exercice_valeur_input)
 
@@ -1035,7 +1104,6 @@ class RoutineApp(App):
             unite_btn.selected = (new_type == "unit")
             duree_btn.update_opacity()
             unite_btn.update_opacity()
-
 
         type_btn_layout = BoxLayout(size_hint=(1, None), height=50, spacing=10)
 
@@ -1062,8 +1130,8 @@ class RoutineApp(App):
         layout.register_focusable(duree_btn)
         layout.register_focusable(unite_btn)
 
-        exercice_reps_input = add_field(self.dictlanguage[self.current_language]["change_routine"][3],4)
-        exercice_repos_input = add_field(self.dictlanguage[self.current_language]["change_routine"][4],4)
+        exercice_reps_input = add_field(self.dictlanguage[self.current_language]["change_routine"][3], 4)
+        exercice_repos_input = add_field(self.dictlanguage[self.current_language]["change_routine"][4], 4)
 
         scroll.add_widget(content)
         layout.add_widget(scroll)
@@ -1091,59 +1159,60 @@ class RoutineApp(App):
         layout.add_widget(btn_layout)
 
         return layout
-
+    
     def ajouter_exercice(self, routine_nom, ex_nom, duree, repetitions, repos, unites):
+        """Validate and add exercise to routine."""
         errors = []
 
-        # Vérifie si le nom est vide
+        # Check if name is empty
         if not ex_nom.strip():
-            errors.append(self.dictlanguage[self.current_language]["change_routine"][9])  # Nom vide
+            errors.append(self.dictlanguage[self.current_language]["change_routine"][9])  # Empty name
 
-        # Vérifie durée et unités : au moins un des deux doit être présent et valide
+        # Duration and units validation: at least one must be valid
         duree_val = None
         unites_val = None
         duree_ok = False
         unites_ok = False
 
-        # Vérification de la durée
+        # Validate duration
         if duree:
             try:
                 duree_val = int(duree)
                 if duree_val > 0:
                     duree_ok = True
                 else:
-                    errors.append(self.dictlanguage[self.current_language]["change_routine"][10])  # Durée ≤ 0
+                    errors.append(self.dictlanguage[self.current_language]["change_routine"][10])  # Duration ≤ 0
             except (ValueError, TypeError):
-                errors.append(self.dictlanguage[self.current_language]["change_routine"][14])  # Durée invalide (texte, etc.)
+                errors.append(self.dictlanguage[self.current_language]["change_routine"][14])  # Invalid duration
 
-        # Vérification des unités
+        # Validate units
         if unites:
             try:
                 unites_val = int(unites)
                 unites_ok = True
             except (ValueError, TypeError):
-                errors.append(self.dictlanguage[self.current_language]["change_routine"][13])  # Unités invalides
+                errors.append(self.dictlanguage[self.current_language]["change_routine"][13])  # Invalid units
 
         if not duree and not unites:
-            errors.append(self.dictlanguage[self.current_language]["change_routine"][17])  # "Aucune durée/unités spécifiée"
+            errors.append(self.dictlanguage[self.current_language]["change_routine"][17])  # No duration/units specified
 
-        # Vérification des répétitions
+        # Validate repetitions
         try:
             repetitions_val = int(repetitions)
             if repetitions_val <= 0:
-                errors.append(self.dictlanguage[self.current_language]["change_routine"][11])
+                errors.append(self.dictlanguage[self.current_language]["change_routine"][11])  # Repetitions ≤ 0
         except (ValueError, TypeError):
-            errors.append(self.dictlanguage[self.current_language]["change_routine"][15])  # Répétitions invalides
+            errors.append(self.dictlanguage[self.current_language]["change_routine"][15])  # Invalid repetitions
 
-        # Vérification du repos
+        # Validate rest
         try:
             repos_val = int(repos)
             if repos_val < 0:
-                errors.append(self.dictlanguage[self.current_language]["change_routine"][12])
+                errors.append(self.dictlanguage[self.current_language]["change_routine"][12])  # Rest < 0
         except (ValueError, TypeError):
-            errors.append(self.dictlanguage[self.current_language]["change_routine"][16])  # Repos invalide
+            errors.append(self.dictlanguage[self.current_language]["change_routine"][16])  # Invalid rest
 
-        # Si aucune erreur, on ajoute l'exercice
+        # Add exercise if no errors
         if not errors:
             exercice = {
                 "name": ex_nom.strip(),
@@ -1163,50 +1232,58 @@ class RoutineApp(App):
             self.show_error_popup(error_message, routine_nom)
 
     def enregistrer_modification_exercice(self, routine_nom, index, ex_nom, duree, repetitions, repos, unites):
+        """Validate and save exercise changes."""
         errors = []
 
+        # Check empty name
         if not ex_nom.strip():
-            errors.append(self.dictlanguage[self.current_language]["change_routine"][9])  # Nom vide
+            errors.append(self.dictlanguage[self.current_language]["change_routine"][9])  # Empty name
 
         duree_val = None
         unites_val = None
         duree_ok = False
         unites_ok = False
 
+        # Validate duration
         if duree:
             try:
                 duree_val = int(duree)
                 if duree_val > 0:
                     duree_ok = True
                 else:
-                    errors.append(self.dictlanguage[self.current_language]["change_routine"][10])  # Durée ≤ 0
+                    errors.append(self.dictlanguage[self.current_language]["change_routine"][10])  # Duration ≤ 0
             except (ValueError, TypeError):
-                errors.append(self.dictlanguage[self.current_language]["change_routine"][14])  # Durée invalide
+                errors.append(self.dictlanguage[self.current_language]["change_routine"][14])  # Invalid duration
 
+        # Validate units
         if unites:
             try:
                 unites_val = int(unites)
                 unites_ok = True
             except (ValueError, TypeError):
-                errors.append(self.dictlanguage[self.current_language]["change_routine"][13])  # Unités invalides
+                errors.append(self.dictlanguage[self.current_language]["change_routine"][13])  # Invalid units
 
+        # Check duration or units present
         if not duree and not unites:
-            errors.append(self.dictlanguage[self.current_language]["change_routine"][17])  # Aucune durée/unité
+            errors.append(self.dictlanguage[self.current_language]["change_routine"][17])  # No duration/unit
 
+        # Validate repetitions
         try:
             repetitions_val = int(repetitions)
             if repetitions_val <= 0:
-                errors.append(self.dictlanguage[self.current_language]["change_routine"][11])  # Répétitions ≤ 0
+                errors.append(self.dictlanguage[self.current_language]["change_routine"][11])  # Repetitions ≤ 0
         except (ValueError, TypeError):
-            errors.append(self.dictlanguage[self.current_language]["change_routine"][15])  # Répétitions invalides
+            errors.append(self.dictlanguage[self.current_language]["change_routine"][15])  # Invalid repetitions
 
+        # Validate rest
         try:
             repos_val = int(repos)
             if repos_val < 0:
-                errors.append(self.dictlanguage[self.current_language]["change_routine"][12])  # Repos négatif
+                errors.append(self.dictlanguage[self.current_language]["change_routine"][12])  # Negative rest
         except (ValueError, TypeError):
-            errors.append(self.dictlanguage[self.current_language]["change_routine"][16])  # Repos invalide
+            errors.append(self.dictlanguage[self.current_language]["change_routine"][16])  # Invalid rest
 
+        # Save changes if no errors
         if not errors:
             exercice = {
                 "name": ex_nom.strip(),
@@ -1227,10 +1304,10 @@ class RoutineApp(App):
 
 
     def show_error_popup(self, error_message, routine_nom):
-        """Affiche un message d'erreur sous forme de popup avec un bouton 'Retour'."""
+        """Show error popup with a 'Return' button."""
         content = BoxLayout(orientation='vertical', spacing=10, padding=10)
 
-        # Label centré verticalement et horizontalement
+        # Centered label container
         label_container = AnchorLayout(anchor_x='center', anchor_y='center', size_hint=(1, 1))
         label = AutoResizeLabel(
             text=error_message,
@@ -1238,21 +1315,21 @@ class RoutineApp(App):
             halign='center',
             valign='middle'
         )
-        # Important : force le label à recalculer le placement de son texte
+        # Force text size update for label alignment
         label.bind(size=lambda *x: label.setter('text_size')(label, label.size))
 
         label_container.add_widget(label)
         content.add_widget(label_container)
 
-        # Bouton retour
+        # Return button
         retour_btn = StyledButton(
-            text=self.dictlanguage[self.current_language]["change_routine"][7],  # "Retour"
+            text=self.dictlanguage[self.current_language]["change_routine"][7],  # "Return"
             size_hint=(1, None),
             height=50
         )
 
         popup = Popup(
-            title="Erreur",
+            title="Error",
             content=content,
             size_hint=(0.8, 0.4),
             auto_dismiss=False
@@ -1263,20 +1340,23 @@ class RoutineApp(App):
 
         popup.open()
 
-
     def charger_routines(self):
+        """Load routines from file or return default data."""
         if os.path.exists(self.FILE_PATH):
             with open(self.FILE_PATH, 'r') as f:
                 return json.load(f)
-        return {"first_time": True, "language":"English", "routines": {}}
+        return {"first_time": True, "language": "English", "routines": {}}
+
 
     def sauvegarder_routines(self):
+        """Save current routines data to file."""
         self.routines_data["routines"] = self.routines
         with open(self.FILE_PATH, 'w') as f:
             json.dump(self.routines_data, f, indent=4)
 
 
     def afficher_exercice(self):
+        """Display current exercise or stop if finished."""
         if self.current_exercise_index >= len(self.routine["fonctions"]):
             self.timer_label.text = self.dictlanguage[self.current_language]["update_routine"][0]
             Clock.unschedule(self.update_routine)
@@ -1290,13 +1370,15 @@ class RoutineApp(App):
         else:
             self.timer_label.text = f"{exercise['name']} - {self.dictlanguage[self.current_language]['update_routine'][3]} {self.current_repetition}/{exercise['repetitions']} - {exercise['units']} {self.dictlanguage[self.current_language]['update_routine'][4]}"
             self.fait_btn.disabled = False
-    
+
+
     def marquer_fait(self, instance):
+        """Mark current exercise done and start rest or finish routine."""
         self.fait_btn.disabled = True
-        if self.current_exercise_index < len(self.routine["fonctions"]) - 1:  # Évite le dernier repos
+        if self.current_exercise_index < len(self.routine["fonctions"]) - 1:  # Avoid last rest
             self.is_resting = True
             self.remaining_time = self.routine["fonctions"][self.current_exercise_index]["rest"]
-        else :
+        else:
             if self.current_repetition < self.routine["fonctions"][self.current_exercise_index]["repetitions"]:
                 self.is_resting = True
                 self.remaining_time = self.routine["fonctions"][self.current_exercise_index]["rest"]
@@ -1304,6 +1386,6 @@ class RoutineApp(App):
                 self.timer_label.text = self.dictlanguage[self.current_language]["update_routine"][0]
                 Clock.unschedule(self.update_routine)
 
-# Lancement de l'application    
+# Lauch the app    
 if __name__ == "__main__":
     RoutineApp().run()
