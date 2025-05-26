@@ -1014,9 +1014,16 @@ class RoutineApp(App):
             self.skip_rest_btn.disabled = False  # Enable skip rest button
             self.fait_btn.disabled = True  # Disable done button during rest
             if self.remaining_time > 0:
+                # Déterminer l'exercice suivant
+                if self.current_repetition < exercise["repetitions"]:
+                    next_ex = exercise["name"]
+                elif self.current_exercise_index + 1 < len(self.routine["fonctions"]):
+                    next_ex = self.routine["fonctions"][self.current_exercise_index + 1]["name"]
+
                 self.timer_label.text = (
                     f"{self.dictlanguage[self.current_language]['update_routine'][1]} "
-                    f"{self.remaining_time}{self.dictlanguage[self.current_language]['update_routine'][2]}"
+                    f"{self.remaining_time}{self.dictlanguage[self.current_language]['update_routine'][2]}\n"
+                    f" -> {next_ex}"
                 )
                 self.remaining_time -= 1
             else:
